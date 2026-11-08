@@ -11,7 +11,7 @@ Built strictly from SAMHSA TIP 35, *Enhancing Motivation for Change in Substance
 | Chapter | Title | Status |
 |---|---|---|
 | 1 | A New Look at Motivation | Ready (v1.0.0) |
-| 2 | Motivational Counseling and Brief Intervention | Coming |
+| 2 | Motivational Counseling and Brief Intervention | Ready (v1.1.0) |
 | 3 | Motivational Interviewing as a Counseling Style | Coming |
 | 4 | From Precontemplation to Contemplation | Coming |
 | 5 | From Contemplation to Preparation | Coming |

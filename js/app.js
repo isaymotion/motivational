@@ -579,11 +579,11 @@
 
   /* --- Glossary index + tap-to-define --- */
   var GLOSS = [];     // {term, def, alt[], ch}
-  CHAPTERS.forEach(function (c) { (c.glossary || []).forEach(function (g) { GLOSS.push({ term: g.term, def: g.def, alt: g.alt || [], ch: c.id }); }); });
+  CHAPTERS.forEach(function (c) { (c.glossary || []).forEach(function (g) { GLOSS.push({ term: g.term, def: g.def, alt: g.alt || [], ch: c.id, nolink: !!g.nolink }); }); });
   GLOSS.sort(function (a, b) { return a.term.localeCompare(b.term); });
   var TERM_RE = (function () {
     var names = [];
-    GLOSS.forEach(function (g) { names.push(g.term); g.alt.forEach(function (a) { names.push(a); }); });
+    GLOSS.forEach(function (g) { if (g.nolink) return; names.push(g.term); g.alt.forEach(function (a) { names.push(a); }); });   // nolink: everyday words (e.g. “action”) stay plain text
     names.sort(function (a, b) { return b.length - a.length; });
     return names.length ? new RegExp('(^|[^\\w>])(' + names.map(escRe).join('|') + ')(?![\\w<])(?=[^<]*(?:<|$))', 'gi') : null;
   })();
@@ -718,7 +718,9 @@
         case 'ul': return '<ul>' + b.items.map(function (x) { return '<li>' + linkTerms(x) + '</li>'; }).join('') + '</ul>';
         case 'ol': return '<ol>' + b.items.map(function (x) { return '<li>' + linkTerms(x) + '</li>'; }).join('') + '</ol>';
         case 'note': return '<div class="callout callout--note"><p class="callout__title">' + esc(b.title || 'Note') + '</p>' + linkTerms(b.x) + '</div>';
-        case 'table': return '<div class="table-wrap"><table><thead><tr>' + b.head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' + b.rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return (i === 0 ? '<th scope="row">' : '<td>') + linkTerms(c) + (i === 0 ? '</th>' : '</td>'); }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+        case 'table':   // 3+ columns stack into labelled cards on phones (.rtable) so no column hides off-screen
+          var stack = b.head.length >= 3;
+          return '<div class="table-wrap' + (stack ? ' table-wrap--stack' : '') + '"><table' + (stack ? ' class="rtable"' : '') + '><thead><tr>' + b.head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' + b.rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return (i === 0 ? '<th scope="row">' : '<td data-label="' + esc(b.head[i] || '') + '">') + linkTerms(c) + (i === 0 ? '</th>' : '</td>'); }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
         case 'stages': return stagesSVG();
         default: return '';
       }
@@ -881,7 +883,14 @@
 
   /* --- Quiz --- */
   var quiz = null;   // { key, qs: [{ch,q,key}], i, picked, right, answers: [] }
-  function startQuiz(key, qs) { quiz = { key: key, qs: qs, i: 0, picked: null, right: 0, answers: [] }; }
+  function shuffleChoices(x) {   // fresh choice order every attempt so answer position never gives it away
+    var order = shuffle(x.q.choices.map(function (_, i) { return i; }));
+    var q = {}; for (var k in x.q) q[k] = x.q[k];
+    q.choices = order.map(function (i) { return x.q.choices[i]; });
+    q.answer = order.indexOf(x.q.answer);
+    return { ch: x.ch, q: q, key: x.key };
+  }
+  function startQuiz(key, qs) { quiz = { key: key, qs: qs.map(shuffleChoices), i: 0, picked: null, right: 0, answers: [] }; }
   function quizView(c) {
     var key = 'c' + c.id;
     if (!quiz || quiz.key !== key) startQuiz(key, shuffle(c.quiz.map(function (q) { return { ch: c, q: q, key: quizKey(c, q) }; })));

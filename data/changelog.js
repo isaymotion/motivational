@@ -4,6 +4,19 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.1.0',
+    date: '2026-11-09',
+    title: 'Chapter 2: Motivational Counseling and Brief Intervention',
+    summary: 'FRAMES, catalysts for change, counselor focus by stage, cultural responsiveness, co-occurring disorders, brief interventions and SBIRT.',
+    items: [
+      { type: 'content', text: 'Chapter 2: 10-section study guide (FRAMES, the AUDIT feedback handout, PIES, Catalysts for Change, Counselor Focus in the SOC, RESPECT, DDMI, BI, BT and SBIRT), 22 high-yield points, 52 flashcards, a 20-question quiz and 31 glossary terms.', href: '#/c/2' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 and 2.' },
+      { type: 'update', text: 'Quiz answer choices are reshuffled on every attempt, so the position of the right answer is never a clue.' },
+      { type: 'update', text: 'On phones, tables with three or more columns become stacked cards so no column hides off-screen, and the “In this chapter” list is a single swipeable row.' },
+      { type: 'update', text: 'Everyday words such as “action” and “substance” are no longer underlined as glossary terms in the text.' }
+    ]
+  },
+  {
     version: '1.0.0',
     date: '2026-11-08',
     title: 'First release: Chapter 1',
