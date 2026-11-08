@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.6.0 (Chapters 1–7 done)._
+_Last updated 2026-11-09, after v1.7.0 (all 8 chapters done)._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -24,7 +24,7 @@ _Last updated 2026-11-09, after v1.6.0 (Chapters 1–7 done)._
 index.html  css/app.css  js/app.js  sw.js  manifest.webmanifest  icons/ (from her pixel-art image)
 data/app-meta.js   APP_META.version (semver)        data/changelog.js  APP_CHANGELOG, newest first
 data/chapters.js   MI_TOC (all 8 chapters) + MI_CHAPTERS = []
-data/ch01.js … ch07.js  each does window.MI_CHAPTERS.push({...})
+data/ch01.js … ch08.js  each does window.MI_CHAPTERS.push({...})
 ```
 The study engine lives in `js/app.js` (search for "STUDY ENGINE"). Routes: `#/chapters`, `#/c/<id>/<guide|hy|cards|quiz|gloss>`, `#/c/<id>/cards/<all|due|new>`, `#/review`, `#/exam`, `#/exam/go`, `#/mistakes`, `#/mistakes/go`, `#/glossary/<term>`. Quiz choices reshuffle on every attempt. Glossary terms are auto-linked (first mention per block) for tap-to-define. Tables with 3+ columns become stacked cards on phones.
 
@@ -87,12 +87,17 @@ pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view a
 | 5 | From Contemplation to Preparation | 105–116 | ✅ v1.4.0 — 11 sections, 17 HY, 48 cards, 20 quiz (5/5/5/5), 14 terms |
 | 6 | From Preparation to Action | 117–130 | ✅ v1.5.0 — 11 sections, 17 HY, 49 cards, 20 quiz (5/5/5/5), 13 terms |
 | 7 | From Action to Maintenance | 131–146 | ✅ v1.6.0 — 12 sections, 22 HY, 51 cards, 20 quiz (5/5/5/5), 20 terms |
-| 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | next |
-Appendices (screening instruments) are not planned yet; ask her.
+| 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | ✅ v1.7.0 — 9 sections, 20 HY, 48 cards, 20 quiz (5/5/5/5), 13 terms |
+Totals at v1.7.0: 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms. Appendices (screening instruments) are not planned yet; ask her.
 
 ## 7. Next step
-Chapter 8 → `data/ch08.js`, id 8, version **1.7.0** (sw VERSION `mitrainer-1.7.0`). PDF pages 147–158; printed = PDF − 22, so likely '125–136'. The last chapter: blending MI with CBT, MI in groups, training/supervision, MI in different settings. After it, ask her whether to add the appendices (screening/readiness instruments) and whether the README "Latest version" month needs updating.
-Glossary terms already taken — Ch 7: Relapse prevention counseling (alt RPC), Coping plan, High-risk situation, External/Internal triggers, Situational Confidence Questionnaire (alt SCQ, BSCQ), AASES, Recovery capital (alt RC), Seeking Safety, Marlatt model, Relapse management plan, Positive outcome expectancies (alt POEs), Abstinence violation effect (alt AVE), C-TRAPS, Cognitive traps (alt cognitive distortions), Apparently irrelevant decisions, Replacement activities, Lapse (nolink), Stop, look, and listen, Recycle (nolink).
+All 8 chapters are live. Nothing is queued. Open questions for her:
+- Add the appendices (Appendix B readiness/screening instruments such as URICA, SOCRATES, BSCQ, AASES, the DB scales; Appendix C resources)? If yes, decide format (reference pages vs. interactive self-scoring) and keep content strictly from TIP 35.
+- Has she enabled GitHub Pages (Settings → Pages → main / root)?
+- Update the "Latest version" month in index.html, app-meta.js and README when the month changes (still November 2026 at v1.7.0).
+- Ideas if she wants more: cross-chapter "SOC stage → strategies" summary page built from Exhibits 4.1/5.1/6.1/7.1; a Tagalog layer via usap-tayo-integration.
+Ch 8 glossary terms: Blended counseling approaches, AMIGOS, Telephone MI, Motivational interviewing assessment (alt MIA), Cognitive–behavioral therapy (alt CBT), Recovery management checkup (alt RMC), Workforce development, Competency-based supervision, Direct observation, MITI (alt MI Integrity, MITI 4), MISC (alt MI Skills Code), MET champions, Learning communities.
+Ch 7: Relapse prevention counseling (alt RPC), Coping plan, High-risk situation, External/Internal triggers, Situational Confidence Questionnaire (alt SCQ, BSCQ), AASES, Recovery capital (alt RC), Seeking Safety, Marlatt model, Relapse management plan, Positive outcome expectancies (alt POEs), Abstinence violation effect (alt AVE), C-TRAPS, Cognitive traps (alt cognitive distortions), Apparently irrelevant decisions, Replacement activities, Lapse (nolink), Stop, look, and listen, Recycle (nolink).
 Ch 6: Sobriety sampling, Tapering down (alt tapering), Trial moderation, Goal sampling, Change Plan Worksheet, Shared decision making, Menu of change options (alt menu of options), Behavioral contract (alt contract), Active referral (alt active linkage), Warm handoff, Peer recovery support specialist (alt peer specialist), Flexible revisiting, Intensive outpatient treatment (alt IOP).
 Ch 5: Hill of Ambivalence, Normalizing ambivalence, Decisional Balance Sheet, Alcohol Decisional Balance Scale (alt Drug Use…), Premature decision making, Keeping pace (nolink), Coping/Treatment behavior/Recovery/Control/Abstinence self-efficacy, Going public, White chip, Envisioning. (v1.4.0 also gave the Ch 1 term Decisional balance the alt 'DB'.)
 Ch 4: 5 Rs, Reveling, Reluctance/Rebellion/Resignation/Rationalization (nolink), URICA, SOCRATES, Readiness To Change Questionnaire, Significant other (alt SOs — never add alt 'SO', the linker is case-insensitive and would underline every "so"), Mandated treatment, Decontaminating the referral, Typical day (nolink), Self-diagnosis, Balanced reflective listening, Release of information. Ch 3: Spirit of MI (PACE), Change talk (DARN-CAT), Sustain talk, Discord, OARS, Open/Closed question, Affirming, Reflective listening, Simple/Complex/Double-sided reflection, Roadblocks to listening, Recapitulation and Ambivalence summary, Four processes, Engaging/Focusing/Evoking/Planning (nolink), Righting reflex, the five traps, Agenda mapping, Target behavior, Importance and Confidence Rulers, Agreement with a twist, Reframing, Columbo approach, Values Card Sort, Elicit-Provide-Elicit (EPE), Confidence talk, Key questions, Change plan. Ch 1–2: Ambivalence, Discrepancy, Amplified reflection, Decisional balance, Self-efficacy, Personalized feedback, MET, SBIRT, FRAMES, Precontemplation/Contemplation/Preparation/Action/Maintenance…
@@ -107,7 +112,7 @@ Ch 4: 5 Rs, Reveling, Reluctance/Rebellion/Resignation/Rationalization (nolink),
 - `python -m http.server` handlers need `functools.partial(Handler, directory=…)`.
 - Chapter page headers appear on alternate pages; `extract.py` handles the span.
 - Two-column exhibits come out of `extract.py` with the columns interleaved (e.g. Exhibit 3.1, 3.2, 3.6). Reconstruct them carefully, or render the page with `pdftoppm` if the order is unclear.
-- Quiz answers are now spread evenly (Ch 3–7: 5/5/5/5); keep doing that.
+- Quiz answers are now spread evenly (Ch 3–8: 5/5/5/5); keep doing that.
 - Glossary alt names are matched case-insensitively as whole words; never use an alt that is a common English word.
 - v1.3.0 fixed a 390px overflow on #/glossary: long term + alt rows could not wrap. `.gloss__item summary` now has `flex-wrap:wrap`.
 
