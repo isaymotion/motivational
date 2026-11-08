@@ -208,7 +208,7 @@ window.MI_CHAPTERS.push({
     { term: 'Preparation', def: 'Stage in which the decisional balance has tipped toward change; the person strengthens commitment, plans specifically, examines self-efficacy, and intends to stop very soon.' },
     { term: 'Action', nolink: true, def: 'Stage in which the person chooses a strategy and actively changes substance use behaviors, making lifestyle changes and facing temptations and withdrawal.' },
     { term: 'Maintenance', def: 'Stage of sustaining gains and preventing recurrence — identifying triggers, building coping skills and a new lifestyle without the old use behaviors.' },
-    { term: 'Decisional balance', def: 'Weighing the pros and cons of continuing versus changing substance use. Balanced in Contemplation; pros outweigh cons in Preparation.' },
+    { term: 'Decisional balance', def: 'Weighing the pros and cons of continuing versus changing substance use. Balanced in Contemplation; pros outweigh cons in Preparation.', alt: ['DB'] },
     { term: 'Natural recovery', def: 'Resolving an alcohol or drug use problem without professional assistance.', alt: ['natural change'] },
     { term: 'Person-first language', def: 'Referring to “a person with an SUD” rather than “an addict” or “alcoholic”; reduces stigma and separates addiction from identity.' },
     { term: 'Risk reduction', def: 'Intermediate treatment goals that lower alcohol- and drug-related health, legal, sexual, social and financial risks, ED visits and hospitalizations; includes MAT for AUD and OUD and reduced use as a step toward abstinence.' },

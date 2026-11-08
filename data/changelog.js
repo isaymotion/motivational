@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.4.0',
+    date: '2026-11-09',
+    title: 'Chapter 5: From Contemplation to Preparation',
+    summary: 'Increasing commitment: the MI Hill of Ambivalence, intrinsic motivation, decisional balance, the five kinds of self-efficacy, and strategies that strengthen commitment.',
+    items: [
+      { type: 'content', text: 'Chapter 5: 11-section study guide (the Hill of Ambivalence, the Decisional Balance Sheet, Other Issues in Decisional Balance, the recapitulation summary, going public and envisioning), 17 high-yield points, 48 flashcards, a 20-question quiz and 14 glossary terms.', href: '#/c/5' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 to 5. “DB” in the text now links to Decisional balance.' }
+    ]
+  },
+  {
     version: '1.3.0',
     date: '2026-11-09',
     title: 'Chapter 4: From Precontemplation to Contemplation',
