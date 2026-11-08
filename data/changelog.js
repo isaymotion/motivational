@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.6.0',
+    date: '2026-11-09',
+    title: 'Chapter 7: From Action to Maintenance',
+    summary: 'Stabilizing change: retention, coping plans, recovery capital, social support, relapse prevention counseling (Marlatt model and C-TRAPS), relapse management and reentering the cycle.',
+    items: [
+      { type: 'content', text: 'Chapter 7: 12-section study guide (Exhibit 7.1 strategies, missed-appointment options, the SCQ, BSCQ and AASES, the triggers table and coping menu, recovery capital, Susan’s story, Marlatt’s RPC process described step by step, C-TRAPS and relapse management), 22 high-yield points, 51 flashcards, a 20-question quiz and 20 glossary terms.', href: '#/c/7' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 to 7.' }
+    ]
+  },
+  {
     version: '1.5.0',
     date: '2026-11-09',
     title: 'Chapter 6: From Preparation to Action',
