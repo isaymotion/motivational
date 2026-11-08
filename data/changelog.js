@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.7.0',
+    date: '2026-11-09',
+    title: 'Chapter 8: Integrating Motivational Approaches — all 8 chapters ready',
+    summary: 'The final chapter: MI in groups, technology and blended approaches (MIA, CBT, recovery management checkup), and training and supervision. All eight chapters of TIP 35 are now in the app.',
+    items: [
+      { type: 'content', text: 'Chapter 8: 9-section study guide (group MI and AMIGOS, telephone and computer MI, motivational interviewing assessment, blending MI with CBT and Jordan’s case in Exhibit 8.1, recovery management checkup, training, the VHA MET initiative, competency-based supervision, MITI and MISC), 20 high-yield points, 48 flashcards, a 20-question quiz and 13 glossary terms.', href: '#/c/8' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from all 8 chapters.' }
+    ]
+  },
+  {
     version: '1.6.0',
     date: '2026-11-09',
     title: 'Chapter 7: From Action to Maintenance',

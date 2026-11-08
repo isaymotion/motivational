@@ -17,7 +17,7 @@ Built strictly from SAMHSA TIP 35, *Enhancing Motivation for Change in Substance
 | 5 | From Contemplation to Preparation | Ready (v1.4.0) |
 | 6 | From Preparation to Action | Ready (v1.5.0) |
 | 7 | From Action to Maintenance | Ready (v1.6.0) |
-| 8 | Integrating Motivational Approaches in SUD Treatment Settings | Coming |
+| 8 | Integrating Motivational Approaches in SUD Treatment Settings | Ready (v1.7.0) |
 
 Each chapter has five modes: **Study guide**, **High-yield**, **Flashcards** (SM-2 spaced repetition), **Quiz**, **Glossary**. Across chapters: **Review** (due + new cards), **Exam** (mixed quiz), **Mistakes**, **Glossary**.
 
@@ -59,6 +59,7 @@ data/ch04.js            Chapter 4 content
 data/ch05.js            Chapter 5 content
 data/ch06.js            Chapter 6 content
 data/ch07.js            Chapter 7 content
+data/ch08.js            Chapter 8 content
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png (required),
                         favicon-32.png, favicon-64.png, apple-touch-icon.png (recommended)
 manifest.webmanifest    Install metadata
