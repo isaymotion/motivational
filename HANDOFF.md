@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.1.0 (Chapters 1–2 done)._
+_Last updated 2026-11-09, after v1.2.0 (Chapters 1–3 done)._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -82,8 +82,8 @@ pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view a
 |---|---|---|---|
 | 1 | A New Look at Motivation | 23–38 | ✅ v1.0.0 — 7 sections, 16 HY, 40 cards, 20 quiz, 30 terms |
 | 2 | Motivational Counseling and Brief Intervention | 39–56 | ✅ v1.1.0 — 10 sections, 22 HY, 52 cards, 20 quiz, 31 terms |
-| 3 | Motivational Interviewing as a Counseling Style | 57–86 | next |
-| 4 | From Precontemplation to Contemplation | 87–104 | todo |
+| 3 | Motivational Interviewing as a Counseling Style | 57–86 | ✅ v1.2.0 — 17 sections, 25 HY, 64 cards, 20 quiz (5/5/5/5), 42 terms |
+| 4 | From Precontemplation to Contemplation | 87–104 | next |
 | 5 | From Contemplation to Preparation | 105–116 | todo |
 | 6 | From Preparation to Action | 117–130 | todo |
 | 7 | From Action to Maintenance | 131–146 | todo |
@@ -91,7 +91,8 @@ pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view a
 Appendices (screening instruments) are not planned yet; ask her.
 
 ## 7. Next step
-Chapter 3 → `data/ch03.js`, id 3, pages '35–64', version **1.2.0** (sw VERSION `mitrainer-1.2.0`, changelog date = today). It is the core MI chapter, 30 PDF pages: spirit of MI, ambivalence, change talk vs sustain talk, discord, OARS (+ exhibits), the four processes (engaging, focusing, evoking, planning), MI skills. Expect about 12 sections, ~55 cards and 20 quiz items. Watch for glossary terms already used: Ambivalence, Discrepancy, Amplified reflection, Motivational interviewing, Self-efficacy, Decisional balance (check_chapters.js flags duplicates; reuse them instead).
+Chapter 4 → `data/ch04.js`, id 4, version **1.3.0** (sw VERSION `mitrainer-1.3.0`). PDF pages 87–104; set `pages` to the book's printed page numbers (printed = PDF − 22, so likely '65–82'; confirm from the page footers in the extract). Expect about 8–10 sections.
+Glossary terms already used in Ch 3 (reuse, don't redefine): Spirit of MI (PACE), Change talk (DARN-CAT), Sustain talk, Discord, OARS, Open/Closed question, Affirming, Reflective listening, Simple/Complex/Double-sided reflection, Roadblocks to listening, Recapitulation and Ambivalence summary, Four processes, Engaging/Focusing/Evoking/Planning (nolink), Righting reflex, the five traps, Agenda mapping, Target behavior, Importance and Confidence Rulers, Agreement with a twist, Reframing, Columbo approach, Values Card Sort, Elicit-Provide-Elicit (EPE), Confidence talk, Key questions, Change plan. Plus Ch 1–2 terms (Ambivalence, Discrepancy, Amplified reflection, Decisional balance, Self-efficacy, Personalized feedback, MET, SBIRT, FRAMES…).
 
 ## 8. Pitfalls learned
 - Inserting `// comment` at the end of a one-line statement with a Python replace swallowed `});`. Put comments on their own line, and always `node -e "require('vm').createScript(...)"` syntax-check `js/app.js`.
@@ -102,6 +103,8 @@ Chapter 3 → `data/ch03.js`, id 3, pages '35–64', version **1.2.0** (sw VERSI
 - The `gh api` Pages endpoint is blocked by the proxy, so she must enable Pages herself.
 - `python -m http.server` handlers need `functools.partial(Handler, directory=…)`.
 - Chapter page headers appear on alternate pages; `extract.py` handles the span.
+- Two-column exhibits come out of `extract.py` with the columns interleaved (e.g. Exhibit 3.1, 3.2, 3.6). Reconstruct them carefully, or render the page with `pdftoppm` if the order is unclear.
+- Quiz answers are now spread evenly (Ch 3: 5/5/5/5); keep doing that.
 
 ## 9. Files to re-attach
 - **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — needed for every new chapter. It is not committed to the repo.
