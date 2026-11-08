@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.2.0',
+    date: '2026-11-09',
+    title: 'Chapter 3: Motivational Interviewing as a Counseling Style',
+    summary: 'The core MI chapter: the spirit of MI, change talk and sustain talk, OARS, the four processes, and responding to sustain talk.',
+    items: [
+      { type: 'content', text: 'Chapter 3: 17-section study guide (PACE, what is new in MI, DARN-CAT, Gordon’s 12 roadblocks, types of reflections, summaries, traps, agenda mapping, the Importance and Confidence Rulers, the Columbo approach, EPE and planning), 25 high-yield points, 64 flashcards, a 20-question quiz and 42 glossary terms.', href: '#/c/3' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 to 3.' }
+    ]
+  },
+  {
     version: '1.1.0',
     date: '2026-11-09',
     title: 'Chapter 2: Motivational Counseling and Brief Intervention',
