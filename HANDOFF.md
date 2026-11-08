@@ -24,7 +24,7 @@ _Last updated 2026-11-09, after v1.2.0 (Chapters 1–3 done)._
 index.html  css/app.css  js/app.js  sw.js  manifest.webmanifest  icons/ (from her pixel-art image)
 data/app-meta.js   APP_META.version (semver)        data/changelog.js  APP_CHANGELOG, newest first
 data/chapters.js   MI_TOC (all 8 chapters) + MI_CHAPTERS = []
-data/ch01.js, ch02.js   each does window.MI_CHAPTERS.push({...})
+data/ch01.js … ch03.js  each does window.MI_CHAPTERS.push({...})
 ```
 The study engine lives in `js/app.js` (search for "STUDY ENGINE"). Routes: `#/chapters`, `#/c/<id>/<guide|hy|cards|quiz|gloss>`, `#/c/<id>/cards/<all|due|new>`, `#/review`, `#/exam`, `#/exam/go`, `#/mistakes`, `#/mistakes/go`, `#/glossary/<term>`. Quiz choices reshuffle on every attempt. Glossary terms are auto-linked (first mention per block) for tap-to-define. Tables with 3+ columns become stacked cards on phones.
 
