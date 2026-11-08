@@ -312,7 +312,7 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .hy__list li::marker{color:var(--m-hy);font-weight:700}
 .gloss__list{display:grid;gap:8px}
 .gloss__item{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-md);padding:0 16px}
-.gloss__item summary{cursor:pointer;min-height:48px;display:flex;align-items:center;gap:8px;font-weight:700;list-style:none}
+.gloss__item summary{cursor:pointer;min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:700;list-style:none}
 .gloss__item summary::-webkit-details-marker{display:none}
 .gloss__item summary::before{content:"+";color:var(--m-gloss);font-weight:800;width:1em}
 .gloss__item[open] summary::before{content:"−"}

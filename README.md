@@ -13,7 +13,7 @@ Built strictly from SAMHSA TIP 35, *Enhancing Motivation for Change in Substance
 | 1 | A New Look at Motivation | Ready (v1.0.0) |
 | 2 | Motivational Counseling and Brief Intervention | Ready (v1.1.0) |
 | 3 | Motivational Interviewing as a Counseling Style | Ready (v1.2.0) |
-| 4 | From Precontemplation to Contemplation | Coming |
+| 4 | From Precontemplation to Contemplation | Ready (v1.3.0) |
 | 5 | From Contemplation to Preparation | Coming |
 | 6 | From Preparation to Action | Coming |
 | 7 | From Action to Maintenance | Coming |
@@ -55,6 +55,7 @@ data/chapters.js        Chapter list (window.MI_TOC) and the MI_CHAPTERS registr
 data/ch01.js            Chapter 1 content (study guide, high-yield, flashcards, quiz, glossary)
 data/ch02.js            Chapter 2 content
 data/ch03.js            Chapter 3 content
+data/ch04.js            Chapter 4 content
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png (required),
                         favicon-32.png, favicon-64.png, apple-touch-icon.png (recommended)
 manifest.webmanifest    Install metadata

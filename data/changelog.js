@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.3.0',
+    date: '2026-11-09',
+    title: 'Chapter 4: From Precontemplation to Contemplation',
+    summary: 'Building readiness: rapport, the 5 Rs, readiness instruments, raising doubt and concern, involving significant others, and clients mandated to treatment.',
+    items: [
+      { type: 'content', text: 'Chapter 4: 12-section study guide (Exhibit 4.1 strategies, the 5 Rs, URICA, SOCRATES and the Readiness To Change Questionnaire, personalized feedback, the typical-day interview, involving SOs, and the mandated-client dialog of Exhibit 4.3), 20 high-yield points, 51 flashcards, a 20-question quiz and 16 glossary terms.', href: '#/c/4' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 to 4.' },
+      { type: 'correction', text: 'Long glossary entries now wrap on phones instead of making the Glossary page scroll sideways.' }
+    ]
+  },
+  {
     version: '1.2.0',
     date: '2026-11-09',
     title: 'Chapter 3: Motivational Interviewing as a Counseling Style',
