@@ -15,7 +15,7 @@ Built strictly from SAMHSA TIP 35, *Enhancing Motivation for Change in Substance
 | 3 | Motivational Interviewing as a Counseling Style | Ready (v1.2.0) |
 | 4 | From Precontemplation to Contemplation | Ready (v1.3.0) |
 | 5 | From Contemplation to Preparation | Ready (v1.4.0) |
-| 6 | From Preparation to Action | Coming |
+| 6 | From Preparation to Action | Ready (v1.5.0) |
 | 7 | From Action to Maintenance | Coming |
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | Coming |
 
@@ -57,6 +57,7 @@ data/ch02.js            Chapter 2 content
 data/ch03.js            Chapter 3 content
 data/ch04.js            Chapter 4 content
 data/ch05.js            Chapter 5 content
+data/ch06.js            Chapter 6 content
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png (required),
                         favicon-32.png, favicon-64.png, apple-touch-icon.png (recommended)
 manifest.webmanifest    Install metadata

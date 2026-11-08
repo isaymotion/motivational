@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.5.0',
+    date: '2026-11-09',
+    title: 'Chapter 6: From Preparation to Action',
+    summary: 'Initiating change: clarifying goals, when goals differ, sampling goals, building and revising a change plan, behavioral contracts, barriers, referral and social support.',
+    items: [
+      { type: 'content', text: 'Chapter 6: 11-section study guide (Exhibit 6.1 strategies, When Treatment Goals Differ, sobriety sampling and trial moderation, the Change Plan Worksheet, the menu of options and Exhibit 6.4, behavioral contracts, active referral, and flexible revisiting), 17 high-yield points, 49 flashcards, a 20-question quiz and 13 glossary terms.', href: '#/c/6' },
+      { type: 'update', text: 'Review, Exam and the Glossary now draw from Chapters 1 to 6.' }
+    ]
+  },
+  {
     version: '1.4.0',
     date: '2026-11-09',
     title: 'Chapter 5: From Contemplation to Preparation',
