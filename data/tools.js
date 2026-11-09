@@ -1,5 +1,5 @@
 /* MI Trainer — Appendix B (screening and assessment instruments) and Appendix C (resources) of SAMHSA TIP 35.
-   Generated from a verbatim transcription; edit by regenerating. status: "pd" = public domain (items shown),
+   Hand-curated from a verbatim transcription; edit this file directly. status: "pd" = public domain (items shown),
    "restricted" = reprinted with permission / no permission line (reference card only, no item text).
    Tool ids are stable once published. pages = PDF pages, like the chapters. */
 window.MI_TOOLS = [
