@@ -8,6 +8,7 @@ Clone this branch next to the site clone (see HANDOFF.md §5). Every tool takes 
 | `check_chapters.js` | Validates `data/chNN.js` files: counts, ids, 4 choices, answer range, cross-chapter glossary duplicates, script tag and sw.js CORE registration | `node tools/check_chapters.js <repo>` |
 | `qa.py` | Playwright functional tests at phone width; screenshots to `<repo>/_qa/` | `python3 tools/qa.py <repo>` → `FAILS: 0` |
 | `shot.py` | One phone-width screenshot of a route, scrolled to some text; prints scrollWidth (must be 390), glossary link count, JS errors | `python3 -I tools/shot.py <repo> '#/c/8/guide' 'Exhibit 8.1' /tmp/ex.png` |
+| `tools_qa.py` | Tools/Resources pages (v1.8.0+): every tool at 390 and 1280, item counts, restricted tools show no items, overflow, JS errors, cross-links, search | `python3 -I tools/tools_qa.py <repo>` → `TOOLS FAILS: 0` |
 | `gloss_width.py` | Lists the widest glossary rows at min-content width (finds sideways overflow on #/glossary) | `python3 -I tools/gloss_width.py <repo>` |
 
 Requires: `pypdf`, `playwright` + chromium, `node`, `pdftoppm` (poppler) for viewing exhibit pages.
