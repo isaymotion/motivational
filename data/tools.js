@@ -747,7 +747,7 @@ window.MI_TOOLS = [
    }
   ],
   "source": "Source: Miller & Brown, 1994. Available online at no cost (https://casaa.unm.edu/inst/What%20I%20Want%20From%20Treatment.pdf).",
-  "url": "https://casaa.unm.edu/inst/What%20I%20Want%20From%20Treatment.pdf",
+  "url": "https://casaa.unm.edu/assets/inst/what-i-want-from-treatment.pdf",
   "interpret": null
  },
  {
@@ -1077,7 +1077,7 @@ window.MI_TOOLS = [
    }
   ],
   "source": "Source: Miller & Tonigan, 1996. SOCRATES-8A and SOCRATES-8D are in the public domain and available online at no cost (https://casaa.unm.edu/inst/socratesv8.pdf).",
-  "url": "https://casaa.unm.edu/inst/socratesv8.pdf"
+  "url": "https://casaa.unm.edu/assets/inst/socratesv8.pdf"
  },
  {
   "id": "socrates8d",
@@ -1337,7 +1337,7 @@ window.MI_TOOLS = [
    }
   ],
   "source": "Source: Miller & Tonigan, 1996. SOCRATES-8A and SOCRATES-8D are in the public domain and available online at no cost (https://casaa.unm.edu/inst/socratesv8.pdf).",
-  "url": "https://casaa.unm.edu/inst/socratesv8.pdf"
+  "url": "https://casaa.unm.edu/assets/inst/socratesv8.pdf"
  },
  {
   "id": "urica",
@@ -2522,7 +2522,7 @@ window.MI_TOOLS = [
   "key": true,
   "keyNote": "As printed. Questions 17 and 18 have the same question and choices, and the key gives question 18 as “c) the expert trap,” which is not one of its printed choices.",
   "source": "Source: Moyers, Martin, & Christopher, 2005. Reprinted from material in the public domain. Available online at no cost (https://casaa.unm.edu/download/ELICIT/MI%20Knowledge%20Test.pdf).",
-  "url": "https://casaa.unm.edu/download/ELICIT/MI%20Knowledge%20Test.pdf",
+  "url": "https://casaa.unm.edu/assets/docs/mi-knowledge-test.pdf",
   "scoring": null,
   "interpret": null
  }
@@ -2548,7 +2548,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "MET manual (PDF)",
-      "https://casaa.unm.edu/download/met.pdf"
+      "https://casaa.unm.edu/tools/met.pdf"
      ]
     ]
    },
@@ -2612,7 +2612,7 @@ window.MI_RESOURCES = [
      ],
      [
       "MISC (PDF)",
-      "https://casaa.unm.edu/download/misc.pdf"
+      "https://casaa.unm.edu/assets/docs/misc4.pdf"
      ],
      [
       "MISC 2.5 (PDF)",
@@ -2645,23 +2645,19 @@ window.MI_RESOURCES = [
    },
    {
     "name": "SAMHSA-HRSA Center for Integrated Health Solutions",
-    "desc": "Promotes integrated primary and behavioral health care for people with mental disorders and SUDs; resources on screening tools, motivational interviewing and tobacco cessation.",
+    "desc": "Promotes integrated primary and behavioral health care for people with mental disorders and SUDs; resources on screening tools, motivational interviewing and tobacco cessation. The center’s website has since closed, so these links go to the current SAMHSA pages on the same topics.",
     "links": [
      [
-      "Center home",
-      "https://www.integration.samhsa.gov"
+      "Screening (SAMHSA brief screener)",
+      "https://www.samhsa.gov/resource/ebp/brief-screener-alcohol-tobacco-other-drugs"
      ],
      [
-      "Screening tools",
-      "https://www.integration.samhsa.gov/clinical-practice/screening-tools"
+      "Motivational interviewing (SAMHSA Advisory based on TIP 35)",
+      "https://library.samhsa.gov/product/advisory-using-motivational-interviewing-substance-use-disorder-treatment-based-tip-35"
      ],
      [
-      "Motivational interviewing",
-      "https://www.integration.samhsa.gov/clinical-practice/motivational-interviewing"
-     ],
-     [
-      "Tobacco cessation",
-      "https://www.integration.samhsa.gov/health-wellness/wellness-strategies/tobacco-cessation-2"
+      "Tobacco cessation (SAMHSA Advisory)",
+      "https://library.samhsa.gov/product/tobacco-use-cessation-during-substance-abuse-treatment-counseling/sma11-4636clin"
      ]
     ]
    }
@@ -2676,7 +2672,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "SAMHSA store",
-      "https://store.samhsa.gov/product/TIP-63-Medications-for-Opioid-Use-Disorder-Full-Document-Including-Executive-Summary-and-Parts-1-5-/SMA18-5063FULLDOC"
+      "https://library.samhsa.gov/product/tip-63-medications-opioid-use-disorder/pep21-02-01-002"
      ]
     ]
    },
@@ -2686,7 +2682,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "SAMHSA store",
-      "https://store.samhsa.gov/product/TIP-60-Using-Technology-Based-Therapeutic-Tools-in-Behavioral-Health-Services/SMA15-4924"
+      "https://library.samhsa.gov/product/tip-60-using-technology-based-therapeutic-tools-behavioral-health-services/sma15-4924"
      ]
     ]
    },
@@ -2706,7 +2702,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "SAMHSA store",
-      "https://store.samhsa.gov/product/TIP-57-Trauma-Informed-Care-in-Behavioral-Health-Services/SMA14-4816"
+      "https://www.samhsa.gov/resource/dbhis/tip-57-trauma-informed-care-behavioral-health-services"
      ]
     ]
    },
@@ -2716,7 +2712,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "SAMHSA store",
-      "https://store.samhsa.gov/product/TIP-52-Clinical-Supervision-and-Professional-Development-of-the-Substance-Abuse-Counselor/SMA14-4435.html"
+      "https://www.samhsa.gov/resource/ebp/tip-52-clinical-supervision-professional-development-substance-abuse-counselor"
      ]
     ]
    },
@@ -2726,7 +2722,7 @@ window.MI_RESOURCES = [
     "links": [
      [
       "SAMHSA store",
-      "https://store.samhsa.gov/product/TIP-42-Substance-Abuse-Treatment-for-Persons-With-Co-Occurring-Disorders/SMA13-3992"
+      "https://library.samhsa.gov/product/tip-42-substance-use-treatment-persons-co-occurring-disorders/pep20-02-01-004"
      ]
     ]
    },

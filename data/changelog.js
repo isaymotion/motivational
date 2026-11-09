@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.1',
+    date: '2026-11-09',
+    title: 'Fixed outside links',
+    summary: 'Links to official copies and resources that had moved since TIP 35 was printed now go to their current addresses.',
+    items: [
+      { type: 'correction', text: 'Tool links now open the current official copies: What I Want From Treatment, SOCRATES 8A and 8D, and the MI Knowledge Test (CASAA).', href: '#/tools/wiwft' },
+      { type: 'correction', text: 'Resources: the MET and MISC manuals (CASAA), TIPs 63, 60, 57, 52 and 42 (SAMHSA), and the closed SAMHSA-HRSA Center for Integrated Health Solutions, whose links now go to the current SAMHSA pages on screening, MI and tobacco cessation.', href: '#/resources' },
+      { type: 'update', text: 'Tool pages note when the address in the printed source line has moved.' }
+    ]
+  },
+  {
     version: '1.9.0',
     date: '2026-11-09',
     title: 'Practice scoring and the MI Knowledge Test self-test',

@@ -1105,7 +1105,9 @@
       (x.url ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list an online copy for this tool; see the source below.</p>') + '</div>';
     if (x.scoring) h += '<section class="guide__sec"><h2>Scoring</h2>' + renderBlocks(x.scoring) + '</section>';
     if (x.interpret) h += '<section class="guide__sec"><h2>Interpreting the score</h2>' + renderBlocks(x.interpret) + '</section>';
+    var moved = x.url && /https?:\/\//.test(x.source) && x.source.indexOf(x.url) < 0;
     h += '<section class="guide__sec"><h2>Source</h2><p class="tool__source">' + esc(x.source) + '</p>' +
+      (moved ? '<p class="tool__note">The web address above is as printed in 2019 and has since moved; the “Free official copy” link goes to its current location.</p>' : '') +
       (x.url && x.status === 'pd' ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '') + '</section>';
     h += STUDY_ONLY + '<div class="next">' + (prev ? '<a class="btn" href="#/tools/' + esc(prev.id) + '">← ' + esc(prev.short) + '</a> ' : '') +
       '<a class="btn" href="#/tools">All tools</a>' + (next ? ' <a class="btn btn--solid" href="#/tools/' + esc(next.id) + '">' + esc(next.short) + ' →</a>' : '') + '</div>';
@@ -1423,7 +1425,7 @@
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
-      '<div class="callout callout--note"><p class="callout__title">Online only</p><p>These links open outside websites and need an internet connection. They are listed as printed in TIP 35 (2019), so some addresses may have moved.</p></div>' +
+      '<div class="callout callout--note"><p class="callout__title">Online only</p><p>These links open outside websites and need an internet connection. TIP 35 printed them in 2019; addresses that had moved were updated to the current official page in November 2026.</p></div>' +
       RESOURCES.map(function (g) {
         return '<section class="guide__sec"><h2>' + esc(g.group) + '</h2><div class="res__list">' + g.items.map(function (r) {
           return '<div class="card res"><h3>' + esc(r.name) + '</h3><p>' + esc(r.desc) + '</p><p class="res__links">' + r.links.map(function (l) { return extLink(l[1], l[0]); }).join('') + '</p></div>';
