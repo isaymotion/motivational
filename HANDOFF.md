@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.9.2 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-09, after v1.9.3 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -125,7 +125,7 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 
 **v1.9.1 links (2026-11-09):** she reported a dead WIWFT link. Every tool/resource URL was checked; moved ones now point to the current official copy (CASAA `/assets/inst/` and `/assets/docs/` paths, `casaa.unm.edu/tools/met.pdf`, MISC → `assets/docs/misc4.pdf` = MISC 2.1, TIPs 63/60/42 on library.samhsa.gov, TIPs 57/52 on samhsa.gov/resource). The closed SAMHSA-HRSA CIHS site (integration.samhsa.gov) now links to current SAMHSA pages on screening, the MI Advisory based on TIP 35, and the tobacco cessation Advisory. Tool `source` lines stay verbatim; the page adds a note when the printed address has moved. **Not verifiable from the sandbox (check in a browser):** DrInC `pubs.niaaa.nih.gov/.../match04.pdf`, RCQ `ndarc...TR.019.pdf`, TIP 59 and TIP 39 store.samhsa.gov links (store.samhsa.gov now tends to redirect to library.samhsa.gov). WebFetch is the only way to test links here (the shell can't reach outside sites).
 
-**v1.9.2 references (2026-11-09):** she noted the ADCQ had no source link or reference. Every tool now carries `ref` (full Appendix A entry), shown under Source. ADCQ has no free official copy (TIP 35 lists none; a SLU copy online is third-party, so not linked); it links the article DOI 10.1037/0893-164X.11.2.107. AUDIT `url` = the USAUDIT guide PDF printed in Appendix A (ct.gov; served a PDF to WebFetch but the title couldn't be read). BSCQ has no link (none printed).
+**v1.9.2 references (2026-11-09):** she noted the ADCQ had no source link or reference. Every tool now carries `ref` (full Appendix A entry), shown under Source. ADCQ has no free official copy (TIP 35 lists none); it links the article DOI 10.1037/0893-164X.11.2.107 and, at her request (v1.9.3), the free SLU copy as `url` with `urlLabel` and a `urlNote` (third-party, dated 2013, drinking wording). `urlNote` renders under the link in the restricted callout. AUDIT `url` = the USAUDIT guide PDF printed in Appendix A (ct.gov; served a PDF to WebFetch but the title couldn't be read). BSCQ has no link (none printed).
 
 ### Earlier open items
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
