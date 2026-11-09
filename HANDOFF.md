@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.7.0 (all 8 chapters done)._
+_Last updated 2026-11-09, after v1.7.0 (all 8 chapters done). Next: appendices (plan proposed, 3 decisions pending)._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -75,6 +75,7 @@ python3 $D/scripts/check_design.py . --browser                          # → PA
 rm -rf _qa
 pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view an exhibit page
 ```
+Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives one phone screenshot plus scrollWidth and JS errors; `gloss_width.py <repo>` finds glossary rows that overflow.
 `qa.py` starts its own server on port 8765. It covers home, chapters list, guide, tap-to-define, flashcards and SM-2, quiz, mistakes, exam, glossary, search, overflow at 390px, no JS errors, and SW cache isolation. Its per-chapter loop picks up new chapters automatically.
 
 ## 6. Status
@@ -90,12 +91,33 @@ pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view a
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | ✅ v1.7.0 — 9 sections, 20 HY, 48 cards, 20 quiz (5/5/5/5), 13 terms |
 Totals at v1.7.0: 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms. Appendices (screening instruments) are not planned yet; ask her.
 
-## 7. Next step
-All 8 chapters are live. Nothing is queued. Open questions for her:
-- Add the appendices (Appendix B readiness/screening instruments such as URICA, SOCRATES, BSCQ, AASES, the DB scales; Appendix C resources)? If yes, decide format (reference pages vs. interactive self-scoring) and keep content strictly from TIP 35.
-- Has she enabled GitHub Pages (Settings → Pages → main / root)?
-- Update the "Latest version" month in index.html, app-meta.js and README when the month changes (still November 2026 at v1.7.0).
-- Ideas if she wants more: cross-chapter "SOC stage → strategies" summary page built from Exhibits 4.1/5.1/6.1/7.1; a Tagalog layer via usap-tayo-integration.
+## 7. Next step: appendices (she said yes; plan below awaits her 3 answers)
+**First, ask her these three questions and wait for the answers. Build nothing until she replies:**
+1. Are reference cards (no item text) OK for the 4 restricted instruments?
+2. Should practice scoring keep nothing, or should there be an optional "save my own practice attempts" setting on this device?
+3. Should v1.8.0 go ahead?
+
+**What is in the appendices** (PDF pp. 159–209; printed page = PDF − 22):
+- A — Bibliography (PDF 159–170). Plan: leave it out.
+- B — 14 instruments (PDF 171–207): 1 AUDIT (172–173) · 2 DAST-10 (174–175) · 3 DrInC Lifetime (176–178) · 4 What I Want From Treatment 2.0 (179–181) · 5 RCQ-TV (182–183) · 6 SOCRATES 8A (184–185) · 7 SOCRATES 8D (186–187), scoring and profile (188–189) · 8 URICA (190–192) · 9 ADCQ (193–194) · 10 Alcohol DB Scale (195–196) · 11 Drug Use DB Scale (197–198) · 12 BSCQ (199–200) · 13 AASES (201–202) · 14 MI Knowledge Test, 22 items with answer key (203–207).
+- C — Resources (PDF 208–209): MINT, MET manual, IRETA toolkit, UMBC HABITS lab, MIA-STEP, CASAA, MINT coding manuals, SAMHSA SBIRT, CIHS, TIPs 63/60/59/57.
+- Extract with pypdf by page range (extract.py only handles chapters 1–8): `python3 -I -c "import pypdf;r=pypdf.PdfReader('<pdf>');print(''.join(r.pages[i].extract_text() for i in range(171,207)))"`. Two-column forms come out interleaved, so render pages with pdftoppm and read them.
+
+**Permission status, from each instrument's source line:**
+- Public domain (full items and interactive scoring OK): AUDIT, DrInC, SOCRATES 8A/8D, URICA, Alcohol and Drug DB scales, BSCQ, AASES, MI Knowledge Test.
+- Restricted ("adapted with permission" / ©): DAST-10 (© Skinner/CAMH), RCQ-TV (Heather & Honekopp), ADCQ (Cunningham et al.). What I Want From Treatment has no permission line. Proposed: reference card only (what it measures, scoring rules and cut-offs, source line, link to the free official copy); no item text.
+
+**Proposed build:**
+- **v1.8.0:** new **Tools** section (`#/tools`, `#/tools/<id>`; add to NAV, home tiles, drawer and SEARCH_INDEX). One page per instrument with: About (measures, population, item count), "Covered in TIP 35" chapter link (URICA/SOCRATES/RCQ → Ch 4; DB scales → Ch 5; BSCQ/AASES → Ch 7; AUDIT → Ch 2), items (public-domain only), scoring and interpretation as printed, and the source line verbatim. Also a **Resources** page (Appendix C, with an "online only" note) and cross-links from chapter text and glossary entries (URICA, SOCRATES, SCQ/BSCQ, AASES, DB scale) to the tool pages. Suggested data file: `data/tools.js` → `window.MI_TOOLS = [{id, n, name, short, status:'pd'|'restricted', chapter, about, items:[{q, opts:[[label,score]]}], scoring, interpret, source}]`. Add it to index.html and sw.js CORE.
+- **v1.9.0:** **Practice scoring** for the public-domain instruments. Tap answers → scale totals and the book's interpretation (SOCRATES Recognition/Ambivalence/Taking Steps with the profile sheet; URICA stage subscales; DB benefits vs costs; BSCQ 8 situations; AASES temptation and confidence; AUDIT total). Each result shows a short "giving this feedback" note from the chapters (EPE, nonjudgmental). Privacy default: no name or ID fields, nothing stored, cleared on leaving the page, and a "practice/teaching only — not a clinical record" banner. Also the **MI Knowledge Test** as a self-test. It uses 1991/2002 MI terms ("self-motivational statements", "rolling with resistance"), so add a per-item note giving the updated term from Exhibit 3.1. Up to 6 choices (a–f): the quiz engine currently assumes exactly 4, so render it with its own view, or extend the engine and check_chapters (do not break chapter quizzes).
+- Version bumps follow §4 step 3 (sw VERSION, app-meta, changelog at top, README). qa.py only tests chapters: add Tools checks (pages render, no overflow at 390, scoring correct on a known answer set).
+
+### Earlier open items
+- Has she enabled GitHub Pages?
+- "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
+- She was told about two content choices and may want changes: Ch 7 Exhibit 7.5 (Susan) states childhood sexual abuse by her father in one plain sentence (could become "childhood trauma"); the Ch 6 IOP glossary entry deliberately avoids outside facts.
+- Later ideas: a "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1; a Tagalog layer (usap-tayo-integration skill).
+
 Ch 8 glossary terms: Blended counseling approaches, AMIGOS, Telephone MI, Motivational interviewing assessment (alt MIA), Cognitive–behavioral therapy (alt CBT), Recovery management checkup (alt RMC), Workforce development, Competency-based supervision, Direct observation, MITI (alt MI Integrity, MITI 4), MISC (alt MI Skills Code), MET champions, Learning communities.
 Ch 7: Relapse prevention counseling (alt RPC), Coping plan, High-risk situation, External/Internal triggers, Situational Confidence Questionnaire (alt SCQ, BSCQ), AASES, Recovery capital (alt RC), Seeking Safety, Marlatt model, Relapse management plan, Positive outcome expectancies (alt POEs), Abstinence violation effect (alt AVE), C-TRAPS, Cognitive traps (alt cognitive distortions), Apparently irrelevant decisions, Replacement activities, Lapse (nolink), Stop, look, and listen, Recycle (nolink).
 Ch 6: Sobriety sampling, Tapering down (alt tapering), Trial moderation, Goal sampling, Change Plan Worksheet, Shared decision making, Menu of change options (alt menu of options), Behavioral contract (alt contract), Active referral (alt active linkage), Warm handoff, Peer recovery support specialist (alt peer specialist), Flexible revisiting, Intensive outpatient treatment (alt IOP).
@@ -117,5 +139,5 @@ Ch 4: 5 Rs, Reveling, Reluctance/Rebellion/Resignation/Rationalization (nolink),
 - v1.3.0 fixed a 390px overflow on #/glossary: long term + alt rows could not wrap. `.gloss__item summary` now has `flex-wrap:wrap`.
 
 ## 9. Files to re-attach
-- **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — needed for every new chapter. It is not committed to the repo.
+- **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — needed for the appendices work (Appendix B items and scoring). It is not committed to the repo.
 - Icon artwork: not needed, icons are already in `icons/`.
