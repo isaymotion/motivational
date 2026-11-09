@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.9.1 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-09, after v1.9.2 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -35,7 +35,8 @@ Tools code lives in `js/app.js` under "Appendix B tools and Appendix C resources
   pages:'190–192' /* PDF pages */, count:'32 items · 4 stages', about:[blocks], instructions:[{title,x}],
   scale:[[label,score]] /* shared */, scaleLabel?, contexts?:[{title,lines}],
   items:[{n,q,opts?:[[label,score]],choices?:[...],answer?,note?}] /* pd only */, key?:true, keyNote?,
-  restrictedNote? /* restricted only */, scoring:[blocks]|null, interpret:[blocks]|null, source:'verbatim line', url }
+  restrictedNote? /* restricted only */, scoring:[blocks]|null, interpret:[blocks]|null, source:'verbatim line', url, urlLabel?,
+  ref:'full Appendix A reference (ligatures fixed)', refUrl?, refLabel? /* v1.9.2; ADCQ has refUrl = article DOI */ }
 ```
 Ids (stable): audit, dast, drinc, wiwft, rcq, socrates8a, socrates8d, urica, adcq, alcdb, drugdb, bscq, aases, mikt. `data/tools.js` is the source of truth: edit it directly (the one-off generator and transcription were not kept, since dev-tools never holds book text).
 The study engine lives in `js/app.js` (search for "STUDY ENGINE"). Routes: `#/chapters`, `#/c/<id>/<guide|hy|cards|quiz|gloss>`, `#/c/<id>/cards/<all|due|new>`, `#/review`, `#/exam`, `#/exam/go`, `#/mistakes`, `#/mistakes/go`, `#/glossary/<term>`. Quiz choices reshuffle on every attempt. Glossary terms are auto-linked (first mention per block) for tap-to-define. Tables with 3+ columns become stacked cards on phones.
@@ -123,6 +124,8 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 - Sidebar does not highlight Tools on `#/tools/<id>` subroutes (exact-match nav; pre-existing, minor).
 
 **v1.9.1 links (2026-11-09):** she reported a dead WIWFT link. Every tool/resource URL was checked; moved ones now point to the current official copy (CASAA `/assets/inst/` and `/assets/docs/` paths, `casaa.unm.edu/tools/met.pdf`, MISC → `assets/docs/misc4.pdf` = MISC 2.1, TIPs 63/60/42 on library.samhsa.gov, TIPs 57/52 on samhsa.gov/resource). The closed SAMHSA-HRSA CIHS site (integration.samhsa.gov) now links to current SAMHSA pages on screening, the MI Advisory based on TIP 35, and the tobacco cessation Advisory. Tool `source` lines stay verbatim; the page adds a note when the printed address has moved. **Not verifiable from the sandbox (check in a browser):** DrInC `pubs.niaaa.nih.gov/.../match04.pdf`, RCQ `ndarc...TR.019.pdf`, TIP 59 and TIP 39 store.samhsa.gov links (store.samhsa.gov now tends to redirect to library.samhsa.gov). WebFetch is the only way to test links here (the shell can't reach outside sites).
+
+**v1.9.2 references (2026-11-09):** she noted the ADCQ had no source link or reference. Every tool now carries `ref` (full Appendix A entry), shown under Source. ADCQ has no free official copy (TIP 35 lists none; a SLU copy online is third-party, so not linked); it links the article DOI 10.1037/0893-164X.11.2.107. AUDIT `url` = the USAUDIT guide PDF printed in Appendix A (ct.gov; served a PDF to WebFetch but the title couldn't be read). BSCQ has no link (none printed).
 
 ### Earlier open items
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
