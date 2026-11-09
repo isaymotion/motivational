@@ -98,7 +98,9 @@
     cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
     check: '<path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',
     flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
-    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'
+    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+    clipboard: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
   };
   function icon(name, cls) {
     return '<svg class="' + (cls || 'nav-ico') + '" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.star) + '</svg>';
@@ -114,6 +116,8 @@
     { label: 'Exam', href: '#/exam', icon: 'check', group: 'Study' },
     { label: 'Mistakes', href: '#/mistakes', icon: 'flag', group: 'Study', badge: 'mistakes' },
     { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Study' },
+    { label: 'Tools', href: '#/tools', icon: 'clipboard', group: 'Appendices' },
+    { label: 'Resources', href: '#/resources', icon: 'link', group: 'Appendices' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
     { label: 'About', tkey: 'nav.about', href: '#/about', icon: 'info', group: 'App', tile: false }
   ];
@@ -470,7 +474,7 @@
     var latest = CHANGELOG[0];
     return '<section class="hero"><div class="wrap hero__inner">' +
         '<h1>' + esc(APP_NAME) + '</h1>' +
-        '<p class="hero__lead">Learn Motivational Interviewing chapter by chapter — the spirit, OARS, the four processes and the stages of change — with flashcards, quizzes and a glossary built from SAMHSA TIP 35.</p>' +
+        '<p class="hero__lead">Learn Motivational Interviewing chapter by chapter — the spirit, OARS, the four processes and the stages of change — with flashcards, quizzes, a glossary and the Appendix B screening tools, all built from SAMHSA TIP 35.</p>' +
         (first ? '<p><a class="btn btn--solid" href="' + esc(first.href) + '">' + esc(navLabel(first)) + '</a></p>' : '') +
       '</div></section>' +
       '<div class="wrap home">' + homeToday() +
@@ -610,7 +614,7 @@
     if (el) return el;
     el = document.createElement('div');
     el.id = 'term-sheet'; el.className = 'sheet'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
-    el.innerHTML = '<div class="sheet__back"></div><div class="sheet__panel"><div class="sheet__head"><h2 id="term-title"></h2><button type="button" class="icon-btn sheet__close" aria-label="Close">✕</button></div><p class="sheet__body" id="term-def"></p><p class="sheet__foot"><a id="term-link" href="#/glossary">Open the glossary</a></p></div>';
+    el.innerHTML = '<div class="sheet__back"></div><div class="sheet__panel"><div class="sheet__head"><h2 id="term-title"></h2><button type="button" class="icon-btn sheet__close" aria-label="Close">✕</button></div><p class="sheet__body" id="term-def"></p><p class="sheet__foot"><a id="term-link" href="#/glossary">Open the glossary</a> <a id="term-tool" href="#/tools" hidden></a></p></div>';
     document.body.appendChild(el);
     function close() { el.hidden = true; }
     el.querySelector('.sheet__back').addEventListener('click', close);
@@ -625,6 +629,9 @@
     el.querySelector('#term-title').textContent = g.term;
     el.querySelector('#term-def').textContent = g.def;
     el.querySelector('#term-link').setAttribute('href', '#/glossary/' + encodeURIComponent(g.term));
+    var tl = toolForTerm(g.term), ta = el.querySelector('#term-tool');
+    ta.hidden = !tl;
+    if (tl) { ta.setAttribute('href', '#/tools/' + tl.id); ta.textContent = 'Open the ' + tl.short + ' tool'; }
     el.hidden = false;
     el.querySelector('.sheet__close').focus();
   }
@@ -769,6 +776,7 @@
       '<div class="callout callout--key"><p class="callout__title">Key messages</p><ul>' + c.keyMessages.map(function (k) { return '<li>' + linkTerms(k) + '</li>'; }).join('') + '</ul></div>' +
       '<nav class="toc" aria-label="In this chapter"><span class="toc__label">In this chapter</span>' + c.sections.map(function (s) { return '<a class="filter" href="#/c/' + c.id + '/guide" data-jump="s-' + esc(s.id) + '">' + esc(s.h) + '</a>'; }).join('') + '</nav>' +
       c.sections.map(function (s) { return '<section class="guide__sec" id="s-' + esc(s.id) + '"><h2>' + esc(s.h) + '</h2>' + renderBlocks(s.blocks) + '</section>'; }).join('') +
+      chapterToolsNote(c) +
       '<div class="next"><a class="btn btn--solid" href="#/c/' + c.id + '/hy">High-yield points →</a> <a class="btn" href="#/c/' + c.id + '/cards">Flashcards</a></div></div>';
   }
   main.addEventListener('click', function (e) {
@@ -788,7 +796,7 @@
   function glossList(items, openTerm) {
     return '<div class="gloss__list">' + items.map(function (g) {
       var open = openTerm && g.term.toLowerCase() === openTerm.toLowerCase();
-      return '<details class="gloss__item"' + (open ? ' open id="g-open"' : '') + '><summary>' + esc(g.term) + (g.alt && g.alt.length ? ' <span class="muted">(' + esc(g.alt.join(', ')) + ')</span>' : '') + (g.ch ? '<span class="gloss__ch">Ch ' + g.ch + '</span>' : '') + '</summary><p>' + esc(g.def) + '</p></details>';
+      return '<details class="gloss__item"' + (open ? ' open id="g-open"' : '') + '><summary>' + esc(g.term) + (g.alt && g.alt.length ? ' <span class="muted">(' + esc(g.alt.join(', ')) + ')</span>' : '') + (g.ch ? '<span class="gloss__ch">Ch ' + g.ch + '</span>' : '') + '</summary><p>' + esc(g.def) + '</p>' + toolLinkFor(g.term) + '</details>';
     }).join('') + '</div>';
   }
 
@@ -1012,6 +1020,101 @@
     var open = document.getElementById('g-open'); if (open) setTimeout(function () { open.scrollIntoView({ block: 'center' }); }, 30);
   };
 
+  /* --- Appendix B tools and Appendix C resources (data/tools.js) --- */
+  var TOOLS = (window.MI_TOOLS || []).slice().sort(function (a, b) { return a.n - b.n; });
+  var RESOURCES = window.MI_RESOURCES || [];
+  var TOOL_BY_ID = {};
+  TOOLS.forEach(function (x) { TOOL_BY_ID[x.id] = x; });
+  function toolForTerm(term) {
+    var low = String(term).toLowerCase();
+    for (var i = 0; i < TOOLS.length; i++) {
+      var g = TOOLS[i].gloss || [];
+      for (var j = 0; j < g.length; j++) if (g[j].toLowerCase() === low) return TOOLS[i];
+    }
+    return null;
+  }
+  function toolLinkFor(term) {
+    var x = toolForTerm(term);
+    return x ? '<p class="gloss__tool"><a href="#/tools/' + esc(x.id) + '">Open the ' + esc(x.short) + ' tool page →</a></p>' : '';
+  }
+  function chapterToolsNote(c) {
+    var list = TOOLS.filter(function (x) { return x.chapter === c.id; });
+    if (!list.length) return '';
+    return '<div class="callout callout--note"><p class="callout__title">Instruments from this chapter (Appendix B)</p><ul>' + list.map(function (x) {
+      return '<li><a href="#/tools/' + esc(x.id) + '">' + esc(x.short) + '</a> — ' + esc(x.name) + '</li>';
+    }).join('') + '</ul></div>';
+  }
+  function extLink(url, label) { return '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(label || url) + '<span class="sr-only"> (opens in a new tab)</span></a>'; }
+  function toolBadge(x) { return x.status === 'pd' ? '<span class="tbadge tbadge--pd">Public domain</span>' : '<span class="tbadge tbadge--rx">Reference card</span>'; }
+  var STUDY_ONLY = '<div class="callout callout--caution"><p class="callout__title">Study aid, not a clinical record</p><p>These pages are for learning the instruments. To assess a client, use the official form and its manual.</p></div>';
+
+  TITLES.tools = 'Tools';
+  VIEWS.tools = function (id) {
+    if (id) return toolView(id);
+    TITLES.tools = 'Tools';
+    return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools' }]) +
+      '<header class="page__head"><p class="eyebrow">Appendix B</p><h1>Screening and assessment tools</h1><p>TIP 35 reprints ' + TOOLS.length + ' instruments in Appendix B. Public-domain tools show every item and the scoring as printed. Tools reprinted with permission get a reference card — what the tool measures, how it is scored, its source and where to find the official copy — without the item text.</p></header>' +
+      STUDY_ONLY +
+      '<div class="tool__rows">' + TOOLS.map(function (x) {
+        return '<a class="row" href="#/tools/' + esc(x.id) + '"><span class="row__num">' + x.n + '</span><span><h3>' + esc(x.short) + '</h3><p>' + esc(x.name) + '</p><span class="row__meta">' + toolBadge(x) + '<span class="muted">' + esc(x.count) + (x.chapter ? ' · Chapter ' + x.chapter : '') + '</span></span></span></a>';
+      }).join('') + '</div>' +
+      '<div class="next"><a class="btn" href="#/resources">Appendix C: Resources →</a></div></div>';
+  };
+  function scaleChips(scale) {
+    return '<p class="tool__scale">' + scale.map(function (o) { return '<span class="chip"><b>' + esc(String(o[1])) + '</b> ' + esc(o[0]) + '</span>'; }).join('') + '</p>';
+  }
+  function toolItems(x) {
+    var out = '<section class="guide__sec" id="t-items"><h2>Items</h2>';
+    (x.instructions || []).forEach(function (ins) {
+      out += '<div class="callout callout--key"><p class="callout__title">' + esc(ins.title || 'Instructions (as printed)') + '</p><p>' + esc(ins.x) + '</p></div>';
+    });
+    if (x.scale) out += '<p class="muted">' + esc(x.scaleLabel || 'Response scale for every item:') + '</p>' + scaleChips(x.scale);
+    (x.contexts || []).forEach(function (cx) {
+      out += '<div class="callout callout--note"><p class="callout__title">' + esc(cx.title) + '</p>' + cx.lines.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>';
+    });
+    out += '<details class="tool__items"' + (x.items.length <= 12 ? ' open' : '') + '><summary>Show all ' + x.items.length + ' items</summary><ol class="tool__list">' + x.items.map(function (it) {
+      var h = '<li value="' + it.n + '"><p class="tool__q">' + esc(it.q) + '</p>';
+      if (it.opts) h += '<ul class="tool__opts">' + it.opts.map(function (o) { return '<li><span class="tool__score">' + esc(String(o[1])) + '</span>' + esc(o[0]) + '</li>'; }).join('') + '</ul>';
+      if (it.choices) h += '<ol class="tool__choices" type="a">' + it.choices.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>';
+      if (it.note) h += '<p class="tool__note">' + esc(it.note) + '</p>';
+      return h + '</li>';
+    }).join('') + '</ol></details>';
+    if (x.key) out += '<details class="tool__items"><summary>Show the answer key</summary><p class="tool__key">' + x.items.map(function (it) { return '<span class="chip"><b>' + it.n + '</b> ' + esc(it.answer) + '</span>'; }).join('') + '</p>' + (x.keyNote ? '<p class="tool__note">' + esc(x.keyNote) + '</p>' : '') + '</details>';
+    return out + '</section>';
+  }
+  function toolView(id) {
+    var x = TOOL_BY_ID[id];
+    if (!x) return missingView();
+    TITLES.tools = x.short;
+    var ch = x.chapter ? chapter(x.chapter) : null, i = TOOLS.indexOf(x), prev = TOOLS[i - 1], next = TOOLS[i + 1];
+    var h = '<div class="wrap page tool">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools', href: '#/tools' }, { label: x.short }]) +
+      '<header class="page__head"><p class="eyebrow">Appendix B · Tool ' + x.n + ' · pp. ' + esc(x.pages) + '</p><h1>' + esc(x.name) + '</h1><p class="row__meta">' + toolBadge(x) + '<span class="muted">' + esc(x.count) + '</span></p></header>';
+    h += '<section class="guide__sec"><h2>About</h2>' + renderBlocks(x.about) +
+      (ch ? '<p><a class="btn" href="#/c/' + ch.id + '">Covered in Chapter ' + ch.id + ': ' + esc(ch.title) + ' →</a></p>' : '') + '</section>';
+    if (x.status === 'pd') h += toolItems(x);
+    else h += '<div class="callout callout--note"><p class="callout__title">Items not shown</p><p>' + esc(x.restrictedNote) + '</p>' +
+      (x.url ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list an online copy for this tool; see the source below.</p>') + '</div>';
+    if (x.scoring) h += '<section class="guide__sec"><h2>Scoring</h2>' + renderBlocks(x.scoring) + '</section>';
+    if (x.interpret) h += '<section class="guide__sec"><h2>Interpreting the score</h2>' + renderBlocks(x.interpret) + '</section>';
+    h += '<section class="guide__sec"><h2>Source</h2><p class="tool__source">' + esc(x.source) + '</p>' +
+      (x.url && x.status === 'pd' ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '') + '</section>';
+    h += STUDY_ONLY + '<div class="next">' + (prev ? '<a class="btn" href="#/tools/' + esc(prev.id) + '">← ' + esc(prev.short) + '</a> ' : '') +
+      '<a class="btn" href="#/tools">All tools</a>' + (next ? ' <a class="btn btn--solid" href="#/tools/' + esc(next.id) + '">' + esc(next.short) + ' →</a>' : '') + '</div>';
+    return h + '</div>';
+  }
+
+  TITLES.resources = 'Resources';
+  VIEWS.resources = function () {
+    return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
+      '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
+      '<div class="callout callout--note"><p class="callout__title">Online only</p><p>These links open outside websites and need an internet connection. They are listed as printed in TIP 35 (2019), so some addresses may have moved.</p></div>' +
+      RESOURCES.map(function (g) {
+        return '<section class="guide__sec"><h2>' + esc(g.group) + '</h2><div class="res__list">' + g.items.map(function (r) {
+          return '<div class="card res"><h3>' + esc(r.name) + '</h3><p>' + esc(r.desc) + '</p><p class="res__links">' + r.links.map(function (l) { return extLink(l[1], l[0]); }).join('') + '</p></div>';
+        }).join('') + '</div></section>';
+      }).join('') + '</div>';
+  };
+
   /* --- Search index from content --- */
   function stripTags(s) { return String(s).replace(/<[^>]+>/g, ''); }
   CHAPTERS.forEach(function (c) {
@@ -1023,6 +1126,11 @@
     c.highYield.forEach(function (h) { SEARCH_INDEX.push({ title: 'High-yield · Ch ' + c.id, text: stripTags(h), href: '#/c/' + c.id + '/hy', kind: 'High-yield' }); });
     c.cards.forEach(function (k) { SEARCH_INDEX.push({ title: stripTags(k.q), text: stripTags(k.a), href: '#/c/' + c.id + '/cards', kind: 'Flashcard' }); });
   });
+  TOOLS.forEach(function (x) {
+    var text = x.name + ' ' + x.about.map(function (b) { return b.x ? stripTags(b.x) : b.items ? b.items.map(stripTags).join(' ') : ''; }).join(' ') + ' ' + (x.status === 'pd' ? x.items.map(function (it) { return it.q; }).join(' ') : '');
+    SEARCH_INDEX.push({ title: x.short + ' — ' + x.name, text: text, href: '#/tools/' + x.id, kind: 'Tool' });
+  });
+  RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 
 

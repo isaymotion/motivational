@@ -4,6 +4,18 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.8.0',
+    date: '2026-11-09',
+    title: 'Appendices: Tools and Resources',
+    summary: 'A new Tools section with all 14 screening and assessment instruments from Appendix B, and a Resources page for Appendix C.',
+    items: [
+      { type: 'feature', text: 'Tools: one page per Appendix B instrument, with what it measures, the chapter that covers it, the items, scoring and interpretation as printed, and its source. The 10 public-domain tools show every item (AUDIT, DrInC, SOCRATES 8A and 8D, URICA, the Alcohol and Drug Use Decisional Balance Scales, BSCQ, AASES and the MI Knowledge Test with its answer key).', href: '#/tools' },
+      { type: 'feature', text: 'DAST-10, RCQ-TV, ADCQ and What I Want From Treatment get reference cards (what they measure, scoring and cut-offs, source, and a link to the official copy) without the item text, because TIP 35 reprints them with permission.', href: '#/tools/dast' },
+      { type: 'feature', text: 'Resources: the websites, manuals and related TIPs listed in Appendix C. These links need an internet connection.', href: '#/resources' },
+      { type: 'update', text: 'Chapters 2, 4, 5 and 7 now end with links to their instruments, and the glossary entries for AUDIT, URICA, SOCRATES, the Readiness To Change Questionnaire, the decisional balance scales, the SCQ/BSCQ and the AASES link to the tool pages. Search covers the tools and resources.' }
+    ]
+  },
+  {
     version: '1.7.0',
     date: '2026-11-09',
     title: 'Chapter 8: Integrating Motivational Approaches — all 8 chapters ready',
