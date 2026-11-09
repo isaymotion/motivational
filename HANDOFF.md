@@ -1,12 +1,12 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.8.0 (all 8 chapters + Appendix B Tools + Appendix C Resources). Next: v1.9.0 practice scoring and the MI Knowledge Test self-test (approved; see §7)._
+_Last updated 2026-11-09 (handoff), after v1.8.0 (all 8 chapters + Appendix B Tools + Appendix C Resources). Next: v1.9.0 practice scoring and the MI Knowledge Test self-test (approved; see §7)._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
 - **Source (only source):** SAMHSA TIP 35, *Enhancing Motivation for Change in Substance Use Disorder Treatment* (updated 2019), 212-page PDF, 8 chapters + appendices.
 - **Repo:** `isaymotion/motivational`. `main` is the site; `dev-tools` holds this doc and `tools/` (never merge into main).
-- **Live URL:** https://isaymotion.github.io/motivational/. GitHub Pages must be switched on by her (Settings → Pages → main / root); the proxy blocks the Pages API. Ask whether it's on.
+- **Live URL:** https://isaymotion.github.io/motivational/. GitHub Pages is ON (she confirmed 2026-11-09; main / root). Every push to main goes live; the proxy blocks the Pages API, so you can't check it from here.
 - Plain HTML/CSS/JS, no build step. Pair with the skills **isaymotion-app-design** (shell, design and QA scripts) and **isaymotion-study-app** (features and rules). Load both at the start.
 
 ## 2. Fixed rules
@@ -121,7 +121,6 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 - Bump to 1.9.0 per §4 step 3 (sw VERSION, app-meta, changelog at top, README).
 
 ### Earlier open items
-- Has she enabled GitHub Pages?
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
 - She was told about two content choices and may want changes: Ch 7 Exhibit 7.5 (Susan) states childhood sexual abuse by her father in one plain sentence (could become "childhood trauma"); the Ch 6 IOP glossary entry deliberately avoids outside facts.
 - Reported to her at v1.8.0: the AASES key mismatch and MIKT Q18 key error (see §7); she may want them handled differently.
