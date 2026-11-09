@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.9.0 (practice scoring + MI Knowledge Test self-test, pushed to main a1d8f0f). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-09, after v1.9.1 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -121,6 +121,8 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 - A "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1.
 - A Tagalog layer (usap-tayo-integration skill).
 - Sidebar does not highlight Tools on `#/tools/<id>` subroutes (exact-match nav; pre-existing, minor).
+
+**v1.9.1 links (2026-11-09):** she reported a dead WIWFT link. Every tool/resource URL was checked; moved ones now point to the current official copy (CASAA `/assets/inst/` and `/assets/docs/` paths, `casaa.unm.edu/tools/met.pdf`, MISC → `assets/docs/misc4.pdf` = MISC 2.1, TIPs 63/60/42 on library.samhsa.gov, TIPs 57/52 on samhsa.gov/resource). The closed SAMHSA-HRSA CIHS site (integration.samhsa.gov) now links to current SAMHSA pages on screening, the MI Advisory based on TIP 35, and the tobacco cessation Advisory. Tool `source` lines stay verbatim; the page adds a note when the printed address has moved. **Not verifiable from the sandbox (check in a browser):** DrInC `pubs.niaaa.nih.gov/.../match04.pdf`, RCQ `ndarc...TR.019.pdf`, TIP 59 and TIP 39 store.samhsa.gov links (store.samhsa.gov now tends to redirect to library.samhsa.gov). WebFetch is the only way to test links here (the shell can't reach outside sites).
 
 ### Earlier open items
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
