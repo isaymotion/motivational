@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.2',
+    date: '2026-11-09',
+    title: 'Full references on every tool page',
+    summary: 'Each tool page now shows the full reference from TIP 35’s bibliography, and the ADCQ links to its original article.',
+    items: [
+      { type: 'feature', text: 'Every Appendix B tool page shows the full reference (authors, year, title, journal or publisher) from TIP 35 Appendix A under Source.', href: '#/tools' },
+      { type: 'correction', text: 'Alcohol and Drug Consequences Questionnaire: TIP 35 lists no online copy, so the page now gives the full reference and a link to the original article (Cunningham et al., 1997).', href: '#/tools/adcq' },
+      { type: 'update', text: 'AUDIT now links to the USAUDIT guide listed in TIP 35’s bibliography.', href: '#/tools/audit' }
+    ]
+  },
+  {
     version: '1.9.1',
     date: '2026-11-09',
     title: 'Fixed outside links',

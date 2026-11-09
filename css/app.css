@@ -491,3 +491,5 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .pr__term{margin:8px 0 0;font-size:.92rem;color:var(--ink-2)}
 .pr__term .tbadge{margin-right:6px}
 .practice [hidden]{display:none!important}
+.tool__ref{font-size:.92rem;color:var(--ink-2);overflow-wrap:anywhere;padding:10px 12px;border-left:3px solid var(--rule);background:var(--tint);border-radius:var(--r-sm)}
+.tool__reflab{display:block;font-weight:700;font-size:.8rem;letter-spacing:.02em;color:var(--ink-3);margin-bottom:4px}

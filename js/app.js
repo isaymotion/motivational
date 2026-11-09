@@ -1102,13 +1102,15 @@
     if (x.id === 'mikt') h += '<div class="callout callout--key tool__try"><p class="callout__title">Self-test</p><p>Take the ' + x.items.length + ' questions and check your answers against the key, with the updated MI terms from Chapter 3.</p><p><a class="btn btn--solid" href="#/tools/mikt/test">Take the self-test →</a></p></div>';
     if (x.status === 'pd') h += toolItems(x);
     else h += '<div class="callout callout--note"><p class="callout__title">Items not shown</p><p>' + esc(x.restrictedNote) + '</p>' +
-      (x.url ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list an online copy for this tool; see the source below.</p>') + '</div>';
+      (x.url ? '<p>' + extLink(x.url, x.urlLabel || 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list a free online copy of this questionnaire. The full reference to the original article is under Source below.</p>' + (x.refUrl ? '<p>' + extLink(x.refUrl, x.refLabel || 'Original article (online)') + '</p>' : '')) + '</div>';
     if (x.scoring) h += '<section class="guide__sec"><h2>Scoring</h2>' + renderBlocks(x.scoring) + '</section>';
     if (x.interpret) h += '<section class="guide__sec"><h2>Interpreting the score</h2>' + renderBlocks(x.interpret) + '</section>';
     var moved = x.url && /https?:\/\//.test(x.source) && x.source.indexOf(x.url) < 0;
     h += '<section class="guide__sec"><h2>Source</h2><p class="tool__source">' + esc(x.source) + '</p>' +
-      (moved ? '<p class="tool__note">The web address above is as printed in 2019 and has since moved; the “Free official copy” link goes to its current location.</p>' : '') +
-      (x.url && x.status === 'pd' ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '') + '</section>';
+      (moved ? '<p class="tool__note">The web address above is as printed in 2019 and has since moved; the link below goes to its current location.</p>' : '') +
+      (x.ref ? '<p class="tool__ref"><span class="tool__reflab">Full reference (TIP 35, Appendix A)</span>' + esc(x.ref) + '</p>' : '') +
+      (x.url && x.status === 'pd' ? '<p>' + extLink(x.url, x.urlLabel || 'Free official copy (online)') + '</p>' : '') +
+      (x.refUrl ? '<p>' + extLink(x.refUrl, x.refLabel || 'Original article (online)') + '</p>' : '') + '</section>';
     h += STUDY_ONLY + '<div class="next">' + (prev ? '<a class="btn" href="#/tools/' + esc(prev.id) + '">← ' + esc(prev.short) + '</a> ' : '') +
       '<a class="btn" href="#/tools">All tools</a>' + (next ? ' <a class="btn btn--solid" href="#/tools/' + esc(next.id) + '">' + esc(next.short) + ' →</a>' : '') + '</div>';
     return h + '</div>';

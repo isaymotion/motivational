@@ -5,6 +5,8 @@
 window.MI_TOOLS = [
  {
   "id": "audit",
+  "urlLabel": "USAUDIT guide for primary care (online)",
+  "ref": "Babor, T. F., Higgins-Biddle, J. C., & Robaina, K. (2016). USAUDIT: The Alcohol Use Disorders Identification Test, Adapted for use in the United States: A guide for primary care practitioners. Retrieved from www.ct.gov/dmhas/lib/dmhas/publications/USAUDIT-2017.pdf",
   "n": 1,
   "short": "U.S. AUDIT",
   "name": "U.S. Alcohol Use Disorders Identification Test",
@@ -345,11 +347,12 @@ window.MI_TOOLS = [
    }
   ],
   "source": "Source: Babor, Higgins-Biddle, & Robaina, 2016. Adapted from material in the public domain.",
-  "url": null,
+  "url": "https://www.ct.gov/dmhas/lib/dmhas/publications/USAUDIT-2017.pdf",
   "interpret": null
  },
  {
   "id": "dast",
+  "ref": "Skinner, H. A. (1982). The Drug Abuse Screening Test. Addictive Behavior, 7(4), 363–371.",
   "n": 2,
   "short": "DAST-10",
   "name": "Drug Abuse Screening Test",
@@ -417,6 +420,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "drinc",
+  "ref": "Miller, W. R., Tonigan, J. S., & Longabaugh, R. (1995). The Drinker Inventory of Consequences (DrInC): An instrument for assessing adverse consequences of alcohol abuse, Test manual (vol. 4). Project MATCH Monograph Series. Rockville, MD: National Institute on Alcohol Abuse and Alcoholism. Retrieved from https://pubs.niaaa.nih.gov/publications/projectmatch/match04.pdf",
   "n": 3,
   "short": "DrInC",
   "name": "Drinker Inventory of Consequences (Lifetime)",
@@ -721,6 +725,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "wiwft",
+  "ref": "Miller, W. R., & Brown, J. M. (1994). What I want from treatment (2.0). Retrieved from https://casaa.unm.edu/inst/What%20I%20Want%20From%20Treatment.pdf",
   "n": 4,
   "short": "What I Want From Treatment",
   "name": "What I Want From Treatment (2.0)",
@@ -752,6 +757,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "rcq",
+  "ref": "Heather, N., & Honekopp, J. (2008). A revised edition of the readiness to change questionnaire (treatment version). Addiction Research and Theory, 16(5), 421–433.",
   "n": 5,
   "short": "RCQ-TV",
   "name": "Readiness to Change Questionnaire (Treatment Version) (Revised)",
@@ -815,6 +821,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "socrates8a",
+  "ref": "Miller, W. R., & Tonigan, J. S. (1996). Assessing drinkers’ motivation for change: The Stages of Change Readiness and Treatment Eagerness Scale (SOCRATES). Psychology of Addictive Behaviors, 10(2), 81–89.",
   "n": 6,
   "short": "SOCRATES 8A",
   "name": "Stages of Change Readiness and Treatment Eagerness Scale–Alcohol",
@@ -1081,6 +1088,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "socrates8d",
+  "ref": "Miller, W. R., & Tonigan, J. S. (1996). Assessing drinkers’ motivation for change: The Stages of Change Readiness and Treatment Eagerness Scale (SOCRATES). Psychology of Addictive Behaviors, 10(2), 81–89.",
   "n": 7,
   "short": "SOCRATES 8D",
   "name": "Stages of Change Readiness and Treatment Eagerness Scale–Drug",
@@ -1341,6 +1349,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "urica",
+  "ref": "McConnaughy, E. A., Prochaska, J. O., & Velicer, W. F. (1983). Stages of change in psychotherapy: Measurement and sample profiles. Psychotherapy: Theory, Research and Practice, 20, 368–375.",
   "n": 8,
   "short": "URICA",
   "name": "University of Rhode Island Change Assessment Scale",
@@ -1557,6 +1566,9 @@ window.MI_TOOLS = [
  },
  {
   "id": "adcq",
+  "refUrl": "https://doi.org/10.1037/0893-164X.11.2.107",
+  "refLabel": "Original article (doi.org)",
+  "ref": "Cunningham, J. A., Sobell, L. C., Gavin, D. R., Sobell, M. B., & Breslin, F. C. (1997). Assessing motivation for change: Preliminary development and evaluation of a scale measuring the costs and benefits of changing alcohol or drug use. Psychology of Addictive Behaviors, 11(2), 107–114.",
   "n": 9,
   "short": "ADCQ",
   "name": "Alcohol and Drug Consequences Questionnaire",
@@ -1608,6 +1620,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "alcdb",
+  "ref": "Prochaska, J. O., Velicer, W. F., Rossi, J. S., Goldstein, M. G., Marcus, B. H., Rakowski, W., … Rossi, S. R. (1994). Stages of Change and decisional balance for 12 problem behaviors. Health Psychology, 13, 39–46.",
   "n": 10,
   "short": "Alcohol DB Scale",
   "name": "Alcohol Decisional Balance Scale",
@@ -1775,6 +1788,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "drugdb",
+  "ref": "Prochaska, J. O., Velicer, W. F., Rossi, J. S., Goldstein, M. G., Marcus, B. H., Rakowski, W., … Rossi, S. R. (1994). Stages of Change and decisional balance for 12 problem behaviors. Health Psychology, 13, 39–46.",
   "n": 11,
   "short": "Drug Use DB Scale",
   "name": "Drug Use Decisional Balance Scale",
@@ -1940,6 +1954,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "bscq",
+  "ref": "Breslin, F. C., Sobell, L. C., Sobell, M. B., & Agrawal, S. (2000). A comparison of a brief and long version of the Situational Confidence Questionnaire. Behaviour Research and Therapy, 38(12), 1211–1220.",
   "n": 12,
   "short": "BSCQ",
   "name": "Brief Situational Confidence Questionnaire",
@@ -2032,6 +2047,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "aases",
+  "ref": "DiClemente, C. C., Carbonari, J. P., Montgomery, R. P. G., & Hughes, S. O. (1994). The Alcohol Abstinence Self-Efficacy Scale. Journal of Studies on Alcohol, 55(2), 141–148.",
   "n": 13,
   "short": "AASES",
   "name": "Alcohol Abstinence Self-Efficacy Scale",
@@ -2200,6 +2216,7 @@ window.MI_TOOLS = [
  },
  {
   "id": "mikt",
+  "ref": "Moyers, T. B., Martin, T., & Christopher, P. (2005). Motivational interviewing knowledge test. Albuquerque, NM: Center on Alcoholism, Substance Abuse, and Addictions, University of New Mexico. Retrieved from https://casaa.unm.edu/download/ELICIT/MI%20Knowledge%20Test.pdf",
   "n": 14,
   "short": "MI Knowledge Test",
   "name": "Motivational Interviewing Knowledge Test",
