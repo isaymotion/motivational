@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09, after v1.9.3 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-09 (baseline re-verified in a fresh chat: all five checks clean on main c757251), after v1.9.3 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -112,6 +112,8 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 
 ## 7. Status after v1.9.0 and next steps
 **v1.9.0 done (2026-11-09)**, per her answers: practice scoring with the optional, off-by-default "Save my own practice attempts on this device" setting; MI Knowledge Test self-test with Exhibit 3.1 term notes (items 1, 3, 4, 6, 7, 11, 15, 16, 21). Each practice result ends with a "Giving this feedback" note (Ch 2 for AUDIT; Ch 4 for DrInC, SOCRATES, URICA; Ch 5 for DB; Ch 7 for BSCQ/AASES). Also fixed: MIKT Q22's situation (T: confidence 0–10 / C: "About a 4") had been missing.
+
+**Baseline 2026-11-09 (fresh chat, main c757251 = v1.9.3):** check_chapters OK (8 ch, 179 terms); qa.py FAILS: 0 (92 PASS); tools_qa.py TOOLS FAILS: 0 (103 PASS); check_sw PASS; check_design --browser PASS. §7 decisions and ideas listed to her; waiting for her choice.
 
 **Defaults taken without her decision — tell her, change if she wants:**
 - **AASES:** only the plain average of the 20 ratings, plus the lowest-rated situations (rated 1–2, or her lowest rating). No subscales, with a caution callout. If she supplies the official 20-item key, add subscale scoring.
