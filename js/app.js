@@ -527,6 +527,7 @@
         segGroup('lang', t('about.language'), [['en', t('about.langEn')], ['tl', t('about.langTl')]], lang) +
         segGroup('theme', t('theme.title'), [['auto', t('theme.auto')], ['light', t('theme.light')], ['dark', t('theme.dark')]], getTheme()) +
         segGroup('aboutTextSize', t('textsize.title'), sizes, String(store.get('textSize', '100'))) +
+        segGroup('practiceSave', 'Tools: my own practice attempts', [['off', 'Don’t save'], ['on', 'Save on this device']], practiceOn() ? 'on' : 'off') +
       '</div>' +
       '<h2>' + esc(t('about.tips')) + '</h2><div class="card"><ul class="prose" style="margin:0;padding-left:1.2em">' +
         [1, 2, 3, 4, 5].map(function (i) { return '<li>' + rich(t('about.tip' + i)) + '</li>'; }).join('') +
@@ -1049,14 +1050,20 @@
   var STUDY_ONLY = '<div class="callout callout--caution"><p class="callout__title">Study aid, not a clinical record</p><p>These pages are for learning the instruments. To assess a client, use the official form and its manual.</p></div>';
 
   TITLES.tools = 'Tools';
-  VIEWS.tools = function (id) {
+  VIEWS.tools = function (id, mode) {
+    if (id && mode) {
+      var tx = TOOL_BY_ID[id];
+      if (tx && mode === 'practice' && SCORERS[id]) return practiceView(tx);
+      if (tx && mode === 'test' && id === 'mikt') return miktView(tx);
+      return missingView();
+    }
     if (id) return toolView(id);
     TITLES.tools = 'Tools';
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools' }]) +
-      '<header class="page__head"><p class="eyebrow">Appendix B</p><h1>Screening and assessment tools</h1><p>TIP 35 reprints ' + TOOLS.length + ' instruments in Appendix B. Public-domain tools show every item and the scoring as printed. Tools reprinted with permission get a reference card — what the tool measures, how it is scored, its source and where to find the official copy — without the item text.</p></header>' +
+      '<header class="page__head"><p class="eyebrow">Appendix B</p><h1>Screening and assessment tools</h1><p>TIP 35 reprints ' + TOOLS.length + ' instruments in Appendix B. Public-domain tools show every item and the scoring as printed, with <strong>practice scoring</strong> (and a self-test for the MI Knowledge Test). Tools reprinted with permission get a reference card — what the tool measures, how it is scored, its source and where to find the official copy — without the item text.</p></header>' +
       STUDY_ONLY +
       '<div class="tool__rows">' + TOOLS.map(function (x) {
-        return '<a class="row" href="#/tools/' + esc(x.id) + '"><span class="row__num">' + x.n + '</span><span><h3>' + esc(x.short) + '</h3><p>' + esc(x.name) + '</p><span class="row__meta">' + toolBadge(x) + '<span class="muted">' + esc(x.count) + (x.chapter ? ' · Chapter ' + x.chapter : '') + '</span></span></span></a>';
+        return '<a class="row" href="#/tools/' + esc(x.id) + '"><span class="row__num">' + x.n + '</span><span><h3>' + esc(x.short) + '</h3><p>' + esc(x.name) + '</p><span class="row__meta">' + toolBadge(x) + '<span class="muted">' + esc(x.count) + (x.chapter ? ' · Chapter ' + x.chapter : '') + '</span>' + (SCORERS[x.id] ? '<span class="tbadge tbadge--try">Practice scoring</span>' : x.id === 'mikt' ? '<span class="tbadge tbadge--try">Self-test</span>' : '') + '</span></span></a>';
       }).join('') + '</div>' +
       '<div class="next"><a class="btn" href="#/resources">Appendix C: Resources →</a></div></div>';
   };
@@ -1073,7 +1080,7 @@
       out += '<div class="callout callout--note"><p class="callout__title">' + esc(cx.title) + '</p>' + cx.lines.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>';
     });
     out += '<details class="tool__items"' + (x.items.length <= 12 ? ' open' : '') + '><summary>Show all ' + x.items.length + ' items</summary><ol class="tool__list">' + x.items.map(function (it) {
-      var h = '<li value="' + it.n + '"><p class="tool__q">' + esc(it.q) + '</p>';
+      var h = '<li value="' + it.n + '"><p class="tool__q">' + esc(it.q) + '</p>' + (it.pre ? '<div class="mk__pre">' + it.pre.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' : '');
       if (it.opts) h += '<ul class="tool__opts">' + it.opts.map(function (o) { return '<li><span class="tool__score">' + esc(String(o[1])) + '</span>' + esc(o[0]) + '</li>'; }).join('') + '</ul>';
       if (it.choices) h += '<ol class="tool__choices" type="a">' + it.choices.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>';
       if (it.note) h += '<p class="tool__note">' + esc(it.note) + '</p>';
@@ -1091,6 +1098,8 @@
       '<header class="page__head"><p class="eyebrow">Appendix B · Tool ' + x.n + ' · pp. ' + esc(x.pages) + '</p><h1>' + esc(x.name) + '</h1><p class="row__meta">' + toolBadge(x) + '<span class="muted">' + esc(x.count) + '</span></p></header>';
     h += '<section class="guide__sec"><h2>About</h2>' + renderBlocks(x.about) +
       (ch ? '<p><a class="btn" href="#/c/' + ch.id + '">Covered in Chapter ' + ch.id + ': ' + esc(ch.title) + ' →</a></p>' : '') + '</section>';
+    if (SCORERS[x.id]) h += '<div class="callout callout--key tool__try"><p class="callout__title">Practice scoring</p><p>Answer the items yourself to practice scoring: totals, the book’s interpretation and tips for giving the feedback. Nothing is stored unless you choose to save your own attempts.</p><p><a class="btn btn--solid" href="#/tools/' + esc(x.id) + '/practice">Practice scoring →</a></p></div>';
+    if (x.id === 'mikt') h += '<div class="callout callout--key tool__try"><p class="callout__title">Self-test</p><p>Take the ' + x.items.length + ' questions and check your answers against the key, with the updated MI terms from Chapter 3.</p><p><a class="btn btn--solid" href="#/tools/mikt/test">Take the self-test →</a></p></div>';
     if (x.status === 'pd') h += toolItems(x);
     else h += '<div class="callout callout--note"><p class="callout__title">Items not shown</p><p>' + esc(x.restrictedNote) + '</p>' +
       (x.url ? '<p>' + extLink(x.url, 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list an online copy for this tool; see the source below.</p>') + '</div>';
@@ -1103,6 +1112,313 @@
     return h + '</div>';
   }
 
+  /* ===== PRACTICE SCORING (v1.9.0): public-domain tool pages + the MI Knowledge Test self-test =====
+     Keys come from data/tools.js (scoring tables are parsed, not retyped); notes from data/practice.js.
+     Privacy: answers live only in PR (memory) and are dropped when the route leaves a practice page.
+     Nothing is stored unless the "Save my own practice attempts on this device" setting is on
+     (store key practiceSave); saved attempts go under mt:v1:practice.<toolId> = [{date, answers, scores, summary}],
+     newest first, so the backup panel (everything under PREFIX) exports and imports them. */
+  var PRACTICE = window.MI_PRACTICE || {};
+  var PR_FEEDBACK = PRACTICE.feedback || {}, MIKT_TERMS = PRACTICE.miktTerms || {}, MIKT_SKIP = PRACTICE.miktNotScored || {};
+  var PR = null;          // { id, ans: { itemNumber: score | letter }, sex: 'w' | 'm', checked: bool, msg: '' }
+  var PR_MAX = 50;        // saved attempts kept per tool
+  var PR_ROUTE = /^#\/tools\/[^\/]+\/(practice|test)\/?$/;
+  function practiceOn() { return store.get('practiceSave', false) === true; }
+  function prKey(id) { return 'practice.' + id; }
+  function prHistory(id) { var h = store.get(prKey(id), []); return Array.isArray(h) ? h : []; }
+  function numList(s) { return String(s).split(/[^0-9]+/).filter(Boolean).map(Number); }
+  function scoringTables(x) { return (x.scoring || []).filter(function (b) { return b.t === 'table'; }); }
+  function scaleRows(x) { return scoringTables(x)[0].rows.map(function (r) { return { name: stripTags(r[0]), items: numList(r[1]) }; }); }
+  function sumOf(a, items) { return items.reduce(function (s, n) { return s + (+a[n] || 0); }, 0); }
+  function fix2(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+  function shortSituation(q) {   // "UNPLEASANT EMOTIONS (e.g., ...)" -> "Unpleasant emotions"
+    var s = String(q).split(' (')[0].replace(/\.$/, '');
+    return s === s.toUpperCase() ? s.charAt(0) + s.slice(1).toLowerCase() : s;
+  }
+  function inRange(spec, v) {   // "32–33" | "35" | "—"
+    var m = numList(spec);
+    if (!m.length) return false;
+    return v >= m[0] && v <= (m.length > 1 ? m[1] : m[0]);
+  }
+  function prTable(head, rows) {
+    return '<div class="table-wrap"><table class="pr__table"><thead><tr>' + head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return i === 0 ? '<th scope="row">' + c + '</th>' : '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function prLead(big, small) { return '<p class="pr__lead"><span class="pr__big">' + big + '</span>' + (small ? ' <span class="pr__small">' + small + '</span>' : '') + '</p>'; }
+
+  /* Each scorer: (tool, answers, opts) -> { need: [item numbers that must be answered], scores, summary, html } */
+  var SCORERS = {
+    audit: function (x, a, o) {
+      var never = a[1] === 0, men = o.sex === 'm';
+      var need = x.items.filter(function (it) { return !(never && it.n >= 2 && it.n <= 8); }).map(function (it) { return it.n; });
+      var total = sumOf(a, need);
+      var zi = total >= 25 ? 3 : total >= 16 ? 2 : total >= (men ? 8 : 7) ? 1 : 0;
+      var z = scoringTables(x)[0].rows[zi];
+      var html = prLead(total + ' <span class="pr__of">/ 46</span>', 'U.S. AUDIT total') +
+        prTable(['Result', ''], [['Risk level', esc(z[0]) + ' <span class="muted">(' + (men ? 'men' : 'women') + '’s cut-offs: ' + esc(z[2]) + ')</span>'], ['Intervention', esc(z[1])], ['Possible AUD (DSM-5, ICD-10)', esc(z[3])]]) +
+        (never ? '<p class="muted">Question 1 was “Never,” so questions 2 to 8 were skipped and count as 0, as the form directs.</p>' : '');
+      return { need: need, scores: { total: total, zone: z[0], cutoffs: men ? 'men' : 'women' }, summary: 'Total ' + total + ' · ' + z[0] + ' (' + (men ? 'men' : 'women') + '’s cut-offs)', html: html };
+    },
+    drinc: function (x, a) {
+      var rows = scaleRows(x), sc = {}, total = 0, out = [];
+      rows.forEach(function (r) {
+        var v = sumOf(a, r.items), ctl = /^Control/.test(r.name);
+        sc[r.name] = v; if (!ctl) total += v;
+        out.push([esc(r.name) + (ctl ? ' <span class="muted">(not in total)</span>' : ''), v + ' <span class="muted">/ ' + r.items.length + '</span>']);
+      });
+      var ctlV = sc['Control Scale'];
+      sc.total = total;
+      var html = prLead(total + ' <span class="pr__of">/ 45</span>', 'Total DrInC Score (lifetime alcohol problems)') + prTable(['Scale', 'Score'], out) +
+        (ctlV === 0 ? '<div class="callout callout--caution"><p class="callout__title">Control Scale = 0</p><p>Zero scores on the Control Scale items may indicate careless or dishonest responses. Read the other scales with that in mind.</p></div>' :
+          '<p class="muted">Control Scale: ' + ctlV + ' / 5. It is scored separately; zero scores would suggest careless or dishonest responding.</p>');
+      return { need: x.items.map(function (it) { return it.n; }), scores: sc, summary: 'Total ' + total + ' · Control ' + ctlV, html: html };
+    },
+    socrates: function (x, a) {
+      var rows = scaleRows(x), prof = scoringTables(x)[1], hi = scoringTables(x).length ? (x.interpret || []).filter(function (b) { return b.t === 'table'; })[0] : null;
+      var sc = {}, out = [], sum = [];
+      rows.forEach(function (r, i) {
+        var v = sumOf(a, r.items), dec = null;
+        prof.rows.forEach(function (pr) { if (dec == null && inRange(pr[i + 1], v)) dec = pr[0]; });
+        var num = dec ? parseInt(dec, 10) : null, band = num == null ? '' : num >= 70 ? 'High scorers' : num <= 30 ? 'Low scorers' : '';
+        var desc = band && hi ? hi.rows[i][band === 'High scorers' ? 1 : 2] : '';
+        var abbr = (/\((\w+)\)/.exec(r.name) || [])[1] || r.name;
+        sc[abbr] = { raw: v, decile: dec };
+        sum.push(abbr + ' ' + v + (dec ? ' (' + num + ')' : ''));
+        out.push([esc(r.name), '<strong>' + v + '</strong>', dec ? esc(dec) : '<span class="muted">not on the profile</span>', desc ? '<span class="pr__desc"><strong>' + band + ':</strong> ' + esc(desc) + '</span>' : '<span class="muted">Medium range — read the item responses.</span>']);
+      });
+      var html = '<p class="pr__small">Raw scores and deciles from the SOCRATES Profile Sheet</p>' +
+        '<div class="table-wrap table-wrap--stack"><table class="rtable pr__table"><thead><tr><th>Scale</th><th>Raw</th><th>Decile</th><th>Reading (as printed)</th></tr></thead><tbody>' +
+        out.map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td data-label="Raw">' + r[1] + '</td><td data-label="Decile">' + r[2] + '</td><td data-label="Reading">' + r[3] + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<p class="muted">Deciles rank the score against 1,726 adults presenting for alcohol treatment (Project MATCH). Read a low Ambivalence score against the Recognition score.</p>';
+      return { need: x.items.map(function (it) { return it.n; }), scores: sc, summary: sum.join(' · '), html: html };
+    },
+    urica: function (x, a) {
+      var rows = scaleRows(x), sc = {}, best = -1;
+      rows.forEach(function (r) { sc[r.name] = sumOf(a, r.items); best = Math.max(best, sc[r.name]); });
+      var top = rows.filter(function (r) { return sc[r.name] === best; }).map(function (r) { return r.name; });
+      var html = prTable(['Subscale', 'Sum (8–40)'], rows.map(function (r) { return [esc(r.name), (sc[r.name] === best ? '<strong>' + sc[r.name] + '</strong> <span class="tbadge tbadge--pd">highest</span>' : String(sc[r.name]))]; })) +
+        '<p>High scores on a stage subscale indicate the respondent is likely in that stage. The stages are not discrete: a respondent can score high on more than one.</p>';
+      return { need: x.items.map(function (it) { return it.n; }), scores: sc, summary: rows.map(function (r) { return r.name + ' ' + sc[r.name]; }).join(' · ') + ' · highest: ' + top.join(', '), html: html };
+    },
+    db: function (x, a) {
+      var rows = scaleRows(x), pros = rows[0], cons = rows[1];
+      var p = sumOf(a, pros.items) / pros.items.length, c = sumOf(a, cons.items) / cons.items.length, d = p - c;
+      var dTxt = (d > 0 ? '+' : '') + fix2(d);
+      var meaning = d > 0 ? 'Positive: endorses more Pros than Cons of ' + (x.id === 'alcdb' ? 'drinking alcohol.' : 'using drugs.') : d < 0 ? 'Negative: endorses more Cons than Pros of ' + (x.id === 'alcdb' ? 'drinking alcohol.' : 'using drugs.') : 'Zero: Pros and Cons are rated equally.';
+      var highCons = cons.items.filter(function (n) { return a[n] >= 4; });
+      var html = prLead(dTxt, 'Difference score (Pros − Cons)') + prTable(['Scale', 'Average (1–5)'], [[esc(pros.name), fix2(p)], [esc(cons.name), fix2(c)]]) + '<p>' + esc(meaning) + '</p>' +
+        (highCons.length ? '<p><strong>Cons rated 4 or 5</strong> (worth exploring to build discrepancy):</p><ul>' + highCons.map(function (n) { return '<li>' + n + '. ' + esc(x.items[n - 1].q) + '</li>'; }).join('') + '</ul>' : '');
+      return { need: x.items.map(function (it) { return it.n; }), scores: { pros: +fix2(p), cons: +fix2(c), difference: +fix2(d) }, summary: 'Pros ' + fix2(p) + ' · Cons ' + fix2(c) + ' · Difference ' + dTxt, html: html };
+    },
+    bscq: function (x, a) {
+      var list = x.items.map(function (it) { return { n: it.n, name: shortSituation(it.q), v: +a[it.n] }; });
+      var sorted = list.slice().sort(function (p, q) { return p.v - q.v || p.n - q.n; }), cut = sorted[Math.min(2, sorted.length - 1)].v;
+      var low = sorted.filter(function (s) { return s.v <= cut; });
+      var html = '<p><strong>Lowest confidence</strong> — the 1 to 3 situations to discuss further' + (low.length > 3 ? ' (tied ratings are all shown)' : '') + ':</p><ol class="pr__low">' +
+        low.map(function (s) { return '<li><strong>' + esc(s.name) + '</strong> — ' + s.v + '%</li>'; }).join('') + '</ol>' +
+        '<div class="pr__bars">' + list.map(function (s) { return '<div class="pr__bar' + (s.v <= cut ? ' is-low' : '') + '"><span class="pr__barlab">' + esc(s.name) + '</span><span class="pr__bartrack"><span style="width:' + s.v + '%"></span></span><span class="pr__barv">' + s.v + '%</span></div>'; }).join('') + '</div>' +
+        '<p class="muted">Each situation has its own score; the BSCQ has no total.</p>';
+      var sc = {}; list.forEach(function (s) { sc[s.name] = s.v; });
+      return { need: x.items.map(function (it) { return it.n; }), scores: { ratings: sc, lowest: low.map(function (s) { return s.name; }) }, summary: 'Lowest: ' + low.map(function (s) { return s.name + ' ' + s.v + '%'; }).join(', '), html: html };
+    },
+    aases: function (x, a) {
+      var n = x.items.length, mean = sumOf(a, x.items.map(function (it) { return it.n; })) / n;
+      var min = Math.min.apply(null, x.items.map(function (it) { return +a[it.n]; }));
+      var low = x.items.filter(function (it) { return +a[it.n] <= Math.max(2, min); });
+      var html = prLead(fix2(mean), 'Average confidence across the ' + n + ' situations (1–5)') +
+        '<div class="callout callout--caution"><p class="callout__title">No subscale scores</p><p>The printed key (subscales from 12 item numbers, “divide by 12”) fits a 12-item version, not the 20 items printed, so subscales are not calculated here. This is only the plain average of your 20 ratings. Use the official 20-item key to score subscales.</p></div>' +
+        '<p><strong>Lowest-confidence situations</strong> (' + (min <= 2 ? 'rated 1 or 2' : 'your lowest rating, ' + min) + ') — the high-risk situations to plan for:</p><ul>' +
+        low.map(function (it) { return '<li>' + it.n + '. ' + esc(it.q) + ' <span class="muted">(' + a[it.n] + ')</span></li>'; }).join('') + '</ul>';
+      return { need: x.items.map(function (it) { return it.n; }), scores: { mean: +fix2(mean), lowest: low.map(function (it) { return it.n; }) }, summary: 'Average ' + fix2(mean) + ' · ' + low.length + ' low-confidence situation' + (low.length === 1 ? '' : 's'), html: html };
+    }
+  };
+  SCORERS.socrates8a = SCORERS.socrates8d = SCORERS.socrates;
+  SCORERS.alcdb = SCORERS.drugdb = SCORERS.db;
+  delete SCORERS.socrates; delete SCORERS.db;
+  var FEEDBACK_FOR = { socrates8a: 'socrates', socrates8d: 'socrates', alcdb: 'db', drugdb: 'db' };
+  function prScore(id, ans, opts) {
+    var x = TOOL_BY_ID[id], f = SCORERS[id];
+    if (!x || !f) return null;
+    var r = f(x, ans || {}, opts || {});
+    r.missing = r.need.filter(function (n) { return ans[n] == null; }).length;
+    return r;
+  }
+  window.MI_SCORE = function (id, ans, opts) { var r = prScore(id, ans || {}, opts); return r && { missing: r.missing, scores: r.scores, summary: r.summary }; };   // for QA
+
+  var PR_BANNER = '<div class="callout callout--caution"><p class="callout__title">Practice and teaching only — not a clinical record</p><p>Use this to learn how the instrument is scored. There are no name or ID fields, and your answers are cleared when you leave this page unless you choose to save your own practice attempt. To assess a client, use the official form and its manual.</p></div>';
+  function prSaveSetting() {
+    return '<div class="card pr__setting"><label class="pr__toggle"><input type="checkbox" id="pr-save-on"' + (practiceOn() ? ' checked' : '') + '><span>Save my own practice attempts on this device</span></label>' +
+      '<p class="muted">Off by default. When on, a <strong>Save this attempt</strong> button keeps your own practice attempts in this browser only (included in Backup export). These are your practice runs, not client data — never enter a client’s answers.</p></div>';
+  }
+  function prItemHead(it) { return '<p class="pr__q"><span class="pr__n">' + it.n + '</span><span>' + esc(it.q) + '</span></p>'; }
+  function prOptions(x, it) {
+    var cur = PR.ans[it.n], name = 'pr-' + it.n;
+    if (x.id === 'bscq') {
+      var has = cur != null;
+      return '<div class="pr__range"><input type="range" min="0" max="100" step="5" value="' + (has ? cur : 50) + '" data-n="' + it.n + '" aria-label="Confidence for situation ' + it.n + ', 0 to 100 percent"' + (has ? '' : ' data-unset="1"') + '><output id="pr-o-' + it.n + '">' + (has ? cur + '%' : 'Not rated') + '</output></div>';
+    }
+    var opts = it.opts || x.scale, numeric = !it.opts && opts.some(function (o) { return o[0].length > 12; });
+    return '<div class="seg' + (numeric ? ' seg--num' : '') + '">' + opts.map(function (o) {
+      return '<label><input type="radio" name="' + name + '" value="' + o[1] + '" data-n="' + it.n + '"' + (cur === o[1] ? ' checked' : '') + (numeric ? ' aria-label="' + esc(o[1] + ' = ' + o[0]) + '"' : '') + '><span>' + (numeric ? esc(String(o[1])) : esc(o[0]) + (it.opts ? ' <small>' + o[1] + '</small>' : '')) + '</span></label>';
+    }).join('') + '</div>';
+  }
+  function practiceView(x) {
+    if (!PR || PR.id !== x.id) PR = { id: x.id, ans: {}, sex: 'w', msg: '' };
+    TITLES.tools = x.short + ' practice';
+    var numeric = x.scale && x.scale.some(function (o) { return o[0].length > 12; });
+    var h = '<div class="wrap page tool practice" data-tool="' + esc(x.id) + '">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools', href: '#/tools' }, { label: x.short, href: '#/tools/' + x.id }, { label: 'Practice' }]) +
+      '<header class="page__head"><p class="eyebrow">Practice scoring · Appendix B · Tool ' + x.n + '</p><h1>' + esc(x.short) + ': practice scoring</h1><p>' + (x.id === 'bscq' ? 'Move each slider' : 'Tap an answer for each item') + '. The scores and the book’s interpretation appear when every item is answered.</p></header>' +
+      PR_BANNER + prSaveSetting();
+    (x.instructions || []).forEach(function (ins) { h += '<details class="tool__items"><summary>' + esc(ins.title || 'Instructions (as printed)') + '</summary><p class="pr__ins">' + esc(ins.x) + '</p></details>'; });
+    if (x.id === 'audit') h += segGroup('prsex', 'Zone cut-offs', [['w', 'Women'], ['m', 'Men']], PR.sex);
+    if (numeric) h += '<p class="muted">' + esc(x.scaleLabel || 'Response scale:') + '</p>' + scaleChips(x.scale);
+    if (x.id === 'bscq') h += '<p class="muted">Each item begins: “Right now I would be able to resist the urge to drink heavily or use my primary drug in situations involving…” · 0% = Not at all confident, 100% = Totally confident.</p>';
+    h += '<p class="pr__progress" id="pr-progress" aria-live="polite"></p><ol class="pr__items">' + x.items.map(function (it) {
+      return '<li class="pr__item" id="pr-i-' + it.n + '"><fieldset><legend class="sr-only">Item ' + it.n + '</legend>' + prItemHead(it) + prOptions(x, it) + (it.note ? '<p class="tool__note">' + esc(it.note) + '</p>' : '') + '</fieldset></li>';
+    }).join('') + '</ol>' +
+      '<section class="card pr__result" id="pr-result" aria-live="polite"></section>' +
+      '<div class="pr__actions"><button type="button" class="btn" id="pr-clear">Clear answers</button> <button type="button" class="btn btn--solid" id="pr-save">Save this attempt</button></div><p class="pr__msg" id="pr-msg" role="status"></p>' +
+      '<section id="pr-history"></section>' +
+      '<div class="next"><a class="btn" href="#/tools/' + esc(x.id) + '">← ' + esc(x.short) + ' tool page</a> <a class="btn" href="#/tools">All tools</a></div></div>';
+    return h;
+  }
+  function prPaint() {
+    if (!PR || !document.getElementById('pr-progress')) return;
+    var x = TOOL_BY_ID[PR.id];
+    if (PR.id === 'mikt') { prHistoryPaint(); return; }
+    var r = prScore(PR.id, PR.ans, { sex: PR.sex }), total = r.need.length, done = total - r.missing;
+    if (PR.id === 'audit') x.items.forEach(function (it) {
+      var li = document.getElementById('pr-i-' + it.n), skip = r.need.indexOf(it.n) < 0;
+      if (li) { li.classList.toggle('is-skipped', skip); li.querySelector('fieldset').disabled = skip; }
+    });
+    document.getElementById('pr-progress').textContent = done + ' of ' + total + ' answered';
+    var box = document.getElementById('pr-result'), fb = PR_FEEDBACK[FEEDBACK_FOR[PR.id] || PR.id];
+    box.innerHTML = r.missing ? '<h2>Result</h2><p class="muted">' + r.missing + ' item' + (r.missing === 1 ? '' : 's') + ' still to answer.</p>' :
+      '<h2>Result</h2>' + r.html + (fb ? '<div class="callout callout--key"><p class="callout__title">Giving this feedback · ' + esc(fb.sec) + '</p>' + renderBlocks(fb.blocks) + '<p><a href="#/c/' + fb.ch + '">Open Chapter ' + fb.ch + ' →</a></p></div>' : '');
+    var sv = document.getElementById('pr-save');
+    if (sv) { sv.hidden = !practiceOn(); sv.disabled = !!r.missing; }
+    prHistoryPaint();
+  }
+  function prHistoryPaint() {
+    var el = document.getElementById('pr-history'); if (!el) return;
+    var list = prHistory(PR.id), msg = document.getElementById('pr-msg');
+    if (msg) msg.textContent = PR.msg || '';
+    el.innerHTML = !list.length ? '' : '<h2>Your saved practice attempts (' + list.length + ')</h2><p class="muted">Stored in this browser only' + (practiceOn() ? '' : ' (saving is now off; these stay until you delete them)') + '.</p><ul class="pr__hist">' + list.map(function (e, i) {
+      return '<li><span><strong>' + esc(bkDate(e.date)) + '</strong><br><span class="muted">' + esc(e.summary || '') + '</span></span><button type="button" class="btn" data-pr-del="' + i + '" aria-label="Delete the attempt from ' + esc(bkDate(e.date)) + '">Delete</button></li>';
+    }).join('') + '</ul><p><button type="button" class="btn" id="pr-clear-all">Delete all ' + esc(TOOL_BY_ID[PR.id].short) + ' attempts</button></p>';
+  }
+  function prSave(entry) {
+    if (!practiceOn()) return;
+    var list = prHistory(PR.id);
+    list.unshift(entry);
+    store.set(prKey(PR.id), list.slice(0, PR_MAX));
+    PR.msg = 'Saved on this device.';
+  }
+
+  /* --- MI Knowledge Test self-test (own view: up to 6 choices, two dialogues; the chapter quiz engine stays 4-choice) --- */
+  var LETTERS = 'abcdef';
+  function miktScored(x) { return x.items.filter(function (it) { return !MIKT_SKIP[it.n]; }); }
+  function miktResult(x, ans) {
+    var items = miktScored(x), right = items.filter(function (it) { return ans[it.n] === it.answer; }).length;
+    return { correct: right, of: items.length, unanswered: items.filter(function (it) { return !ans[it.n]; }).length };
+  }
+  window.MI_MIKT = function (ans) { return miktResult(TOOL_BY_ID.mikt, ans || {}); };   // for QA
+  function miktView(x) {
+    if (!PR || PR.id !== x.id) PR = { id: x.id, ans: {}, checked: false, msg: '' };
+    TITLES.tools = 'MI Knowledge Test self-test';
+    var res = PR.checked ? miktResult(x, PR.ans) : null;
+    var h = '<div class="wrap page tool practice mikt" data-tool="mikt">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools', href: '#/tools' }, { label: x.short, href: '#/tools/mikt' }, { label: 'Self-test' }]) +
+      '<header class="page__head"><p class="eyebrow">Self-test · Appendix B · Tool ' + x.n + '</p><h1>MI Knowledge Test</h1><p>' + x.items.length + ' questions as printed (Moyers, Martin, & Christopher, 2005). Choose one answer each, then check. Choices stay in printed order because some refer to others (“both a and b”).</p></header>' +
+      '<div class="callout callout--note"><p class="callout__title">Older MI terms</p><p>The test uses the 1991 and 2002 editions of MI. After you check, items that use an older term show the updated term from Chapter 3, Exhibit 3.1. Question 18 is not scored (printing error), so the score is out of ' + miktScored(x).length + '.</p></div>' +
+      prSaveSetting();
+    if (res) h += '<section class="card pr__result" id="pr-result" tabindex="-1"><h2>Your score</h2>' + prLead(res.correct + ' <span class="pr__of">/ ' + res.of + '</span>', Math.round(100 * res.correct / res.of) + '% correct' + (res.unanswered ? ' · ' + res.unanswered + ' unanswered' : '')) +
+      '<p class="muted">Each question below now shows the key and, where relevant, the updated MI term.</p><div class="pr__actions"><button type="button" class="btn" id="mk-retry">Try again</button>' + (practiceOn() ? ' <button type="button" class="btn btn--solid" id="mk-save">Save this attempt</button>' : '') + '</div><p class="pr__msg" id="pr-msg" role="status"></p></section>';
+    else h += '<p class="pr__progress" id="pr-progress" aria-live="polite"></p>';
+    var ctx = x.contexts || [];
+    h += '<ol class="pr__items">' + x.items.map(function (it) {
+      var out = '';
+      if (it.n === 12 && ctx[0]) out += miktContext(ctx[0]);
+      if (it.n === 16 && ctx[1]) out += miktContext(ctx[1]);
+      var skip = MIKT_SKIP[it.n], chosen = PR.ans[it.n], ok = chosen === it.answer;
+      out += '<li class="pr__item' + (res && !skip ? (ok ? ' is-right' : ' is-wrong') : '') + (skip ? ' is-skipped' : '') + '" id="pr-i-' + it.n + '"><fieldset' + (res || skip ? ' disabled' : '') + '><legend class="sr-only">Question ' + it.n + '</legend>' + prItemHead(it) +
+        (it.pre ? '<div class="mk__pre">' + it.pre.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>' : '') +
+        (it.note ? '<p class="tool__note">' + esc(it.note) + '</p>' : '') +
+        '<div class="choices">' + it.choices.map(function (c, i) {
+          var L = LETTERS[i], cls = '';
+          if (res && !skip) cls = L === it.answer ? ' is-correct' : L === chosen ? ' is-wrong' : ' is-dim';
+          return '<label class="choice' + cls + '"><input type="radio" name="mk-' + it.n + '" value="' + L + '" data-n="' + it.n + '"' + (chosen === L ? ' checked' : '') + '><span class="choice__key">' + L + ')</span><span>' + esc(c) + '</span></label>';
+        }).join('') + '</div>';
+      if (skip) out += '<p class="pr__fb">' + esc(skip) + '</p>';
+      else if (res) out += '<p class="pr__fb"><strong>' + (ok ? 'Correct.' : chosen ? 'Not quite.' : 'Not answered.') + '</strong> Key: ' + it.answer + ') ' + esc(it.choices[LETTERS.indexOf(it.answer)]) + '</p>' +
+        (MIKT_TERMS[it.n] ? '<p class="pr__term"><span class="tbadge tbadge--rx">Updated term</span> ' + MIKT_TERMS[it.n] + '</p>' : '');
+      return out + '</fieldset></li>';
+    }).join('') + '</ol>';
+    if (!res) h += '<div class="pr__actions"><button type="button" class="btn btn--solid" id="mk-check">Check my answers</button></div>';
+    h += '<section id="pr-history"></section><div class="next"><a class="btn" href="#/tools/mikt">← MI Knowledge Test page</a> <a class="btn" href="#/tools">All tools</a></div></div>';
+    return h;
+  }
+  function miktContext(cx) { return '<li class="mk__ctx" aria-hidden="false"><div class="callout callout--note"><p class="callout__title">' + esc(cx.title) + '</p>' + cx.lines.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div></li>'; }
+  function miktProgress() {
+    var el = document.getElementById('pr-progress'); if (!el) return;
+    var x = TOOL_BY_ID.mikt, n = miktScored(x).filter(function (it) { return PR.ans[it.n]; }).length;
+    el.textContent = n + ' of ' + miktScored(x).length + ' answered';
+  }
+
+  /* --- Practice events (delegated on main) --- */
+  function prRerender() { route({ keepScroll: true }); }
+  main.addEventListener('change', function (e) {
+    var el = e.target; if (!PR || !el || !el.closest || !el.closest('.practice')) return;
+    if (el.id === 'pr-save-on') { store.set('practiceSave', !!el.checked); PR.msg = el.checked ? 'Saving is on for your own practice attempts.' : 'Saving is off. Nothing new will be stored.'; if (PR.id === 'mikt') prRerender(); else prPaint(); return; }
+    if (el.name === 'prsex') { PR.sex = el.value === 'm' ? 'm' : 'w'; prPaint(); return; }
+    var n = +el.getAttribute('data-n'); if (!n) return;
+    if (PR.id === 'mikt') { PR.ans[n] = el.value; miktProgress(); return; }
+    if (el.type === 'radio') {
+      PR.ans[n] = +el.value;
+      if (PR.id === 'audit' && n === 1 && PR.ans[1] === 0) for (var k = 2; k <= 8; k++) delete PR.ans[k];
+      PR.msg = ''; prPaint();
+    }
+  });
+  main.addEventListener('input', function (e) {
+    var el = e.target; if (!PR || !el || el.type !== 'range' || !el.closest('.practice')) return;
+    var n = +el.getAttribute('data-n'); PR.ans[n] = +el.value; el.removeAttribute('data-unset');
+    var o = document.getElementById('pr-o-' + n); if (o) o.textContent = el.value + '%';
+    PR.msg = ''; prPaint();
+  });
+  main.addEventListener('click', function (e) {
+    if (!PR || !e.target.closest) return;
+    var b = e.target.closest('button'); if (!b || !b.closest('.practice')) return;
+    var x = TOOL_BY_ID[PR.id];
+    if (b.id === 'pr-clear') { PR.ans = {}; PR.msg = ''; prRerender(); }
+    else if (b.id === 'pr-save') {
+      var r = prScore(PR.id, PR.ans, { sex: PR.sex }); if (!r || r.missing) return;
+      prSave({ date: new Date().toISOString(), answers: JSON.parse(JSON.stringify(PR.ans)), scores: r.scores, summary: r.summary }); prPaint();
+    }
+    else if (b.id === 'mk-check') {
+      var un = miktScored(x).filter(function (it) { return !PR.ans[it.n]; }).length;
+      if (un && !window.confirm(un + ' question' + (un === 1 ? ' is' : 's are') + ' unanswered and will count as wrong. Check anyway?')) return;
+      PR.checked = true; PR.msg = ''; prRerender();
+      var box = document.getElementById('pr-result'); if (box) { box.scrollIntoView({ block: 'start' }); box.focus({ preventScroll: true }); }
+    }
+    else if (b.id === 'mk-retry') { PR.ans = {}; PR.checked = false; PR.msg = ''; prRerender(); window.scrollTo(0, 0); }
+    else if (b.id === 'mk-save') {
+      var m = miktResult(x, PR.ans);
+      prSave({ date: new Date().toISOString(), answers: JSON.parse(JSON.stringify(PR.ans)), scores: m, summary: m.correct + ' / ' + m.of + ' correct' }); b.disabled = true; prHistoryPaint();
+    }
+    else if (b.hasAttribute('data-pr-del')) {
+      var list = prHistory(PR.id), i = +b.getAttribute('data-pr-del');
+      if (!window.confirm('Delete this saved practice attempt?')) return;
+      list.splice(i, 1); if (list.length) store.set(prKey(PR.id), list); else store.del(prKey(PR.id)); PR.msg = 'Attempt deleted.'; prHistoryPaint();
+    }
+    else if (b.id === 'pr-clear-all') {
+      if (!window.confirm('Delete all your saved ' + x.short + ' practice attempts on this device?')) return;
+      store.del(prKey(PR.id)); PR.msg = 'All saved attempts deleted.'; prHistoryPaint();
+    }
+  });
+
+  AFTER.tools = function (id, mode) {
+    if (!PR || !mode) return;
+    if (PR.id === 'mikt') { miktProgress(); prHistoryPaint(); } else prPaint();
+  };
   TITLES.resources = 'Resources';
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
@@ -1129,6 +1445,8 @@
   TOOLS.forEach(function (x) {
     var text = x.name + ' ' + x.about.map(function (b) { return b.x ? stripTags(b.x) : b.items ? b.items.map(stripTags).join(' ') : ''; }).join(' ') + ' ' + (x.status === 'pd' ? x.items.map(function (it) { return it.q; }).join(' ') : '');
     SEARCH_INDEX.push({ title: x.short + ' — ' + x.name, text: text, href: '#/tools/' + x.id, kind: 'Tool' });
+    if (SCORERS[x.id]) SEARCH_INDEX.push({ title: x.short + ' — practice scoring', text: 'practice scoring score total interpretation feedback ' + x.name, href: '#/tools/' + x.id + '/practice', kind: 'Tool' });
+    if (x.id === 'mikt') SEARCH_INDEX.push({ title: 'MI Knowledge Test — self-test', text: 'self-test quiz MI knowledge test answer key score', href: '#/tools/mikt/test', kind: 'Tool' });
   });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
@@ -1154,6 +1472,7 @@
   function route(opts) {
     opts = opts || {};
     closeSuggest(); closeDrawer();
+    if (!PR_ROUTE.test(location.hash)) PR = null;   // practice answers are dropped when you leave the page
     var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
     if (!opts.keepScroll) {
       scrollMemo[scrollKey] = window.scrollY;                 // the page we are leaving
@@ -1180,6 +1499,7 @@
     if (n === 'lang') { setLang(v); var again = main.querySelector('input[name="lang"]:checked'); if (again) again.focus(); }
     else if (n === 'theme') setTheme(v);
     else if (n === 'aboutTextSize') { store.set('textSize', v); applyTextSize(v); }
+    else if (n === 'practiceSave') store.set('practiceSave', v === 'on');
   });
   main.addEventListener('click', function (e) {
     var f = e.target.closest ? e.target.closest('.search-page .filter[data-kind]') : null;

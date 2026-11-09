@@ -2215,7 +2215,7 @@ window.MI_TOOLS = [
    },
    {
     "t": "p",
-    "x": "An interactive self-test version is planned for the next update."
+    "x": "Try the interactive <a href=\"#/tools/mikt/test\">self-test</a>: it scores your answers against the key, skips the misprinted question 18, and notes the updated MI term wherever an item uses an older one."
    }
   ],
   "instructions": [
@@ -2506,6 +2506,10 @@ window.MI_TOOLS = [
    {
     "n": 22,
     "q": "What would be the best therapist response to elicit change talk in the following situation?",
+    "pre": [
+     "T: “How confident are you on a scale of 0 to 10 that you can make this change?”",
+     "C: “About a 4.”"
+    ],
     "choices": [
      "So, you’re about a 4.",
      "Why are you a 4 and not a 0?",

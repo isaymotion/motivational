@@ -18,7 +18,7 @@ Built strictly from SAMHSA TIP 35, *Enhancing Motivation for Change in Substance
 | 6 | From Preparation to Action | Ready (v1.5.0) |
 | 7 | From Action to Maintenance | Ready (v1.6.0) |
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | Ready (v1.7.0) |
-| App. B | Screening and assessment instruments (Tools) | Ready (v1.8.0) — 14 tools; practice scoring next |
+| App. B | Screening and assessment instruments (Tools) | Ready (v1.8.0; practice scoring and MI Knowledge Test self-test v1.9.0) — 14 tools |
 | App. C | Resources | Ready (v1.8.0) |
 
 Each chapter has five modes: **Study guide**, **High-yield**, **Flashcards** (SM-2 spaced repetition), **Quiz**, **Glossary**. Across chapters: **Review** (due + new cards), **Exam** (mixed quiz), **Mistakes**, **Glossary**.
@@ -34,6 +34,7 @@ To add a chapter: create `data/chNN.js` with the same shape as `data/ch01.js` (s
 - Light, dark or match-device theme, a text-size control (Aa), and an English / Tagalog language setting. All are remembered on the device and can be changed in **About > Settings**.
 - An "Other apps" group at the end of the menu linking to the other isaymotion apps (opens in a new tab).
 - What's new page with a "new" badge for entries you have not seen.
+- Tools: practice scoring on the public-domain instruments (AUDIT, DrInC, SOCRATES 8A/8D, URICA, the decisional balance scales, BSCQ, AASES) and an MI Knowledge Test self-test. Practice/teaching only: nothing is stored unless **Save my own practice attempts on this device** is turned on (off by default; also in About > Settings). Saved attempts stay in the browser under `mt:v1:practice.<toolId>` and are included in Backup.
 - Backup: export everything the app saves on this device to a file, import it elsewhere, and undo the last import.
 - Accessible by default: skip link, visible focus, reduced-motion support, safe-area padding for notched phones.
 - No build step and no dependencies. Progress and settings are saved in the browser on each device.
@@ -62,6 +63,8 @@ data/ch05.js            Chapter 5 content
 data/ch06.js            Chapter 6 content
 data/ch07.js            Chapter 7 content
 data/ch08.js            Chapter 8 content
+data/tools.js           Appendix B instruments (window.MI_TOOLS) and Appendix C resources (window.MI_RESOURCES)
+data/practice.js        Practice-scoring feedback notes and MI Knowledge Test term notes (window.MI_PRACTICE)
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png (required),
                         favicon-32.png, favicon-64.png, apple-touch-icon.png (recommended)
 manifest.webmanifest    Install metadata

@@ -4,6 +4,19 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.0',
+    date: '2026-11-09',
+    title: 'Practice scoring and the MI Knowledge Test self-test',
+    summary: 'Score the public-domain Appendix B instruments yourself, with the book’s interpretation and tips for giving the feedback, and take the MI Knowledge Test as a self-test.',
+    items: [
+      { type: 'feature', text: 'Practice scoring on 9 tool pages: AUDIT total and zone (women’s or men’s cut-offs), DrInC scales, total and Control Scale check, SOCRATES 8A/8D raw scores and deciles, URICA subscales, Alcohol and Drug Use Decisional Balance averages and difference, BSCQ sliders with the lowest-confidence situations, and the AASES average. Each result ends with a “Giving this feedback” note from the chapters.', href: '#/tools/audit/practice' },
+      { type: 'feature', text: 'MI Knowledge Test self-test: all 22 questions with both exchanges, scored against the key, with the updated MI term from Chapter 3 (Exhibit 3.1) wherever a question uses an older one. Question 18 is not scored because of a printing error in the key.', href: '#/tools/mikt/test' },
+      { type: 'feature', text: 'Practice and teaching only: there are no name or ID fields and answers are cleared when you leave the page. An optional setting (off by default, also in About > Settings) saves your own practice attempts on this device, with a history you can delete; saved attempts are included in Backup.', href: '#/about' },
+      { type: 'correction', text: 'MI Knowledge Test question 22 now shows its counselor–client situation (“About a 4”), which was missing.', href: '#/tools/mikt' },
+      { type: 'update', text: 'AASES: only the overall average is calculated. The printed subscale key fits a 12-item version, not the 20 items printed, so subscales are not scored.' }
+    ]
+  },
+  {
     version: '1.8.0',
     date: '2026-11-09',
     title: 'Appendices: Tools and Resources',

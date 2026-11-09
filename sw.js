@@ -1,8 +1,8 @@
 /* Offline support: network first, cached copy when offline. Bump VERSION on every publish.
    Cache names MUST start with this app's PREFIX: all isaymotion apps share one origin and one cache storage. */
 const PREFIX = 'mitrainer-';
-const VERSION = PREFIX + '1.8.0';
-const CORE = ['./', './index.html', './css/app.css', './js/app.js', './data/app-meta.js', './data/changelog.js', './data/hospital.js', './data/strings.js', './data/chapters.js', './data/ch01.js', './data/ch02.js', './data/ch03.js', './data/ch04.js', './data/ch05.js', './data/ch06.js', './data/ch07.js', './data/ch08.js', './data/tools.js', './icons/apple-touch-icon.png', './icons/favicon-32.png', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
+const VERSION = PREFIX + '1.9.0';
+const CORE = ['./', './index.html', './css/app.css', './js/app.js', './data/app-meta.js', './data/changelog.js', './data/hospital.js', './data/strings.js', './data/chapters.js', './data/ch01.js', './data/ch02.js', './data/ch03.js', './data/ch04.js', './data/ch05.js', './data/ch06.js', './data/ch07.js', './data/ch08.js', './data/tools.js', './data/practice.js', './icons/apple-touch-icon.png', './icons/favicon-32.png', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', (event) => {
   // add() one by one so a not-yet-uploaded icon cannot make the whole install fail;
   // cache:'reload' skips the browser HTTP cache so a new VERSION never stores last release's files
