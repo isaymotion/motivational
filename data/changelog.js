@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.3',
+    date: '2026-11-09',
+    title: 'ADCQ: link to a free copy',
+    summary: 'The Alcohol and Drug Consequences Questionnaire page now links to a free copy of the questionnaire online.',
+    items: [
+      { type: 'update', text: 'ADCQ links to a free copy posted by Saint Louis University (not listed in TIP 35; its wording is for drinking and may differ from the TIP 35 version). The link to the original article stays under Source.', href: '#/tools/adcq' }
+    ]
+  },
+  {
     version: '1.9.2',
     date: '2026-11-09',
     title: 'Full references on every tool page',

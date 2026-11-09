@@ -3,7 +3,7 @@ window.APP_META = {
   name: 'MI Trainer',
   short: 'MI',
   tagline: 'Motivational Interviewing study app',
-  version: '1.9.2',
+  version: '1.9.3',
   repo: 'motivational',
   attribution: 'App created by Isabella Navarro, MD. Latest version November 2026. isaymotion@gmail.com'
 };

@@ -1102,7 +1102,7 @@
     if (x.id === 'mikt') h += '<div class="callout callout--key tool__try"><p class="callout__title">Self-test</p><p>Take the ' + x.items.length + ' questions and check your answers against the key, with the updated MI terms from Chapter 3.</p><p><a class="btn btn--solid" href="#/tools/mikt/test">Take the self-test →</a></p></div>';
     if (x.status === 'pd') h += toolItems(x);
     else h += '<div class="callout callout--note"><p class="callout__title">Items not shown</p><p>' + esc(x.restrictedNote) + '</p>' +
-      (x.url ? '<p>' + extLink(x.url, x.urlLabel || 'Free official copy (online)') + '</p>' : '<p>TIP 35 does not list a free online copy of this questionnaire. The full reference to the original article is under Source below.</p>' + (x.refUrl ? '<p>' + extLink(x.refUrl, x.refLabel || 'Original article (online)') + '</p>' : '')) + '</div>';
+      (x.url ? '<p>' + extLink(x.url, x.urlLabel || 'Free official copy (online)') + '</p>' + (x.urlNote ? '<p class="tool__note">' + esc(x.urlNote) + '</p>' : '') : '<p>TIP 35 does not list a free online copy of this questionnaire. The full reference to the original article is under Source below.</p>' + (x.refUrl ? '<p>' + extLink(x.refUrl, x.refLabel || 'Original article (online)') + '</p>' : '')) + '</div>';
     if (x.scoring) h += '<section class="guide__sec"><h2>Scoring</h2>' + renderBlocks(x.scoring) + '</section>';
     if (x.interpret) h += '<section class="guide__sec"><h2>Interpreting the score</h2>' + renderBlocks(x.interpret) + '</section>';
     var moved = x.url && /https?:\/\//.test(x.source) && x.source.indexOf(x.url) < 0;

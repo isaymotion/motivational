@@ -1566,6 +1566,8 @@ window.MI_TOOLS = [
  },
  {
   "id": "adcq",
+  "urlLabel": "Free copy (Saint Louis University, online)",
+  "urlNote": "Posted on Saint Louis University’s family medicine web pages (dated 2013), not by the authors, and not listed in TIP 35. Its instructions are worded for drinking, so the wording may differ from the version reprinted in TIP 35.",
   "refUrl": "https://doi.org/10.1037/0893-164X.11.2.107",
   "refLabel": "Original article (doi.org)",
   "ref": "Cunningham, J. A., Sobell, L. C., Gavin, D. R., Sobell, M. B., & Breslin, F. C. (1997). Assessing motivation for change: Preliminary development and evaluation of a scale measuring the costs and benefits of changing alcohol or drug use. Psychology of Addictive Behaviors, 11(2), 107–114.",
@@ -1615,7 +1617,7 @@ window.MI_TOOLS = [
    }
   ],
   "source": "Source: Cunningham, Sobell, Gavin, Sobell, & Breslin, 1997. Adapted with permission.",
-  "url": null,
+  "url": "https://www.slu.edu/medicine/family-medicine/-pdf/researchinstruments-substancuse-alcoholanddrugconsequencesquestionnaire.pdf",
   "interpret": null
  },
  {
