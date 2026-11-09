@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09 (handoff), after v1.8.0 (all 8 chapters + Appendix B Tools + Appendix C Resources). Next: v1.9.0 practice scoring and the MI Knowledge Test self-test (approved; see §7)._
+_Last updated 2026-11-09, after v1.9.0 (practice scoring + MI Knowledge Test self-test, pushed to main a1d8f0f). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -26,7 +26,9 @@ data/app-meta.js   APP_META.version (semver)        data/changelog.js  APP_CHANG
 data/chapters.js   MI_TOC (all 8 chapters) + MI_CHAPTERS = []
 data/ch01.js … ch08.js  each does window.MI_CHAPTERS.push({...})
 data/tools.js      window.MI_TOOLS (14 Appendix B instruments) + window.MI_RESOURCES (Appendix C)   [v1.8.0]
+data/practice.js   window.MI_PRACTICE {feedback:{audit,drinc,socrates,urica,db,bscq,aases}, miktTerms:{n:html}, miktNotScored:{18:…}}   [v1.9.0]
 ```
+**Practice scoring (v1.9.0)** lives in `js/app.js` under "PRACTICE SCORING", just after `toolView`. Routes `#/tools/<id>/practice` (the 9 ids in `SCORERS`: audit, drinc, socrates8a/8d, urica, alcdb/drugdb, bscq, aases) and `#/tools/mikt/test`. Scorers parse the scoring tables in `data/tools.js` (no retyped keys); SOCRATES deciles come from the Profile Sheet table. `window.MI_SCORE(id, answers, {sex})` and `window.MI_MIKT(answers)` exist for QA. Answers live only in the in-memory `PR` and are dropped in `route()` whenever the hash leaves a practice page. Setting `mt:v1:practiceSave` (off by default; toggle on each practice page and in About > Settings); saved attempts `mt:v1:practice.<id>` = [{date, answers, scores, summary}] newest first, max 50, covered by backup. MIKT items may carry `pre: [lines]` (Q22's situation). AASES = overall mean of 20 items only (no subscales). MIKT Q18 not scored (score out of 21). MIKT choices are never shuffled ("both a and b").
 Tools code lives in `js/app.js` under "Appendix B tools and Appendix C resources" (routes `#/tools`, `#/tools/<id>`, `#/resources`; NAV group "Appendices"). Tool object:
 ```js
 { id, n, short, name, status:'pd'|'restricted', chapter (or null), gloss:['URICA'] /* glossary terms that link here */,
@@ -85,7 +87,7 @@ python3 $D/scripts/check_design.py . --browser                          # → PA
 rm -rf _qa
 pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view an exhibit page
 ```
-`python3 -I /home/claude/mi-devtools/tools/tools_qa.py .` → last line `TOOLS FAILS: 0` (every tool page at 390 and 1280, item counts, restricted = no items, overflow, JS errors, chapter/glossary/sheet links, search).
+`python3 -I /home/claude/mi-devtools/tools/tools_qa.py .` → last line `TOOLS FAILS: 0` (every tool page at 390 and 1280, item counts, restricted = no items, overflow, JS errors, chapter/glossary/sheet links, search; since v1.9.0 also known-answer scoring tests for every scorer and the MIKT, every practice page at both widths, and the privacy flow: off → nothing stored, on → stored + in export + deletable, answers cleared on leaving).
 Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives one phone screenshot plus scrollWidth and JS errors; `gloss_width.py <repo>` finds glossary rows that overflow.
 `qa.py` starts its own server on port 8765. It covers home, chapters list, guide, tap-to-define, flashcards and SM-2, quiz, mistakes, exam, glossary, search, overflow at 390px, no JS errors, and SW cache isolation. Its per-chapter loop picks up new chapters automatically.
 
@@ -102,28 +104,28 @@ Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives on
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | ✅ v1.7.0 — 9 sections, 20 HY, 48 cards, 20 quiz (5/5/5/5), 13 terms |
 | App. B | Tools — 14 instruments | 172–207 | ✅ v1.8.0 — 10 public domain with all items (220 items), 4 reference cards (DAST-10, RCQ-TV, ADCQ, What I Want From Treatment) |
 | App. C | Resources | 208–209 | ✅ v1.8.0 — 5 groups, 16 entries, external links with an "online only" note |
+| Practice | Practice scoring + MIKT self-test | — | ✅ v1.9.0 — 9 scorers, MIKT self-test (21 scored), opt-in save setting |
 | App. A | Bibliography | — | Left out (by plan) |
 
 Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
 
-## 7. Next step: v1.9.0 practice scoring (approved)
-**Her answers (2026-11-09):** (1) reference cards with no item text for the 4 restricted instruments — yes (done in v1.8.0); (2) practice scoring: **an optional "save my own practice attempts on this device" setting**, not keep-nothing; (3) v1.8.0 go ahead — done and pushed.
+## 7. Status after v1.9.0 and next steps
+**v1.9.0 done (2026-11-09)**, per her answers: practice scoring with the optional, off-by-default "Save my own practice attempts on this device" setting; MI Knowledge Test self-test with Exhibit 3.1 term notes (items 1, 3, 4, 6, 7, 11, 15, 16, 21). Each practice result ends with a "Giving this feedback" note (Ch 2 for AUDIT; Ch 4 for DrInC, SOCRATES, URICA; Ch 5 for DB; Ch 7 for BSCQ/AASES). Also fixed: MIKT Q22's situation (T: confidence 0–10 / C: "About a 4") had been missing.
 
-**v1.9.0 plan:**
-- **Practice scoring** on the public-domain tool pages: tap answers → totals and the book's interpretation, already in `data/tools.js`: AUDIT total + zone (women/men cut-off toggle); DrInC 5 scales + total + Control Scale caveat (grid = the scoring table); SOCRATES Re/Am/Ts + decile from the profile table (8A and 8D share it); URICA 4 subscales; Alcohol/Drug DB Pros avg, Cons avg, difference; BSCQ 8 sliders 0–100 and the 1–3 lowest situations. Each result gets a short "giving this feedback" note drawn from the chapters (EPE, nonjudgmental; Ch 2 Exhibit 2.1 for AUDIT).
-- **Privacy, per her answer:** default = nothing stored, cleared on leaving the page, "practice/teaching only — not a clinical record" banner, no name or ID fields ever. Add a setting (off by default) "Save my own practice attempts on this device": when on, store attempts under `mt:v1:practice.<toolId>` (list of {date, answers, scores}), show a small history with delete-one and clear-all, and make sure the backup panel export/import includes them (it covers the `mt:v1:` prefix). Wording should make clear these are her own practice attempts, not client data.
-- **MI Knowledge Test self-test** (`#/tools/mikt/test` or a mode on the page): up to 6 choices (a–f) and context dialogues, so give it its own view; do not change the chapter quiz engine (exactly 4 choices). Add a per-item note giving the updated MI term from Ch 3 Exhibit 3.1 where an item uses 1991/2002 terms ("self-motivational statements" → change talk, "rolling with resistance", "resistance" → sustain talk/discord). Results may also be saved under the same opt-in setting.
-- **Two source problems to handle (tell her, decide with her):**
-  - **AASES:** the printed key (Negative Affect 1,3,9; Social/Positive 10,11,12; Physical 2,7,8; Cravings 4,5,6; "divide by 12") fits the 12-item version, not the 20 items printed. The tool page shows it verbatim with a "Check before scoring" note. Do NOT build AASES subscale scoring from it; offer only the overall mean of the 20 items (or nothing) unless she supplies the official 20-item key.
-  - **MI Knowledge Test Q18:** Q17 and Q18 have identical stems and choices, and the key gives Q18 as "c) the expert trap", not one of its choices. Shown as printed with a key note. In the self-test, exclude Q18 from scoring (or show it as "not scored — printing error"), unless she says otherwise.
-  - RCQ-TV prints each scale's range as −10…+10 and "one of the five items" though each scale has 4 items scored −2…+2 (reachable −8…+8). The reference card states the printed range and proration rule. RCQ is restricted, so no interactive scoring anyway.
-- Extend `tools_qa.py` with known-answer scoring tests per tool (e.g. all-max and all-min answer sets and one mixed set computed by hand from the key), save-setting off → nothing in localStorage, on → stored and in export.
-- Bump to 1.9.0 per §4 step 3 (sw VERSION, app-meta, changelog at top, README).
+**Defaults taken without her decision — tell her, change if she wants:**
+- **AASES:** only the plain average of the 20 ratings, plus the lowest-rated situations (rated 1–2, or her lowest rating). No subscales, with a caution callout. If she supplies the official 20-item key, add subscale scoring.
+- **MIKT Q18:** shown with choices disabled and "Not scored — printing error"; score is out of 21.
+- AUDIT zone cut-off toggle defaults to Women.
+
+**Ideas / possible next releases:**
+- A "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1.
+- A Tagalog layer (usap-tayo-integration skill).
+- Sidebar does not highlight Tools on `#/tools/<id>` subroutes (exact-match nav; pre-existing, minor).
 
 ### Earlier open items
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
 - She was told about two content choices and may want changes: Ch 7 Exhibit 7.5 (Susan) states childhood sexual abuse by her father in one plain sentence (could become "childhood trauma"); the Ch 6 IOP glossary entry deliberately avoids outside facts.
-- Reported to her at v1.8.0: the AASES key mismatch and MIKT Q18 key error (see §7); she may want them handled differently.
+- AASES key mismatch and MIKT Q18 key error: handled with the defaults in §7 (v1.9.0); she may want them handled differently.
 - Later ideas: a "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1; a Tagalog layer (usap-tayo-integration skill).
 
 Glossary: 179 terms across 8 chapters. If tools pages add terms, run check_chapters.js — it flags any term repeating an earlier one. Never use a common English word as an alt (the linker is case-insensitive whole-word; e.g. never alt 'SO').
@@ -144,5 +146,5 @@ Glossary: 179 terms across 8 chapters. If tools pages add terms, run check_chapt
 - v1.3.0 fixed a 390px overflow on #/glossary: long term + alt rows could not wrap. `.gloss__item summary` now has `flex-wrap:wrap`.
 
 ## 9. Files to re-attach
-- **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — useful for v1.9.0 to double-check scoring keys (Appendix B, PDF 172–207). Everything needed is already in `data/tools.js`. It is not committed to the repo.
+- **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — only needed for new content or to re-check a key (Appendix B, PDF 172–207). It is not committed to the repo.
 - Icon artwork: not needed, icons are already in `icons/`.
