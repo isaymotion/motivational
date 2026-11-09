@@ -89,7 +89,7 @@ Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives on
 | 6 | From Preparation to Action | 117–130 | ✅ v1.5.0 — 11 sections, 17 HY, 49 cards, 20 quiz (5/5/5/5), 13 terms |
 | 7 | From Action to Maintenance | 131–146 | ✅ v1.6.0 — 12 sections, 22 HY, 51 cards, 20 quiz (5/5/5/5), 20 terms |
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | ✅ v1.7.0 — 9 sections, 20 HY, 48 cards, 20 quiz (5/5/5/5), 13 terms |
-Totals at v1.7.0: 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms. Appendices (screening instruments) are not planned yet; ask her.
+Totals at v1.7.0: 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms. Appendices: approved by her, plan in §7.
 
 ## 7. Next step: appendices (she said yes; plan below awaits her 3 answers)
 **First, ask her these three questions and wait for the answers. Build nothing until she replies:**
