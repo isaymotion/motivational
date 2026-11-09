@@ -100,10 +100,11 @@ Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives on
 | 6 | From Preparation to Action | 117–130 | ✅ v1.5.0 — 11 sections, 17 HY, 49 cards, 20 quiz (5/5/5/5), 13 terms |
 | 7 | From Action to Maintenance | 131–146 | ✅ v1.6.0 — 12 sections, 22 HY, 51 cards, 20 quiz (5/5/5/5), 20 terms |
 | 8 | Integrating Motivational Approaches in SUD Treatment Settings | 147–158 | ✅ v1.7.0 — 9 sections, 20 HY, 48 cards, 20 quiz (5/5/5/5), 13 terms |
-Totals at v1.7.0: 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
-| App. B | Tools — 14 instruments (PDF 172–207) | ✅ v1.8.0 — 10 public domain with all items (220 items), 4 reference cards (DAST-10, RCQ-TV, ADCQ, What I Want From Treatment) |
-| App. C | Resources (PDF 208–209) | ✅ v1.8.0 — 5 groups, 16 entries, external links with an "online only" note |
-| App. A | Bibliography | Left out (by plan) |
+| App. B | Tools — 14 instruments | 172–207 | ✅ v1.8.0 — 10 public domain with all items (220 items), 4 reference cards (DAST-10, RCQ-TV, ADCQ, What I Want From Treatment) |
+| App. C | Resources | 208–209 | ✅ v1.8.0 — 5 groups, 16 entries, external links with an "online only" note |
+| App. A | Bibliography | — | Left out (by plan) |
+
+Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
 
 ## 7. Next step: v1.9.0 practice scoring (approved)
 **Her answers (2026-11-09):** (1) reference cards with no item text for the 4 restricted instruments — yes (done in v1.8.0); (2) practice scoring: **an optional "save my own practice attempts on this device" setting**, not keep-nothing; (3) v1.8.0 go ahead — done and pushed.
