@@ -88,6 +88,7 @@
   /* ===== Icons (inline SVG, 24x24, stroke = currentColor). NAV items refer to these by key. ===== */
   var ICONS = {
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+    target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
     news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
@@ -118,6 +119,7 @@
     { label: 'Mistakes', href: '#/mistakes', icon: 'flag', group: 'Study', badge: 'mistakes' },
     { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Study' },
     { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Study' },
+    { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Study' },
     { label: 'Tools', href: '#/tools', icon: 'clipboard', group: 'Appendices' },
     { label: 'Resources', href: '#/resources', icon: 'link', group: 'Appendices' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
@@ -1478,6 +1480,178 @@
       }).join('') + '</div>';
   };
 
+  /* --- SKILL DRILLS (v1.10.0): quick tap-to-answer practice. Every item is read at runtime from the chapter tables
+     (Ch 3 open/closed questions, DARN-CAT, Exhibits 3.3, 3.6, 3.8, the sustain talk strategies; Exhibits 4.1-7.1 via stageRows),
+     so no book text is copied and edits to those tables flow through. A drill whose table is missing is simply left out. --- */
+  function quotes(x) { return String(x).match(/“[^”]*”/g) || []; }
+  function tableAfter(chId, start) {   // the first table under the h3 whose text starts with `start`
+    var c = chapter(chId), tbl = null; if (!c) return null;
+    c.sections.forEach(function (sec) {
+      for (var i = 0; i < sec.blocks.length && !tbl; i++) {
+        var b = sec.blocks[i];
+        if (b.t === 'h3' && b.x.indexOf(start) === 0) {
+          for (var j = i + 1; j < sec.blocks.length; j++) { if (sec.blocks[j].t === 'h3') break; if (sec.blocks[j].t === 'table') { tbl = sec.blocks[j]; break; } }
+        }
+      }
+    });
+    return tbl;
+  }
+  function tableIn(chId, secId, head0) {   // the table in a section whose first column heading is `head0`
+    var c = chapter(chId), tbl = null; if (!c) return null;
+    c.sections.forEach(function (sec) { if (sec.id === secId) sec.blocks.forEach(function (b) { if (!tbl && b.t === 'table' && b.head[0] === head0) tbl = b; }); });
+    return tbl;
+  }
+  function lcFirst(s) { s = stripTags(s); return s.charAt(0).toLowerCase() + s.slice(1); }
+  function buildDrills() {
+    var out = [];
+    var oq = tableAfter(3, 'Asking open questions'), darn = tableAfter(3, 'DARN-CAT'), ex33 = tableAfter(3, 'Exhibit 3.3'),
+        ex36 = tableAfter(3, 'Exhibit 3.6'), ex38 = tableAfter(3, 'Exhibit 3.8'), sus = tableIn(3, 'sustain-talk', 'Strategy');
+    var types = darn ? darn.rows.map(function (r) { return r[0]; }) : [], def = {};
+    if (darn) darn.rows.forEach(function (r) { def[r[0]] = '<strong>' + esc(r[0]) + '</strong>: ' + lcFirst(r[1]) + '.'; });
+
+    if (oq) {
+      var a1 = [];
+      oq.rows.forEach(function (r) {
+        a1.push({ x: r[0], a: 1, why: 'Closed: it can be answered with yes, no or a few words. An open version: ' + r[1] });
+        a1.push({ x: r[1], a: 0, why: 'Open: it invites the client to reflect and elaborate. The closed version: ' + r[0] });
+      });
+      out.push({ id: 'open', title: 'Open or closed question?', blurb: 'Tell open questions from closed ones at a glance.', prompt: 'Is this an open or a closed question?',
+        src: 'Chapter 3 · Asking open questions', href: '#/c/3/guide', choices: ['Open question', 'Closed question'], items: a1 });
+    }
+    if (ex33) {
+      var a2 = [];
+      ex33.rows.forEach(function (r) {
+        a2.push({ x: r[1], a: 0, why: 'Change talk (' + esc(r[0]) + '). The sustain talk version: ' + r[2] });
+        a2.push({ x: r[2], a: 1, why: 'Sustain talk (' + esc(r[0]) + '). The change talk version: ' + r[1] });
+      });
+      out.push({ id: 'talk', title: 'Change talk or sustain talk?', blurb: 'Hear which way a client statement leans.', prompt: 'Is the client voicing change talk or sustain talk?',
+        src: 'Chapter 3 · Exhibit 3.3', href: '#/c/3/guide', choices: ['Change talk', 'Sustain talk'], items: a2 });
+    }
+    if (darn && types.length) {
+      var a3 = [];
+      darn.rows.forEach(function (r, i) { quotes(r[2]).forEach(function (q) { a3.push({ x: q, a: i, why: def[r[0]] + ' This is change talk.' }); }); });
+      if (ex33) ex33.rows.forEach(function (r) {
+        var i = types.indexOf(r[0]); if (i < 0) return;
+        a3.push({ x: r[1], a: i, why: def[r[0]] + ' This is change talk.' });
+        a3.push({ x: r[2], a: i, why: def[r[0]] + ' Here it is sustain talk: the same kind of statement, in favor of not changing.' });
+      });
+      out.push({ id: 'darncat', title: 'Which DARN-CAT type?', blurb: 'Sort client statements into Desire, Ability, Reasons, Need, Commitment, Activation and Taking steps.', prompt: 'Which DARN-CAT type is this client statement?',
+        src: 'Chapter 3 · DARN-CAT and Exhibit 3.3', href: '#/c/3/guide', choices: types, items: a3 });
+    }
+    if (ex38) {
+      var a4 = [], t4 = ex38.rows.map(function (r) { return r[0]; });
+      ex38.rows.forEach(function (r, i) { quotes(r[1]).forEach(function (q) { a4.push({ x: q, a: i, why: (def[r[0]] || '<strong>' + esc(r[0]) + '</strong>.') + ' The question invites that kind of change talk.' }); }); });
+      out.push({ id: 'evoke', title: 'What does this question evoke?', blurb: 'Match each evoking question to the DARN change talk it invites.', prompt: 'Which kind of change talk is the counselor inviting?',
+        src: 'Chapter 3 · Exhibit 3.8', href: '#/c/3/guide', choices: t4, items: a4 });
+    }
+    if (ex36 || sus) {
+      var a5 = [];
+      if (ex36) { var t36 = ex36.rows.map(function (r) { return r[0]; }); ex36.rows.forEach(function (r, i) { a5.push({ pre: 'Client: ' + r[1], x: 'Counselor: ' + r[2], a: i, choices: t36, why: r[3] + ' ' + r[4] }); }); }
+      if (sus) { var ts = sus.rows.map(function (r) { return r[0]; }); sus.rows.forEach(function (r, i) { var q = quotes(r[2]); if (q.length === 2) a5.push({ pre: 'Client: ' + q[0], x: 'Counselor: ' + q[1], a: i, choices: ts, why: r[1] }); }); }
+      out.push({ id: 'respond', title: 'Name the response', blurb: 'Name the reflection or the strategy the counselor uses to answer sustain talk.', prompt: 'What kind of response is the counselor giving?',
+        src: 'Chapter 3 · Exhibit 3.6 and Responding to sustain talk', href: '#/c/3/guide', items: a5 });
+    }
+    var rows = stageRows();
+    if (rows.length) {
+      var a6 = [], st = rows.map(function (r) { return r.stage; });
+      rows.forEach(function (r, i) {
+        var tail = 'Exhibit ' + esc(r.ex) + ', Chapter ' + r.ch.id + '.';
+        a6.push({ pre: 'Client motivation', x: r.motivation, a: i, link: true, why: tail });
+        sentences(r.focus).forEach(function (x) { a6.push({ pre: 'Counselor focus', x: x + '.', a: i, link: true, why: tail + ' The client at this stage: ' + lcFirst(r.motivation) }); });
+        sentences(r.strategies).forEach(function (x) { a6.push({ pre: 'Counseling strategy', x: x + '.', a: i, link: true, why: tail + ' The client at this stage: ' + lcFirst(r.motivation) }); });
+      });
+      out.push({ id: 'stage', title: 'Which stage of change?', blurb: 'Match client motivation, counselor focus and strategies to the right stage.', prompt: 'Which stage of change does this belong to?',
+        src: 'Chapters 4 to 7 · Exhibits 4.1, 5.1, 6.1 and 7.1', href: '#/stages', hrefLabel: 'Stage by stage', choices: st, items: a6 });
+    }
+    return out.filter(function (d) { return d.items.length; });
+  }
+  var DRILLS = buildDrills(), DRILL_BY_ID = {}, DRILL_N = 10, drill = null;   // drill = { id, items, i, picked, right, answers:[bool] }
+  DRILLS.forEach(function (d) { DRILL_BY_ID[d.id] = d; });
+  window.MI_DRILLS = DRILLS;   // for QA
+  function startDrill(d, items) { drill = { id: d.id, items: items || shuffle(d.items).slice(0, DRILL_N), i: 0, picked: null, right: 0, answers: [] }; }
+  function drillStats() { return store.get('drills', {}) || {}; }
+  TITLES.drills = 'Skill drills';
+  VIEWS.drills = function (id) {
+    if (!id) {
+      var s = drillStats();
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Skill drills' }]) +
+        '<header class="page__head"><p class="eyebrow">Practice</p><h1>Skill drills</h1><p>Short rounds of ' + DRILL_N + ' that train your ear for MI: read a statement, tap what it is, and see why straight away. Every statement is an example from TIP 35, so the drills practice recognition; they do not replace role-play and supervised practice.</p></header>' +
+        '<div class="drill__list">' + DRILLS.map(function (d) {
+          var r = s[d.id];
+          return '<a class="card drill" href="#/drills/' + d.id + '"><h3>' + esc(d.title) + '</h3><p>' + esc(d.blurb) + '</p><p class="drill__meta">' + plural(d.items.length, 'item', 'items') + ' · ' + esc(d.src) +
+            (r && r.best ? '<br><strong>Best ' + r.best.score + '/' + r.best.total + '</strong> · ' + plural(r.n, 'round', 'rounds') + ' · last ' + esc(fmtDate(r.last.date)) : '<br>Not tried yet') + '</p></a>';
+        }).join('') + '</div></div>';
+    }
+    var d = DRILL_BY_ID[id];
+    if (!d) return missingView();
+    if (!drill || drill.id !== d.id || drill.i >= drill.items.length) startDrill(d);
+    return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Skill drills', href: '#/drills' }, { label: d.title }]) +
+      '<header class="page__head"><h1>' + esc(d.title) + '</h1><p class="muted">' + esc(d.src) + '</p></header><div id="drill">' + drillHTML() + '</div></div>';
+  };
+  function drillHTML() {
+    var z = drill, d = DRILL_BY_ID[z.id], n = z.items.length;
+    if (z.i >= n) {
+      var missed = z.items.filter(function (_, i) { return !z.answers[i]; });
+      return '<div class="result-card"><p class="eyebrow">Result</p><h2>' + z.right + ' of ' + n + ' correct (' + Math.round(100 * z.right / n) + '%)</h2>' +
+        '<ul class="review-list">' + z.items.map(function (it, i) {
+          var ch = it.choices || d.choices;
+          return '<li class="' + (z.answers[i] ? 'is-right' : 'is-wrong') + '"><span>' + (i + 1) + '.</span><span>' + esc(stripTags(it.x)) + '<br><small>' + esc(ch[it.a]) + '</small></span></li>';
+        }).join('') + '</ul>' +
+        '<p class="drill__acts"><button type="button" class="btn btn--solid" data-dact="again">New round</button> ' +
+        (missed.length ? '<button type="button" class="btn" data-dact="missed">Retry missed (' + missed.length + ')</button> ' : '') +
+        '<a class="btn" href="#/drills">All drills</a> <a class="btn" href="' + esc(d.href) + '">' + esc(d.hrefLabel || 'Chapter 3 study guide') + ' →</a></p></div>';
+    }
+    var it = z.items[z.i], ch = it.choices || d.choices, picked = z.picked;
+    return '<div class="q-card"><div class="q-card__top"><span class="eyebrow">' + (z.i + 1) + ' of ' + n + '</span><span class="muted">' + z.right + ' correct</span></div>' +
+      '<p class="drill__prompt">' + esc(d.prompt) + '</p>' + (it.pre ? '<p class="drill__pre">' + it.pre + '</p>' : '') +
+      '<p class="q-card__q">' + (it.link ? linkTerms(it.x) : it.x) + '</p>' +
+      '<ul class="choices' + (ch.length === 2 ? ' choices--two' : '') + '">' + ch.map(function (c, i) {
+        var cls = 'choice' + (picked !== null ? (i === it.a ? ' is-correct' : i === picked ? ' is-wrong' : ' is-dim') : '');
+        return '<li><button type="button" class="' + cls + '" data-dpick="' + i + '"' + (picked !== null ? ' disabled' : '') + '><span class="choice__key">' + 'ABCDEFG'[i] + '</span><span>' + esc(c) + '</span></button></li>';
+      }).join('') + '</ul>' +
+      (picked !== null ? '<div class="verdict ' + (picked === it.a ? 'is-right' : 'is-wrong') + '">' + (picked === it.a ? 'Correct.' : 'Not quite: ' + esc(ch[it.a]) + '.') + '</div><p class="why">' + it.why + '</p><p class="q-card__next"><button type="button" class="btn btn--solid" data-dact="next">' + (z.i + 1 < n ? 'Next' : 'See result') + '</button></p>'
+        : '<p class="kbd-help"><kbd>A</kbd>–<kbd>' + 'ABCDEFG'[ch.length - 1] + '</kbd> choose · <kbd>Enter</kbd> next</p>') + '</div>';
+  }
+  function paintDrill() {
+    var el = document.getElementById('drill'); if (!el) return;
+    el.innerHTML = drillHTML();
+    var nb = el.querySelector('[data-dact="next"]'); if (nb) { nb.focus({ preventScroll: true }); if (nb.scrollIntoView) nb.scrollIntoView({ block: 'nearest' }); }
+  }
+  function drillPick(i) {
+    var z = drill; if (!z || z.picked !== null || z.i >= z.items.length) return;
+    var ok = i === z.items[z.i].a;
+    z.picked = i; z.answers.push(ok); if (ok) z.right++;
+    paintDrill();
+  }
+  function drillNext() {
+    var z = drill; if (!z || z.picked === null) return;
+    z.i++; z.picked = null;
+    if (z.i >= z.items.length) {   // keep best, last and the number of rounds; covered by backup
+      var s = drillStats(), r = s[z.id] || { n: 0 }, rec = { score: z.right, total: z.items.length, date: new Date().toISOString().slice(0, 10) };
+      r.n++; r.last = rec; if (!r.best || rec.score / rec.total >= r.best.score / r.best.total) r.best = rec;
+      s[z.id] = r; store.set('drills', s);
+    }
+    paintDrill(); window.scrollTo(0, 0);
+  }
+  main.addEventListener('click', function (e) {
+    if (!e.target.closest || !drill || !e.target.closest('#drill')) return;
+    var p = e.target.closest('[data-dpick]'); if (p && !p.disabled) { drillPick(+p.getAttribute('data-dpick')); return; }
+    var a = e.target.closest('[data-dact]'); if (!a) return;
+    var act = a.getAttribute('data-dact'), d = DRILL_BY_ID[drill.id];
+    if (act === 'next') drillNext();
+    else if (act === 'again') { startDrill(d); paintDrill(); }
+    else if (act === 'missed') { var z = drill; startDrill(d, shuffle(z.items.filter(function (_, i) { return !z.answers[i]; }))); paintDrill(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!drill || !document.getElementById('drill') || drill.i >= drill.items.length) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    var k = e.key.toLowerCase(), it = drill.items[drill.i], n = (it.choices || DRILL_BY_ID[drill.id].choices).length;
+    if (/^[a-g]$/.test(k) && drill.picked === null) { var i = 'abcdefg'.indexOf(k); if (i < n) drillPick(i); }
+    else if (e.key === 'Enter' && drill.picked !== null && !(e.target.closest && e.target.closest('a'))) { e.preventDefault(); drillNext(); }
+  });
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -1507,6 +1681,7 @@
     if (x.id === 'mikt') SEARCH_INDEX.push({ title: 'MI Knowledge Test — self-test', text: 'self-test quiz MI knowledge test answer key score', href: '#/tools/mikt/test', kind: 'Tool' });
   });
   stageRows().forEach(function (r) { SEARCH_INDEX.push({ title: r.stage + ' — stage by stage', text: 'stages of change strategies ' + stripTags(r.motivation + ' ' + r.focus + ' ' + r.strategies), href: '#/stages', kind: 'Stages' }); });
+  DRILLS.forEach(function (d) { SEARCH_INDEX.push({ title: d.title + ' — skill drill', text: 'skill drills practice ' + d.blurb + ' ' + d.src + ' ' + (d.choices || []).join(' '), href: '#/drills/' + d.id, kind: 'Drill' }); });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 

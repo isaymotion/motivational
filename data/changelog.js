@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.10.0',
+    date: '2026-11-13',
+    title: 'Skill drills',
+    summary: 'Six quick tap-to-answer drills train your ear for MI, using the examples in TIP 35.',
+    items: [
+      { type: 'feature', text: 'Skill drills: rounds of 10 on open or closed questions, change talk or sustain talk, DARN-CAT types, what a question evokes, naming the counselor’s response, and which stage of change. Each answer shows why, and your best score is kept on this device.', href: '#/drills' }
+    ]
+  },
+  {
     version: '1.9.4',
     date: '2026-11-12',
     title: 'Stage by stage summary',

@@ -498,3 +498,16 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .stages-page .stage h3{margin-top:14px}
 .stage__list li{margin:4px 0}
 .stage__more{margin-top:14px}
+
+/* ---------- Skill drills (v1.10.0) ---------- */
+.drill__list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.card.drill{display:block;text-decoration:none;color:inherit;border-left:5px solid var(--m-quiz)}
+.card.drill h3{margin:0 0 4px} .card.drill p{margin:0 0 8px}
+.card.drill:hover{border-color:var(--m-quiz)}
+.drill__meta{font:400 .85rem/1.5 var(--sans);color:var(--ink-3);margin:0!important}
+.drill__meta strong{color:var(--ink)}
+.drill__prompt{font:600 .92rem/1.4 var(--sans);color:var(--ink-2);margin:10px 0 0}
+.drill__pre{font:400 1rem/1.5 var(--serif);color:var(--ink-2);margin:10px 0 0}
+.choices--two{grid-template-columns:1fr 1fr}
+.drill__acts{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+#drill{max-width:760px}
