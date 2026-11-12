@@ -1361,9 +1361,10 @@
     var h = '<div class="wrap page tool practice mikt" data-tool="mikt">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Tools', href: '#/tools' }, { label: x.short, href: '#/tools/mikt' }, { label: 'Self-test' }]) +
       '<header class="page__head"><p class="eyebrow">Self-test · Appendix B · Tool ' + x.n + '</p><h1>MI Knowledge Test</h1><p>' + x.items.length + ' questions as printed (Moyers, Martin, & Christopher, 2005). Choose one answer each, then check. Choices stay in printed order because some refer to others (“both a and b”).</p></header>' +
       '<div class="callout callout--note"><p class="callout__title">Older MI terms</p><p>The test uses the 1991 and 2002 editions of MI. After you check, items that use an older term show the updated term from Chapter 3, Exhibit 3.1. Question 18 is not scored (printing error), so the score is out of ' + miktScored(x).length + '.</p></div>' +
-      prSaveSetting();
+      prSaveSetting() + prepostCard(true);
     if (res) h += '<section class="card pr__result" id="pr-result" tabindex="-1"><h2>Your score</h2>' + prLead(res.correct + ' <span class="pr__of">/ ' + res.of + '</span>', Math.round(100 * res.correct / res.of) + '% correct' + (res.unanswered ? ' · ' + res.unanswered + ' unanswered' : '')) +
-      '<p class="muted">Each question below now shows the key and, where relevant, the updated MI term.</p><div class="pr__actions"><button type="button" class="btn" id="mk-retry">Try again</button>' + (practiceOn() ? ' <button type="button" class="btn btn--solid" id="mk-save">Save this attempt</button>' : '') + '</div><p class="pr__msg" id="pr-msg" role="status"></p></section>';
+      '<p class="muted">Each question below now shows the key and, where relevant, the updated MI term.</p><div class="pr__actions"><button type="button" class="btn" id="mk-retry">Try again</button>' + (practiceOn() ? ' <button type="button" class="btn btn--solid" id="mk-save">Save this attempt</button>' : '') +
+      (prepost().before ? ' <button type="button" class="btn btn--solid" data-pp="after">Save as my After score</button> <button type="button" class="btn" data-pp="before">Replace my Before score</button>' : ' <button type="button" class="btn btn--solid" data-pp="before">Save as my Before score</button>') + '</div><p class="pr__msg" id="pr-msg" role="status"></p></section>';
     else h += '<p class="pr__progress" id="pr-progress" aria-live="polite"></p>';
     var ctx = x.contexts || [];
     h += '<ol class="pr__items">' + x.items.map(function (it) {
@@ -1394,6 +1395,39 @@
     var x = TOOL_BY_ID.mikt, n = miktScored(x).filter(function (it) { return PR.ans[it.n]; }).length;
     el.textContent = n + ' of ' + miktScored(x).length + ' answered';
   }
+
+  /* --- Before and after (v1.16.0): two MI Knowledge Test scores to show what was gained. Saved only when the Before/After button is
+     pressed, as the score alone (no answers): mt:v1:miktPrePost = { before: {date, correct, of}, after: {date, correct, of} }. --- */
+  var ppMsg = '';
+  function prepost() { var p = store.get('miktPrePost', {}); return p && typeof p === 'object' ? p : {}; }
+  function ppLine(label, s) { var pct = Math.round(100 * s.correct / s.of); return '<li><span class="pp__label">' + label + '</span><span class="meter"><span class="meter__track"><span style="width:' + pct + '%"></span></span><span class="meter__n">' + pct + '%</span></span><span class="pp__score"><strong>' + s.correct + ' / ' + s.of + '</strong> · ' + esc(fmtDate(s.date)) + '</span></li>'; }
+  function prepostCard(inTest) {
+    var p = prepost(), b = p.before, a = p.after, body;
+    if (!b) body = '<p>Take the test once <strong>before</strong> you study the chapters and save the score as your Before score. Take it again when you finish and save it as your After score to see what you gained.</p>';
+    else {
+      var d = a ? a.correct - b.correct : 0;
+      body = '<ul class="pp__rows">' + ppLine('Before', b) + (a ? ppLine('After', a) : '') + '</ul>' +
+        (a ? '<p class="pp__delta"><strong>' + (d > 0 ? '+' + d : d < 0 ? '−' + (-d) : 'No change') + '</strong>' + (d ? ' ' + (Math.abs(d) === 1 ? 'question' : 'questions') : '') + ' from Before to After.</p>' : '<p>Take the test again when you finish the chapters, then save it as your After score.</p>');
+    }
+    return '<section class="card pp" id="pp"><h2>Before and after</h2>' + body +
+      (ppMsg ? '<p class="pr__msg" role="status">' + esc(ppMsg) + '</p>' : '') +
+      '<p class="pp__acts">' + (inTest ? '' : '<a class="btn' + (a ? '' : ' btn--solid') + '" href="#/tools/mikt/test">Take the MI Knowledge Test</a> ') + (b ? '<button type="button" class="link-btn" data-pp="clear">Remove these scores</button>' : '') + '</p>' +
+      '<p class="muted pp__note">Only the score and the date are kept on this device, and only when you press a Save button.</p></section>';
+  }
+  main.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-pp]') : null; if (!b) return;
+    var act = b.getAttribute('data-pp'), p = prepost();
+    if (act === 'clear') { if (!window.confirm('Remove your Before and After scores?')) return; store.set('miktPrePost', {}); ppMsg = 'Scores removed.'; }
+    else {
+      if (!PR || PR.id !== 'mikt' || !PR.checked) return;
+      var m = miktResult(TOOL_BY_ID.mikt, PR.ans);
+      p[act] = { date: isoToday(), correct: m.correct, of: m.of };
+      if (act === 'before') delete p.after;   // a new Before starts a new comparison
+      store.set('miktPrePost', p); ppMsg = 'Saved as your ' + (act === 'before' ? 'Before' : 'After') + ' score: ' + m.correct + ' / ' + m.of + '.';
+    }
+    route({ keepScroll: true }); ppMsg = '';
+    var card = document.getElementById('pp'); if (card && act !== 'clear' && card.scrollIntoView) card.scrollIntoView({ block: 'center' });
+  });
 
   /* --- Practice events (delegated on main) --- */
   function prRerender() { route({ keepScroll: true }); }
@@ -1931,7 +1965,7 @@
         : '<div class="empty"><h2>' + (any ? 'No weak spots right now' : 'Nothing to show yet') + '</h2><p>' + (any ? 'Every area with enough answers is at ' + PG_WEAK + '% or better. Keep going with today’s session.' : 'Do today’s session and this page will start to fill in.') + '</p><p><a class="btn btn--solid" href="#/today">Today’s session</a></p></div>') +
       group('Quizzes by chapter', ['quiz'], true, 'Quiz answers are counted from version 1.12.0 on. A chapter is rated after ' + PG_MIN.quiz + ' answers.') +
       group('Flashcards by chapter', ['cards'], true, 'A card is shaky if you rated it Again or Hard and have not mastered it yet. The percent is the share of seen cards that are not shaky.') +
-      group('Skills', ['drill', 'write'], true, 'Drills show your last round. Write a response uses your own ratings.') + '</div>';
+      group('Skills', ['drill', 'write'], true, 'Drills show your last round. Write a response uses your own ratings.') + (TOOL_BY_ID.mikt ? prepostCard(false) : '') + '</div>';
   };
 
   /* --- POCKET CARDS (v1.14.0): one-screen summaries for use on duty. Each card names where its blocks live in the chapter data
@@ -2178,6 +2212,7 @@
   WRITES.forEach(function (w) { SEARCH_INDEX.push({ title: w.title + ' — write a response', text: 'write your own response practice typing ' + w.blurb + ' ' + w.src, href: '#/write/' + w.id, kind: 'Practice' }); });
   SEARCH_INDEX.push({ title: 'Today’s session', text: 'daily session streak days in a row flashcards quiz questions skill drill 10 minutes', href: '#/today', kind: 'Practice' });
   SEARCH_INDEX.push({ title: 'Progress', text: 'progress weak spots weakest areas accuracy by topic shaky cards study these next', href: '#/progress', kind: 'Practice' });
+  SEARCH_INDEX.push({ title: 'Before and after — MI Knowledge Test', text: 'before and after pretest posttest pre post baseline score gain MI knowledge test', href: '#/tools/mikt/test', kind: 'Tool' });
   POCKET.forEach(function (c) { SEARCH_INDEX.push({ title: c.title + ' — pocket card', text: 'pocket card quick reference summary ' + c.group + ' ' + c.src, href: '#/pocket/' + c.id, kind: 'Pocket card' }); });
   SEARCH_INDEX.push({ title: 'Role-play', text: 'role-play roleplay practice with a partner pairs triads client counselor observer tally sheet timer', href: '#/roleplay', kind: 'Practice' });
   ROLEPLAY.forEach(function (s) { SEARCH_INDEX.push({ title: s.title + ' — role-play', text: 'role-play scenario ' + s.set + ' ' + s.src, href: '#/roleplay/' + s.id, kind: 'Practice' }); });

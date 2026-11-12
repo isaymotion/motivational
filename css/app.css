@@ -593,3 +593,13 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .rp__btn{width:48px;min-width:48px;height:48px;padding:0;justify-content:center;font-size:1.4rem;line-height:1}
 .rp__n{font:800 1.3rem/1 var(--sans);font-variant-numeric:tabular-nums;min-width:2.2ch;text-align:center}
 .rp__sum{margin:0 0 14px;padding-left:1.2em}
+
+/* ---------- Before and after (v1.16.0) ---------- */
+.pp{max-width:860px;padding:clamp(16px,3vw,24px);margin:0 0 22px}
+.pp h2{margin:0 0 8px;font-size:1.15rem}
+.pp__rows{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:8px}
+.pp__rows li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.pp__label{font:700 .92rem/1.3 var(--sans);min-width:4.2em}
+.pp__rows .meter{flex:1 1 140px}
+.pp__score{font:400 .9rem/1.3 var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pp__delta{margin:0 0 8px} .pp__acts{margin:10px 0 4px} .pp__note{font-size:.84rem;margin:0}

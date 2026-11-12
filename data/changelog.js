@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.16.0',
+    date: '2026-11-13',
+    title: 'Before and after: MI Knowledge Test',
+    summary: 'Save one MI Knowledge Test score before you study and one after, and see how much you gained.',
+    items: [
+      { type: 'feature', text: 'Before and after: after checking your answers on the MI Knowledge Test, save the score as your Before score; take it again later and save it as your After score. Both show side by side on the test page and on Progress. Only the score and the date are kept.', href: '#/tools/mikt/test' }
+    ]
+  },
+  {
     version: '1.15.0',
     date: '2026-11-13',
     title: 'Role-play cards for pairs',
