@@ -552,3 +552,18 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .today__prog{font:700 .86rem/1.4 var(--sans)!important;color:var(--ink-3)!important;font-variant-numeric:tabular-nums}
 .today__step .btn{flex:none;min-height:44px}
 .today__back{margin-top:22px}
+
+/* ---------- Progress (v1.13.0) ---------- */
+.topics{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:10px;max-width:860px}
+.topic{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 18px}
+.topics--weak .topic{border-left:5px solid var(--m-quiz)}
+.topic__body{flex:1 1 220px;min-width:0}
+.topic__label{font:700 1rem/1.35 var(--sans);margin:0} .topic__label .muted{font-weight:500}
+.topic__detail{margin:2px 0 0;color:var(--ink-2);font-size:.9rem}
+.meter{display:flex;align-items:center;gap:8px;flex:0 0 150px}
+.meter__track{flex:1;height:8px;border-radius:4px;background:var(--tint);overflow:hidden;border:1px solid var(--rule)}
+.meter__track span{display:block;height:100%;background:var(--m-guide)}
+.meter__n{font:700 .9rem/1 var(--sans);font-variant-numeric:tabular-nums;min-width:3ch;text-align:right;color:var(--ink-2)}
+.meter--none{justify-content:flex-end}
+.topic .btn{flex:none;min-height:44px}
+@media (max-width:640px){.topic{padding:12px 14px;gap:8px 12px}.topic__body{flex-basis:100%}.meter{flex:1 1 90px}.topic .btn{min-height:40px;padding-inline:14px;font-size:.88rem}.topic__label .muted{display:none}}

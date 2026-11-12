@@ -90,6 +90,7 @@
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+    chart: '<path d="M4 4v16h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
     today: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/>',
     cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
     news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
@@ -120,6 +121,7 @@
     { label: 'Review', href: '#/review', icon: 'cards', group: 'Study', badge: 'due' },
     { label: 'Exam', href: '#/exam', icon: 'check', group: 'Study' },
     { label: 'Mistakes', href: '#/mistakes', icon: 'flag', group: 'Study', badge: 'mistakes' },
+    { label: 'Progress', href: '#/progress', icon: 'chart', group: 'Study' },
     { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Practice' },
     { label: 'Write a response', href: '#/write', icon: 'pencil', group: 'Practice' },
     { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Reference' },
@@ -674,6 +676,7 @@
   function ivLabel(i) { return i === 0 ? 'Today' : i === 1 ? '1 day' : i < 30 ? i + ' days' : i < 365 ? Math.round(i / 30) + ' mo' : (i / 365).toFixed(1) + ' yr'; }
   function cardStatus(key) { var s = SRS[key]; if (!s) return 'New'; if (s.d <= today()) return 'Due'; return s.i >= 21 ? 'Mastered' : 'Learning'; }
   function isDue(key) { var s = SRS[key]; return !!s && s.d <= today(); }
+  function isShaky(key) { var s = SRS[key]; return !!s && s.i < 21 && ((s.l || 0) > 0 || s.e < 2.5); }   // rated Again or Hard at some point and not yet mastered
   var NEW_PER_DAY = 20;
   function newSeenToday() { var n = store.get('newToday', null); return n && n.day === today() ? n.n : 0; }
   function bumpNewSeen() { store.set('newToday', { day: today(), n: newSeenToday() + 1 }); }
@@ -825,6 +828,7 @@
     var all = c ? c.cards.map(function (k) { return { ch: c, card: k, key: cardKey(c, k) }; }) : allCards();
     if (filter === 'due') all = all.filter(function (x) { return isDue(x.key); });
     else if (filter === 'new') all = all.filter(function (x) { return !SRS[x.key]; });
+    else if (filter === 'shaky') all = all.filter(function (x) { return isShaky(x.key); });
     else if (filter === 'review') {
       var due = all.filter(function (x) { return isDue(x.key); });
       var fresh = all.filter(function (x) { return !SRS[x.key]; }).slice(0, Math.max(0, NEW_PER_DAY - newSeenToday()));
@@ -833,11 +837,11 @@
     return all;
   }
   function cardsView(c, filter) {
-    filter = filter === 'due' || filter === 'new' ? filter : 'all';
+    filter = filter === 'due' || filter === 'new' || filter === 'shaky' ? filter : 'all';
     var pkey = 'c' + c.id + ':' + filter;
     if (!player || player.key !== pkey) player = { key: pkey, deck: buildDeck(c, filter), i: 0, flipped: false, known: 0, learn: 0 };
     var pr = chapterProgress(c);
-    return '<div class="cards-mode"><div class="filters" role="group" aria-label="Which cards">' + [['all', 'All cards'], ['due', 'Due today'], ['new', 'New']].map(function (f) {
+    return '<div class="cards-mode"><div class="filters" role="group" aria-label="Which cards">' + [['all', 'All cards'], ['due', 'Due today'], ['new', 'New'], ['shaky', 'Shaky']].map(function (f) {
       var n = buildDeck(c, f[0]).length;
       return '<a class="filter" href="#/c/' + c.id + '/cards/' + f[0] + '" aria-pressed="' + (filter === f[0]) + '">' + f[1] + ' <span class="filter__n">' + n + '</span></a>';
     }).join('') + '</div>' +
@@ -1868,6 +1872,64 @@
   };
   AFTER.today = function (arg) { if (arg === 'cards') wirePlayer(); else if (arg === 'quiz') wireQuiz(); };
 
+  /* --- PROGRESS (v1.13.0): weak spots first. Reads what the app already saves: SRS (cards), qstat (quiz answers, logged from
+     v1.12.0), drills and write. Nothing new is stored. A topic needs a little evidence before it is ranked (PG_MIN). --- */
+  var PG_MIN = { quiz: 3, cards: 3, write: 2 }, PG_WEAK = 80;
+  function shortTitle(c) { return c.title.split(':')[0]; }
+  function progressTopics() {
+    var out = [];
+    CHAPTERS.forEach(function (c) {
+      var r = 0, w = 0;
+      c.quiz.forEach(function (q) { var s = QSTAT[quizKey(c, q)]; if (s) { r += s[0]; w += s[1]; } });
+      out.push({ kind: 'quiz', ch: c, label: 'Chapter ' + c.id + ' quiz', sub: shortTitle(c), n: r + w, pct: r + w >= PG_MIN.quiz ? Math.round(100 * r / (r + w)) : null,
+        detail: r + w ? r + ' of ' + (r + w) + ' answers right' : 'No answers yet', href: '#/c/' + c.id + '/quiz', go: 'Take the quiz' });
+      var seen = 0, shaky = 0, tags = {};
+      c.cards.forEach(function (k) { var key = cardKey(c, k); if (SRS[key]) { seen++; if (isShaky(key)) { shaky++; if (k.tag) tags[k.tag] = (tags[k.tag] || 0) + 1; } } });
+      var tl = Object.keys(tags).sort(function (a, b) { return tags[b] - tags[a]; }).slice(0, 4);
+      out.push({ kind: 'cards', ch: c, label: 'Chapter ' + c.id + ' flashcards', sub: shortTitle(c), n: seen, shaky: shaky, pct: seen >= PG_MIN.cards ? Math.round(100 * (seen - shaky) / seen) : null,
+        detail: seen ? (shaky ? plural(shaky, 'shaky card', 'shaky cards') + ' of ' + seen + ' seen' + (tl.length ? ': ' + tl.join(', ') : '') : 'No shaky cards among ' + seen + ' seen') : 'No cards rated yet',
+        href: shaky ? '#/c/' + c.id + '/cards/shaky' : '#/c/' + c.id + '/cards', go: shaky ? 'Study shaky cards' : 'Open flashcards' });
+    });
+    var ds = drillStats();
+    DRILLS.forEach(function (d) {
+      var s = ds[d.id];
+      out.push({ kind: 'drill', label: d.title, sub: 'Skill drill', n: s ? s.n : 0, pct: s ? Math.round(100 * s.last.score / s.last.total) : null,
+        detail: s ? 'Last round ' + s.last.score + '/' + s.last.total + ' · best ' + s.best.score + '/' + s.best.total : 'Not tried yet', href: '#/drills/' + d.id, go: 'Do a round' });
+    });
+    WRITES.forEach(function (w) {
+      var m = writeSummary(w);
+      out.push({ kind: 'write', label: w.title, sub: 'Write a response', n: m.tried, pct: m.tried >= PG_MIN.write ? Math.round(100 * m.got / m.tried) : null,
+        detail: m.tried ? 'Got the idea on ' + m.got + ' of ' + m.tried + ' tried (your own rating)' : 'Not tried yet', href: '#/write/' + w.id, go: 'Practice' });
+    });
+    return out;
+  }
+  window.MI_PROGRESS = progressTopics;   // for QA
+  function meter(pct) { return pct === null ? '<span class="meter meter--none"><span class="meter__n">—</span></span>' : '<span class="meter"><span class="meter__track"><span style="width:' + pct + '%"></span></span><span class="meter__n">' + pct + '%</span></span>'; }
+  function topicRow(x, withSub) {
+    return '<li class="card topic"><div class="topic__body"><p class="topic__label">' + esc(x.label) + (withSub ? ' <span class="muted">· ' + esc(x.sub) + '</span>' : '') + '</p><p class="topic__detail">' + esc(x.detail) + '</p></div>' + meter(x.pct) + '<a class="btn" href="' + esc(x.href) + '">' + esc(x.go) + '</a></li>';
+  }
+  TITLES.progress = 'Progress';
+  VIEWS.progress = function () {
+    var T = progressTopics(), ranked = T.filter(function (x) { return x.pct !== null && x.pct < PG_WEAK; }).sort(function (a, b) { return a.pct - b.pct || b.n - a.n; });
+    var all = allCards(), seen = all.filter(function (x) { return SRS[x.key]; }).length, mastered = all.filter(function (x) { return cardStatus(x.key) === 'Mastered'; }).length, r = 0, w = 0;
+    Object.keys(QSTAT).forEach(function (k) { r += QSTAT[k][0]; w += QSTAT[k][1]; });
+    var any = T.some(function (x) { return x.n > 0; });
+    var group = function (title, kinds, sub, note) {
+      var rows = T.filter(function (x) { return kinds.indexOf(x.kind) >= 0; });
+      return '<h2>' + title + '</h2>' + (note ? '<p class="muted">' + note + '</p>' : '') + '<ul class="topics">' + rows.map(function (x) { return topicRow(x, sub); }).join('') + '</ul>';
+    };
+    return '<div class="wrap page progress">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Progress' }]) +
+      '<header class="page__head"><h1>Progress</h1><p>Where you are strong and where to study next, from the flashcard ratings, quiz answers, drill rounds and self-ratings saved on this device.</p></header>' +
+      '<div class="stats"><div class="card stat"><strong>' + seen + ' / ' + all.length + '</strong><span>cards seen</span></div><div class="card stat"><strong>' + mastered + '</strong><span>cards mastered</span></div>' +
+        '<div class="card stat"><strong>' + (r + w ? Math.round(100 * r / (r + w)) + '%' : '—') + '</strong><span>quiz answers right (' + (r + w) + ')</span></div><div class="card stat"><strong>' + streak() + '</strong><span>days in a row</span></div></div>' +
+      '<h2>Study these next</h2>' +
+      (ranked.length ? '<p class="muted">Your weakest areas first (below ' + PG_WEAK + '%).</p><ul class="topics topics--weak">' + ranked.slice(0, 5).map(function (x) { return topicRow(x, true); }).join('') + '</ul>'
+        : '<div class="empty"><h2>' + (any ? 'No weak spots right now' : 'Nothing to show yet') + '</h2><p>' + (any ? 'Every area with enough answers is at ' + PG_WEAK + '% or better. Keep going with today’s session.' : 'Do today’s session and this page will start to fill in.') + '</p><p><a class="btn btn--solid" href="#/today">Today’s session</a></p></div>') +
+      group('Quizzes by chapter', ['quiz'], true, 'Quiz answers are counted from version 1.12.0 on. A chapter is rated after ' + PG_MIN.quiz + ' answers.') +
+      group('Flashcards by chapter', ['cards'], true, 'A card is shaky if you rated it Again or Hard and have not mastered it yet. The percent is the share of seen cards that are not shaky.') +
+      group('Skills', ['drill', 'write'], true, 'Drills show your last round. Write a response uses your own ratings.') + '</div>';
+  };
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -1900,6 +1962,7 @@
   DRILLS.forEach(function (d) { SEARCH_INDEX.push({ title: d.title + ' — skill drill', text: 'skill drills practice ' + d.blurb + ' ' + d.src + ' ' + (d.choices || []).join(' '), href: '#/drills/' + d.id, kind: 'Drill' }); });
   WRITES.forEach(function (w) { SEARCH_INDEX.push({ title: w.title + ' — write a response', text: 'write your own response practice typing ' + w.blurb + ' ' + w.src, href: '#/write/' + w.id, kind: 'Practice' }); });
   SEARCH_INDEX.push({ title: 'Today’s session', text: 'daily session streak days in a row flashcards quiz questions skill drill 10 minutes', href: '#/today', kind: 'Practice' });
+  SEARCH_INDEX.push({ title: 'Progress', text: 'progress weak spots weakest areas accuracy by topic shaky cards study these next', href: '#/progress', kind: 'Practice' });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 

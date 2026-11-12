@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.13.0',
+    date: '2026-11-13',
+    title: 'Progress: your weak spots first',
+    summary: 'A new page shows where you are strong and what to study next, with a button to study each area.',
+    items: [
+      { type: 'feature', text: 'Progress: your weakest areas first, then quiz accuracy by chapter, shaky flashcards by chapter, and your skill drills and written responses. Quiz answers are counted from version 1.12.0 on.', href: '#/progress' },
+      { type: 'feature', text: 'Flashcards have a new Shaky filter: cards you rated Again or Hard and have not mastered yet.' }
+    ]
+  },
+  {
     version: '1.12.0',
     date: '2026-11-13',
     title: 'Today’s session and streak',
