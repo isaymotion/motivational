@@ -90,6 +90,7 @@
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+    pocket: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h6M7 14h10"/>',
     chart: '<path d="M4 4v16h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
     today: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/>',
     cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
@@ -124,6 +125,7 @@
     { label: 'Progress', href: '#/progress', icon: 'chart', group: 'Study' },
     { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Practice' },
     { label: 'Write a response', href: '#/write', icon: 'pencil', group: 'Practice' },
+    { label: 'Pocket cards', href: '#/pocket', icon: 'pocket', group: 'Reference' },
     { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Reference' },
     { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Reference' },
     { label: 'Tools', href: '#/tools', icon: 'clipboard', group: 'Appendices' },
@@ -1930,6 +1932,97 @@
       group('Skills', ['drill', 'write'], true, 'Drills show your last round. Write a response uses your own ratings.') + '</div>';
   };
 
+  /* --- POCKET CARDS (v1.14.0): one-screen summaries for use on duty. Each card names where its blocks live in the chapter data
+     (no text is copied): part = { ch, sec, h3: 'heading starts with' (optional: only the blocks under that h3), types: [block types],
+     n: how many to take, cols: [table columns to keep], items: [list items to keep] }. A part that is not found is left out, and a
+     card with no parts is not shown. Pins are kept in mt:v1:pocket (array of ids). --- */
+  var POCKET_SPEC = [
+    { id: 'spirit', group: 'Core skills', title: 'Spirit of MI (PACE)', parts: [{ ch: 3, sec: 'spirit', types: ['table'], n: 1 }, { ch: 3, sec: 'spirit', h3: 'The four components of acceptance', types: ['h3', 'ul'], n: 2 }] },
+    { id: 'oars', group: 'Core skills', title: 'OARS', parts: [{ ch: 3, sec: 'oars', types: ['p'], n: 1 }, { ch: 3, sec: 'oars', h3: 'Affirming', types: ['ul'], n: 1, items: [0, 1, 2] }, { ch: 3, sec: 'reflective', h3: 'Forming a complex reflection', types: ['note'], n: 1 }] },
+    { id: 'reflections', group: 'Core skills', title: 'Types of reflection', parts: [{ ch: 3, sec: 'reflective', h3: 'Exhibit 3.6', types: ['table'], n: 1, cols: [0, 1, 2] }] },
+    { id: 'summaries', group: 'Core skills', title: 'Types of summary', parts: [{ ch: 3, sec: 'summarizing', types: ['table'], n: 1 }] },
+    { id: 'roadblocks', group: 'Core skills', title: 'Gordon’s 12 roadblocks', parts: [{ ch: 3, sec: 'reflective', h3: 'Exhibit 3.5', types: ['table'], n: 1 }] },
+    { id: 'traps', group: 'Core skills', title: 'Traps to avoid', parts: [{ ch: 3, sec: 'engaging', h3: 'Avoiding traps', types: ['table'], n: 1, cols: [0, 2] }] },
+    { id: 'darncat', group: 'Change talk', title: 'DARN-CAT', parts: [{ ch: 3, sec: 'ambivalence', h3: 'DARN-CAT', types: ['table'], n: 1 }] },
+    { id: 'evoke', group: 'Change talk', title: 'Questions that evoke change talk', parts: [{ ch: 3, sec: 'evoking', h3: 'Exhibit 3.8', types: ['table'], n: 1 }] },
+    { id: 'rulers', group: 'Change talk', title: 'Importance and Confidence Rulers', parts: [{ ch: 3, sec: 'evoking', h3: 'Exhibit 3.9', types: ['h3', 'ul'], n: 2 }, { ch: 3, sec: 'confidence', h3: 'Evoking confidence talk', types: ['ul'], n: 1, items: [0] }] },
+    { id: 'sustain', group: 'Change talk', title: 'Responding to sustain talk', parts: [{ ch: 3, sec: 'sustain-talk', types: ['table'], n: 1, cols: [0, 1] }] },
+    { id: 'epe', group: 'Change talk', title: 'Elicit-Provide-Elicit', parts: [{ ch: 3, sec: 'discrepancy', types: ['table'], n: 1 }] },
+    { id: 'readiness', group: 'Change talk', title: 'Signs of readiness to change', parts: [{ ch: 3, sec: 'confidence', h3: 'Recognizing signs of readiness', types: ['table'], n: 1 }] },
+    { id: 'frames', group: 'Stages and brief intervention', title: 'FRAMES', parts: [{ ch: 2, sec: 'elements', h3: 'FRAMES', types: ['table'], n: 1 }] },
+    { id: 'stages', group: 'Stages and brief intervention', title: 'Counselor focus at each stage', stages: true },
+    { id: 'five-rs', group: 'Stages and brief intervention', title: 'Precontemplation: the 5 Rs', parts: [{ ch: 4, sec: 'assess', h3: 'Exhibit 4.2', types: ['table'], n: 1 }] },
+    { id: 'balance', group: 'Stages and brief intervention', title: 'Decisional Balance Sheet', parts: [{ ch: 5, sec: 'db', h3: 'Exhibit 5.3', types: ['table'], n: 1 }] },
+    { id: 'plan', group: 'Stages and brief intervention', title: 'Change Plan Worksheet', parts: [{ ch: 6, sec: 'plan', h3: 'Exhibit 6.3', types: ['ol'], n: 1 }] },
+    { id: 'triggers', group: 'Stages and brief intervention', title: 'Triggers and coping strategies', parts: [{ ch: 7, sec: 'triggers', h3: 'Exhibit 7.3', types: ['table'], n: 1 }] },
+    { id: 'ctraps', group: 'Stages and brief intervention', title: 'C-TRAPS (relapse prevention)', parts: [{ ch: 7, sec: 'ctraps', types: ['table'], n: 1 }] },
+    { id: 'respect', group: 'Stages and brief intervention', title: 'RESPECT (cultural responsiveness)', parts: [{ ch: 2, sec: 'culture', h3: 'Exhibit 2.4', types: ['table'], n: 1 }] }
+  ];
+  function pocketPart(pt) {
+    var c = chapter(pt.ch), sec = null, out = [];
+    if (c) c.sections.forEach(function (s) { if (s.id === pt.sec) sec = s; });
+    if (!sec) return out;
+    var on = !pt.h3;
+    for (var i = 0; i < sec.blocks.length && out.length < pt.n; i++) {
+      var b = sec.blocks[i];
+      if (b.t === 'h3') { var hit = !!pt.h3 && b.x.indexOf(pt.h3) === 0; if (pt.h3 && on && !hit) break; if (hit) on = true; }
+      if (!on || pt.types.indexOf(b.t) < 0) continue;
+      if (b.t === 'table' && pt.cols) b = { t: 'table', head: pt.cols.map(function (k) { return b.head[k]; }), rows: b.rows.map(function (r) { return pt.cols.map(function (k) { return r[k]; }); }) };
+      else if (b.items && pt.items) b = { t: b.t, items: pt.items.map(function (k) { return b.items[k]; }).filter(Boolean) };
+      out.push(b);
+    }
+    return out;
+  }
+  function buildPocket() {
+    return POCKET_SPEC.map(function (s) {
+      var blocks = [], src = [];
+      if (s.stages) {
+        var rows = stageRows();
+        if (rows.length) { blocks.push({ t: 'table', head: ['Stage', 'Counselor focus'], rows: rows.map(function (r) { return [r.stage, r.focus]; }) }); src = ['Chapters 4 to 7']; }
+      } else s.parts.forEach(function (pt) {
+        var got = pocketPart(pt); blocks = blocks.concat(got);
+        if (got.length && src.indexOf('Chapter ' + pt.ch) < 0) src.push('Chapter ' + pt.ch);
+      });
+      return { id: s.id, group: s.group, title: s.title, blocks: blocks, src: src.join(' and '), href: s.stages ? '#/stages' : '#/c/' + s.parts[0].ch + '/guide', hrefLabel: s.stages ? 'Stage by stage' : 'Chapter ' + s.parts[0].ch + ' study guide' };
+    }).filter(function (c) { return c.blocks.length; });
+  }
+  var POCKET = buildPocket(), POCKET_BY_ID = {};
+  POCKET.forEach(function (c) { POCKET_BY_ID[c.id] = c; });
+  window.MI_POCKET = POCKET;   // for QA
+  function pocketPins() { var p = store.get('pocket', []); return Array.isArray(p) ? p.filter(function (id) { return POCKET_BY_ID[id]; }) : []; }
+  function pocketOrder() {   // pinned first (in pin order), then the rest in their groups
+    var pins = pocketPins();
+    return pins.map(function (id) { return POCKET_BY_ID[id]; }).concat(POCKET.filter(function (c) { return pins.indexOf(c.id) < 0; }));
+  }
+  TITLES.pocket = 'Pocket cards';
+  VIEWS.pocket = function (id) {
+    var pins = pocketPins();
+    if (!id) {
+      var groups = [], seen = {};
+      POCKET.forEach(function (c) { if (!seen[c.group]) { seen[c.group] = true; groups.push(c.group); } });
+      var link = function (c) { return '<li><a class="card pcard" href="#/pocket/' + c.id + '"><span class="pcard__t">' + esc(c.title) + '</span><span class="pcard__s">' + esc(c.src) + (pins.indexOf(c.id) >= 0 ? ' · pinned' : '') + '</span></a></li>'; };
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Pocket cards' }]) +
+        '<header class="page__head"><p class="eyebrow">Reference</p><h1>Pocket cards</h1><p>Short summaries to glance at on duty: the tables and lists from TIP 35 you reach for most. Pin the ones you use so they stay on top.</p></header>' +
+        (pins.length ? '<h2>Pinned</h2><ul class="pcards">' + pins.map(function (p) { return link(POCKET_BY_ID[p]); }).join('') + '</ul>' : '') +
+        groups.map(function (g) { return '<h2>' + esc(g) + '</h2><ul class="pcards">' + POCKET.filter(function (c) { return c.group === g; }).map(link).join('') + '</ul>'; }).join('') + '</div>';
+    }
+    var c = POCKET_BY_ID[id];
+    if (!c) return missingView();
+    var order = pocketOrder(), i = order.indexOf(c), prev = order[(i + order.length - 1) % order.length], next = order[(i + 1) % order.length], pinned = pins.indexOf(c.id) >= 0;
+    return '<div class="wrap page pocket">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Pocket cards', href: '#/pocket' }, { label: c.title }]) +
+      '<header class="page__head"><p class="eyebrow">' + esc(c.group) + ' · ' + esc(c.src) + '</p><h1>' + esc(c.title) + '</h1></header>' +
+      '<div class="pocket__body prose">' + renderBlocks(c.blocks) + '</div>' +
+      '<p class="drill__acts"><button type="button" class="btn' + (pinned ? '' : ' btn--solid') + '" data-pin="' + c.id + '" aria-pressed="' + pinned + '">' + (pinned ? 'Unpin' : 'Pin this card') + '</button> <a class="btn" href="' + esc(c.href) + '">' + esc(c.hrefLabel) + ' →</a></p>' +
+      '<nav class="pocket__nav" aria-label="Other pocket cards"><a class="btn" href="#/pocket/' + prev.id + '">← ' + esc(prev.title) + '</a><a class="btn" href="#/pocket/' + next.id + '">' + esc(next.title) + ' →</a></nav></div>';
+  };
+  main.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-pin]') : null; if (!b) return;
+    var id = b.getAttribute('data-pin'), pins = pocketPins(), k = pins.indexOf(id);
+    if (k >= 0) pins.splice(k, 1); else pins.push(id);
+    store.set('pocket', pins); route({ keepScroll: true });
+    var again = main.querySelector('[data-pin]'); if (again) again.focus({ preventScroll: true });
+  });
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -1963,6 +2056,7 @@
   WRITES.forEach(function (w) { SEARCH_INDEX.push({ title: w.title + ' — write a response', text: 'write your own response practice typing ' + w.blurb + ' ' + w.src, href: '#/write/' + w.id, kind: 'Practice' }); });
   SEARCH_INDEX.push({ title: 'Today’s session', text: 'daily session streak days in a row flashcards quiz questions skill drill 10 minutes', href: '#/today', kind: 'Practice' });
   SEARCH_INDEX.push({ title: 'Progress', text: 'progress weak spots weakest areas accuracy by topic shaky cards study these next', href: '#/progress', kind: 'Practice' });
+  POCKET.forEach(function (c) { SEARCH_INDEX.push({ title: c.title + ' — pocket card', text: 'pocket card quick reference summary ' + c.group + ' ' + c.src, href: '#/pocket/' + c.id, kind: 'Pocket card' }); });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 

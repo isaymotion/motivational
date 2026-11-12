@@ -567,3 +567,13 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .meter--none{justify-content:flex-end}
 .topic .btn{flex:none;min-height:44px}
 @media (max-width:640px){.topic{padding:12px 14px;gap:8px 12px}.topic__body{flex-basis:100%}.meter{flex:1 1 90px}.topic .btn{min-height:40px;padding-inline:14px;font-size:.88rem}.topic__label .muted{display:none}}
+
+/* ---------- Pocket cards (v1.14.0) ---------- */
+.pcards{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.pcard{display:flex;flex-direction:column;gap:3px;padding:14px 16px;min-height:64px;text-decoration:none;color:inherit;border-left:5px solid var(--m-guide)}
+.pcard:hover{border-color:var(--m-guide)}
+.pcard__t{font:700 1rem/1.3 var(--sans)} .pcard__s{font:400 .82rem/1.3 var(--sans);color:var(--ink-3)}
+.pocket__body{max-width:860px;margin-bottom:18px}
+.pocket__body h3{margin-top:18px}
+.pocket__nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:18px;padding-top:18px;border-top:1px solid var(--rule)}
+.pocket__nav .btn{flex:1 1 220px;justify-content:center;text-align:center;min-height:44px}

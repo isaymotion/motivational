@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.14.0',
+    date: '2026-11-13',
+    title: 'Pocket cards',
+    summary: 'Twenty short reference cards to glance at on duty, taken from the tables and lists in TIP 35.',
+    items: [
+      { type: 'feature', text: 'Pocket cards: PACE, OARS, types of reflection and summary, the 12 roadblocks, traps to avoid, DARN-CAT, questions that evoke change talk, the Importance and Confidence Rulers, responding to sustain talk, Elicit-Provide-Elicit, signs of readiness, FRAMES, counselor focus by stage, the 5 Rs, the Decisional Balance Sheet, the Change Plan Worksheet, triggers and coping, C-TRAPS and RESPECT. Pin the ones you use most.', href: '#/pocket' }
+    ]
+  },
+  {
     version: '1.13.0',
     date: '2026-11-13',
     title: 'Progress: your weak spots first',
