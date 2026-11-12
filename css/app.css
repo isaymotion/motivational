@@ -603,3 +603,11 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .pp__rows .meter{flex:1 1 140px}
 .pp__score{font:400 .9rem/1.3 var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
 .pp__delta{margin:0 0 8px} .pp__acts{margin:10px 0 4px} .pp__note{font-size:.84rem;margin:0}
+
+/* ---------- Sa Tagalog cards (v1.17.0) ---------- */
+.tl-card{--c:var(--m-cards);margin-top:18px;font-family:var(--sans)}
+.tl-card p{font:400 .94rem/1.5 var(--sans)}
+.tl-card__links{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 6px}
+.tl-card__links .btn{min-height:44px;text-align:left}
+.tl-card__note{color:var(--ink-3);font-size:.82rem!important;margin:0}
+.tl-wrap{max-width:760px;margin-top:22px}

@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.17.0',
+    date: '2026-11-13',
+    title: 'Sa Tagalog: links to Usap Tayo',
+    summary: 'Where a skill has ready-to-say Tagalog in Usap Tayo, a Sa Tagalog card now takes you straight to it.',
+    items: [
+      { type: 'feature', text: 'Sa Tagalog cards in the study guides for Chapters 2, 3, 4, 6 and 7, on seven pocket cards, on the AUDIT page and on the Write a response and Role-play pages. Each opens the matching page in Usap Tayo (motivational interviewing phrases, substance use screening and brief intervention, AUDIT-C questions). The Tagalog wording is Usap Tayo’s own, not from TIP 35.', href: '#/c/3/guide' }
+    ]
+  },
+  {
     version: '1.16.0',
     date: '2026-11-13',
     title: 'Before and after: MI Knowledge Test',

@@ -40,6 +40,7 @@ To add a chapter: create `data/chNN.js` with the same shape as `data/ch01.js` (s
 - Pocket cards (`#/pocket`): 20 short reference cards (PACE, OARS, reflections, DARN-CAT, rulers, FRAMES, the 5 Rs, C-TRAPS and more), each assembled at runtime from the chapter tables and lists named in `POCKET_SPEC` in `js/app.js`. Pinned cards (`mt:v1:pocket`) show first.
 - Role-play (`#/roleplay`): 19 scenario cards for two or three residents (client, counselor, observer) read from Exhibits 4.2, 3.6 and 7.4 and the sustain talk table, with an observer tally sheet (questions, reflections, affirmations, summaries, roadblocks, change and sustain talk) and a 3/5/10-minute timer. Nothing is stored.
 - Before and after: on the MI Knowledge Test self-test, save one score as Before and a later one as After to see the gain (also shown on Progress). Only the score and date are kept, under `mt:v1:miktPrePost`, and only when a Save button is pressed.
+- Sa Tagalog cards: links from the matching study guide sections, pocket cards, the AUDIT page and the practice pages into Usap Tayo (`data/tagalog.js`). Links only: the Tagalog phrases stay in Usap Tayo.
 - Skill drills (`#/drills`): six tap-to-answer drills (open or closed question, change or sustain talk, DARN-CAT type, what a question evokes, name the response, which stage), built at runtime from the Chapter 3 tables and Exhibits 4.1 to 7.1. Best score, last score and rounds are kept under `mt:v1:drills`.
 - Write a response (`#/write`): type your own reflection, response to sustain talk or open question, compare it with the TIP 35 example and rate yourself (23 prompts from Exhibit 3.6 and the Chapter 3 tables). What is typed is never stored; only the self-ratings are kept under `mt:v1:write`.
 - Tools: practice scoring on the public-domain instruments (AUDIT, DrInC, SOCRATES 8A/8D, URICA, the decisional balance scales, BSCQ, AASES) and an MI Knowledge Test self-test. Practice/teaching only: nothing is stored unless **Save my own practice attempts on this device** is turned on (off by default; also in About > Settings). Saved attempts stay in the browser under `mt:v1:practice.<toolId>` and are included in Backup.
@@ -73,6 +74,7 @@ data/ch07.js            Chapter 7 content
 data/ch08.js            Chapter 8 content
 data/tools.js           Appendix B instruments (window.MI_TOOLS) and Appendix C resources (window.MI_RESOURCES)
 data/practice.js        Practice-scoring feedback notes and MI Knowledge Test term notes (window.MI_PRACTICE)
+data/tagalog.js         Sa Tagalog cards: which pages link to which Usap Tayo page (window.MI_TAGALOG)
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png (required),
                         favicon-32.png, favicon-64.png, apple-touch-icon.png (recommended)
 manifest.webmanifest    Install metadata

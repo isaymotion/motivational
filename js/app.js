@@ -765,6 +765,18 @@
     }).join('') + '</div>';
   }
 
+  /* --- Sa Tagalog (v1.17.0): cards that link into Usap Tayo (data/tagalog.js). Links only; no Tagalog text is kept in this app. --- */
+  var TAGALOG = window.MI_TAGALOG || null;
+  function tlCard(keys) {
+    if (!TAGALOG || !keys || !keys.length) return '';
+    var links = keys.map(function (k) { return TAGALOG.pages[k]; }).filter(Boolean);
+    if (!links.length) return '';
+    return '<aside class="callout tl-card" aria-label="Sa Tagalog"><p class="callout__title">Sa Tagalog</p><p>Usap Tayo has ready-to-say Tagalog for this: ' + esc(links.map(function (l) { return l.what; }).join('; ')) + '.</p>' +
+      '<p class="tl-card__links">' + links.map(function (l) { return '<a class="btn" href="' + esc(TAGALOG.base + l.href) + '" target="_blank" rel="noopener">' + esc(l.label) + '<span class="sr-only"> (opens Usap Tayo in a new tab)</span> ↗</a>'; }).join(' ') + '</p>' +
+      '<p class="tl-card__note">Opens the Usap Tayo app. The Tagalog wording is Usap Tayo’s own, not from TIP 35.</p></aside>';
+  }
+  function tlFor(kind, id) { return TAGALOG && TAGALOG[kind] ? tlCard(TAGALOG[kind][id]) : ''; }
+
   /* --- Chapters list --- */
   TITLES.chapters = 'Chapters';
   VIEWS.chapters = function () {
@@ -801,7 +813,7 @@
       (c.quote ? '<blockquote class="quote"><p>“' + esc(c.quote.text) + '”</p><footer>— ' + esc(c.quote.by) + '</footer></blockquote>' : '') +
       '<div class="callout callout--key"><p class="callout__title">Key messages</p><ul>' + c.keyMessages.map(function (k) { return '<li>' + linkTerms(k) + '</li>'; }).join('') + '</ul></div>' +
       '<nav class="toc" aria-label="In this chapter"><span class="toc__label">In this chapter</span>' + c.sections.map(function (s) { return '<a class="filter" href="#/c/' + c.id + '/guide" data-jump="s-' + esc(s.id) + '">' + esc(s.h) + '</a>'; }).join('') + '</nav>' +
-      c.sections.map(function (s) { return '<section class="guide__sec" id="s-' + esc(s.id) + '"><h2>' + esc(s.h) + '</h2>' + renderBlocks(s.blocks) + '</section>'; }).join('') +
+      c.sections.map(function (s) { return '<section class="guide__sec" id="s-' + esc(s.id) + '"><h2>' + esc(s.h) + '</h2>' + renderBlocks(s.blocks) + tlFor('sections', c.id + '/' + s.id) + '</section>'; }).join('') +
       chapterToolsNote(c) +
       '<div class="next"><a class="btn btn--solid" href="#/c/' + c.id + '/hy">High-yield points →</a> <a class="btn" href="#/c/' + c.id + '/cards">Flashcards</a></div></div>';
   }
@@ -1138,7 +1150,7 @@
       (x.ref ? '<p class="tool__ref"><span class="tool__reflab">Full reference (TIP 35, Appendix A)</span>' + esc(x.ref) + '</p>' : '') +
       (x.url && x.status === 'pd' ? '<p>' + extLink(x.url, x.urlLabel || 'Free official copy (online)') + '</p>' : '') +
       (x.refUrl ? '<p>' + extLink(x.refUrl, x.refLabel || 'Original article (online)') + '</p>' : '') + '</section>';
-    h += STUDY_ONLY + '<div class="next">' + (prev ? '<a class="btn" href="#/tools/' + esc(prev.id) + '">← ' + esc(prev.short) + '</a> ' : '') +
+    h += tlFor('tools', x.id) + STUDY_ONLY + '<div class="next">' + (prev ? '<a class="btn" href="#/tools/' + esc(prev.id) + '">← ' + esc(prev.short) + '</a> ' : '') +
       '<a class="btn" href="#/tools">All tools</a>' + (next ? ' <a class="btn btn--solid" href="#/tools/' + esc(next.id) + '">' + esc(next.short) + ' →</a>' : '') + '</div>';
     return h + '</div>';
   }
@@ -1738,7 +1750,7 @@
           var m = writeSummary(w);
           return '<a class="card drill" href="#/write/' + w.id + '"><h3>' + esc(w.title) + '</h3><p>' + esc(w.blurb) + '</p><p class="drill__meta">' + plural(w.items.length, 'prompt', 'prompts') + ' · ' + esc(w.src) +
             (m.tried ? '<br><strong>Got the idea on ' + m.got + ' of ' + m.total + '</strong> · ' + m.tried + ' tried' : '<br>Not tried yet') + '</p></a>';
-        }).join('') + '</div></div>';
+        }).join('') + '</div><div class="tl-wrap">' + tlFor('practice', 'write') + '</div></div>';
     }
     var w = WRITE_BY_ID[id];
     if (!w) return missingView();
@@ -2047,7 +2059,7 @@
     var order = pocketOrder(), i = order.indexOf(c), prev = order[(i + order.length - 1) % order.length], next = order[(i + 1) % order.length], pinned = pins.indexOf(c.id) >= 0;
     return '<div class="wrap page pocket">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Pocket cards', href: '#/pocket' }, { label: c.title }]) +
       '<header class="page__head"><p class="eyebrow">' + esc(c.group) + ' · ' + esc(c.src) + '</p><h1>' + esc(c.title) + '</h1></header>' +
-      '<div class="pocket__body prose">' + renderBlocks(c.blocks) + '</div>' +
+      '<div class="pocket__body prose">' + renderBlocks(c.blocks) + tlFor('pocket', c.id) + '</div>' +
       '<p class="drill__acts"><button type="button" class="btn' + (pinned ? '' : ' btn--solid') + '" data-pin="' + c.id + '" aria-pressed="' + pinned + '">' + (pinned ? 'Unpin' : 'Pin this card') + '</button> <a class="btn" href="' + esc(c.href) + '">' + esc(c.hrefLabel) + ' →</a></p>' +
       '<nav class="pocket__nav" aria-label="Other pocket cards"><a class="btn" href="#/pocket/' + prev.id + '">← ' + esc(prev.title) + '</a><a class="btn" href="#/pocket/' + next.id + '">' + esc(next.title) + ' →</a></nav></div>';
   };
@@ -2134,7 +2146,7 @@
         '<header class="page__head"><p class="eyebrow">Practice with a partner</p><h1>Role-play</h1><p>TIP 35 notes that foundational skills such as reflective listening are best learned face to face and interactively (Chapter 8). These cards set up a short role-play for two or three residents, using situations from the book.</p></header>' +
         '<ol class="prose rp__how"><li>Pick a scenario and choose roles: client, counselor and, with three people, observer.</li><li>Each person opens their own card. The client reads only the Client card.</li><li>Role-play for a few minutes. The observer tallies what they hear, or the client does it from memory afterwards.</li><li>Share the tallies, then swap roles.</li></ol>' +
         '<div class="callout callout--caution"><p class="callout__title">Practice among colleagues only</p><p>Use the scenarios in the book or made-up details. Do not use real patient details. Nothing on these pages is saved.</p></div>' +
-        sets.map(function (g) { return '<h2>' + esc(g) + '</h2><ul class="pcards">' + ROLEPLAY.filter(function (s) { return s.set === g; }).map(function (s) { return '<li><a class="card pcard" href="#/roleplay/' + s.id + '"><span class="pcard__t">' + esc(s.title) + '</span><span class="pcard__s">' + esc(s.src) + '</span></a></li>'; }).join('') + '</ul>'; }).join('') + '</div>';
+        sets.map(function (g) { return '<h2>' + esc(g) + '</h2><ul class="pcards">' + ROLEPLAY.filter(function (s) { return s.set === g; }).map(function (s) { return '<li><a class="card pcard" href="#/roleplay/' + s.id + '"><span class="pcard__t">' + esc(s.title) + '</span><span class="pcard__s">' + esc(s.src) + '</span></a></li>'; }).join('') + '</ul>'; }).join('') + '<div class="tl-wrap">' + tlFor('practice', 'roleplay') + '</div></div>';
     }
     var s = RP_BY_ID[id];
     if (!s) return missingView();
