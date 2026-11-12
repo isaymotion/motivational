@@ -89,6 +89,7 @@
   var ICONS = {
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
     cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
     news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
@@ -117,9 +118,10 @@
     { label: 'Review', href: '#/review', icon: 'cards', group: 'Study', badge: 'due' },
     { label: 'Exam', href: '#/exam', icon: 'check', group: 'Study' },
     { label: 'Mistakes', href: '#/mistakes', icon: 'flag', group: 'Study', badge: 'mistakes' },
-    { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Study' },
-    { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Study' },
-    { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Study' },
+    { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Practice' },
+    { label: 'Write a response', href: '#/write', icon: 'pencil', group: 'Practice' },
+    { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Reference' },
+    { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Reference' },
     { label: 'Tools', href: '#/tools', icon: 'clipboard', group: 'Appendices' },
     { label: 'Resources', href: '#/resources', icon: 'link', group: 'Appendices' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
@@ -1652,6 +1654,103 @@
     else if (e.key === 'Enter' && drill.picked !== null && !(e.target.closest && e.target.closest('a'))) { e.preventDefault(); drillNext(); }
   });
 
+  /* --- WRITE A RESPONSE (v1.11.0): type your own reflection, response or open question, then compare it with the TIP 35 example
+     and rate yourself. Items are read at runtime from the Chapter 3 tables (Exhibit 3.6, Responding to sustain talk, Asking open
+     questions). What is typed lives only in `wr` and is dropped in route(); only the self-ratings are stored (mt:v1:write). --- */
+  function buildWrites() {
+    var out = [], ex36 = tableAfter(3, 'Exhibit 3.6'), sus = tableIn(3, 'sustain-talk', 'Strategy'), oq = tableAfter(3, 'Asking open questions');
+    if (ex36) out.push({ id: 'reflect', title: 'Write a reflection', blurb: 'Read what the client says and write the kind of reflection asked for.', src: 'Chapter 3 · Exhibit 3.6', label: 'Your reflection',
+      items: ex36.rows.map(function (r, i) { return { k: i, task: 'Write this kind of reflection: <strong>' + esc(r[0]) + '</strong>', who: 'Client', x: r[1], model: r[2], modelLabel: 'Counselor', hint: r[3], notes: [['Purpose', r[3]], ['Keep in mind', r[4]]] }; }) });
+    if (sus) {
+      var a = [];
+      sus.rows.forEach(function (r, i) { var q = quotes(r[2]); if (q.length === 2) a.push({ k: i, task: 'Respond to this sustain talk with: <strong>' + esc(r[0]) + '</strong>', who: 'Client', x: q[0], model: q[1], modelLabel: 'Counselor', hint: r[1], notes: [['How', r[1]]] }); });
+      out.push({ id: 'sustain', title: 'Respond to sustain talk', blurb: 'Answer sustain talk with the strategy asked for, without arguing.', src: 'Chapter 3 · Responding to change talk and sustain talk', label: 'Your response', items: a });
+    }
+    if (oq) out.push({ id: 'open', title: 'Open it up', blurb: 'Rewrite a closed question as an open one.', src: 'Chapter 3 · Asking open questions', label: 'Your open question',
+      items: oq.rows.map(function (r, i) { return { k: i, task: 'Rewrite this closed question as an <strong>open question</strong>.', who: 'Closed question', x: r[0], model: r[1], modelLabel: 'Open question', hint: 'An open question invites the client to reflect and elaborate. A statement that begins “Tell me about…” also works as an open question.', notes: [] }; }) });
+    return out.filter(function (w) { return w.items.length; });
+  }
+  var WRITES = buildWrites(), WRITE_BY_ID = {}, wr = null;   // wr = { id, items, i, text, shown, rates: [1|2|3] }
+  WRITES.forEach(function (w) { WRITE_BY_ID[w.id] = w; });
+  window.MI_WRITES = WRITES;   // for QA
+  var WR_RATES = [[1, 'Missed the idea'], [2, 'Close'], [3, 'Got the idea']];
+  function writeStats() { return store.get('write', {}) || {}; }
+  function writeSummary(w) {   // { tried, got } over the items of one set, from the last self-rating of each
+    var s = writeStats(), tried = 0, got = 0;
+    w.items.forEach(function (it) { var r = s[w.id + '/' + it.k]; if (r) { tried++; if (r.r === 3) got++; } });
+    return { tried: tried, got: got, total: w.items.length };
+  }
+  function startWrite(w, items) { wr = { id: w.id, items: items || shuffle(w.items), i: 0, text: '', shown: false, rates: [] }; }
+  TITLES.write = 'Write a response';
+  VIEWS.write = function (id) {
+    if (!id) {
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Write a response' }]) +
+        '<header class="page__head"><p class="eyebrow">Practice</p><h1>Write a response</h1><p>The drills train you to recognize MI skills; here you produce them. Read the prompt, type what you would say, then compare it with the example in TIP 35 and rate yourself. The example is one way to say it, so compare the idea, not the exact words.</p></header>' +
+        '<div class="callout callout--note"><p class="callout__title">What you type is not saved</p><p>Your text stays on the screen only and is cleared when you leave the page. Only your self-ratings are kept on this device. Do not type patient details.</p></div>' +
+        '<div class="drill__list">' + WRITES.map(function (w) {
+          var m = writeSummary(w);
+          return '<a class="card drill" href="#/write/' + w.id + '"><h3>' + esc(w.title) + '</h3><p>' + esc(w.blurb) + '</p><p class="drill__meta">' + plural(w.items.length, 'prompt', 'prompts') + ' · ' + esc(w.src) +
+            (m.tried ? '<br><strong>Got the idea on ' + m.got + ' of ' + m.total + '</strong> · ' + m.tried + ' tried' : '<br>Not tried yet') + '</p></a>';
+        }).join('') + '</div></div>';
+    }
+    var w = WRITE_BY_ID[id];
+    if (!w) return missingView();
+    if (!wr || wr.id !== w.id) startWrite(w);
+    return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Write a response', href: '#/write' }, { label: w.title }]) +
+      '<header class="page__head"><h1>' + esc(w.title) + '</h1><p class="muted">' + esc(w.src) + '</p></header><div id="write">' + writeHTML() + '</div></div>';
+  };
+  function writeHTML() {
+    var z = wr, w = WRITE_BY_ID[z.id], n = z.items.length;
+    if (z.i >= n) {
+      var got = z.rates.filter(function (r) { return r === 3; }).length, redo = z.items.filter(function (_, i) { return z.rates[i] < 3; });
+      return '<div class="result-card"><p class="eyebrow">Round complete</p><h2>Got the idea on ' + got + ' of ' + n + '</h2>' +
+        '<ul class="review-list">' + z.items.map(function (it, i) {
+          return '<li class="' + (z.rates[i] === 3 ? 'is-right' : 'is-wrong') + '"><span>' + (i + 1) + '.</span><span>' + esc(stripTags(it.x)) + '<br><small>' + esc(WR_RATES[z.rates[i] - 1][1]) + '</small></span></li>';
+        }).join('') + '</ul>' +
+        '<p class="drill__acts"><button type="button" class="btn btn--solid" data-wact="again">Go again</button> ' +
+        (redo.length ? '<button type="button" class="btn" data-wact="redo">Redo the ones I missed (' + redo.length + ')</button> ' : '') +
+        '<a class="btn" href="#/write">All sets</a> <a class="btn" href="#/c/3/guide">Chapter 3 study guide →</a></p></div>';
+    }
+    var it = z.items[z.i];
+    var head = '<div class="q-card"><div class="q-card__top"><span class="eyebrow">' + (z.i + 1) + ' of ' + n + '</span></div>' +
+      '<p class="drill__prompt">' + it.task + '</p><p class="drill__pre">' + esc(it.who) + '</p><p class="q-card__q">' + it.x + '</p>';
+    if (!z.shown) {
+      return head + '<details class="write__hint"><summary>Hint</summary><p>' + it.hint + '</p></details>' +
+        '<label class="write__label" for="wr-ta">' + esc(w.label) + '</label><textarea id="wr-ta" class="write__ta" rows="4" autocomplete="off" autocapitalize="sentences" placeholder="Type what you would say…">' + esc(z.text) + '</textarea>' +
+        '<p class="q-card__next"><button type="button" class="btn btn--solid" data-wact="show">Compare with TIP 35</button></p></div>';
+    }
+    return head + '<div class="write__cmp"><div class="write__mine"><p class="eyebrow">You wrote</p><p>' + (z.text.trim() ? esc(z.text.trim()) : '<span class="muted">(nothing typed)</span>') + '</p></div>' +
+      '<div class="write__model"><p class="eyebrow">TIP 35 example · ' + esc(it.modelLabel) + '</p><p>' + it.model + '</p></div></div>' +
+      (it.notes.length ? '<dl class="write__notes">' + it.notes.map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + x[1] + '</dd>'; }).join('') + '</dl>' : '') +
+      '<p class="write__ask" id="wr-ask">How close was yours to the idea?</p><div class="write__rate" role="group" aria-labelledby="wr-ask">' + WR_RATES.map(function (r) {
+        return '<button type="button" class="btn rate__b rate__b--' + (r[0] === 1 ? 1 : r[0] === 2 ? 2 : 3) + '" data-wrate="' + r[0] + '">' + esc(r[1]) + '</button>';
+      }).join('') + '</div></div>';
+  }
+  function paintWrite(focus) {
+    var el = document.getElementById('write'); if (!el) return;
+    el.innerHTML = writeHTML();
+    var f = el.querySelector(focus === 'ta' ? '#wr-ta' : '[data-wrate="3"]'); if (f && focus) f.focus({ preventScroll: true });
+  }
+  function writeShow() { if (wr && !wr.shown && wr.i < wr.items.length) { wr.shown = true; paintWrite('rate'); } }
+  function writeRate(r) {
+    var z = wr; if (!z || !z.shown || z.i >= z.items.length) return;
+    var s = writeStats(), key = z.id + '/' + z.items[z.i].k, old = s[key] || { n: 0 };
+    s[key] = { n: old.n + 1, r: r, d: new Date().toISOString().slice(0, 10) }; store.set('write', s);
+    z.rates.push(r); z.i++; z.text = ''; z.shown = false;
+    paintWrite('ta'); window.scrollTo(0, 0);
+  }
+  main.addEventListener('input', function (e) { if (wr && e.target && e.target.id === 'wr-ta') wr.text = e.target.value; });
+  main.addEventListener('keydown', function (e) { if (wr && e.target && e.target.id === 'wr-ta' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); writeShow(); } });
+  main.addEventListener('click', function (e) {
+    if (!e.target.closest || !wr || !e.target.closest('#write')) return;
+    var r = e.target.closest('[data-wrate]'); if (r) { writeRate(+r.getAttribute('data-wrate')); return; }
+    var a = e.target.closest('[data-wact]'); if (!a) return;
+    var act = a.getAttribute('data-wact'), w = WRITE_BY_ID[wr.id];
+    if (act === 'show') writeShow();
+    else if (act === 'again') { startWrite(w); paintWrite('ta'); }
+    else if (act === 'redo') { var z = wr; startWrite(w, shuffle(z.items.filter(function (_, i) { return z.rates[i] < 3; }))); paintWrite('ta'); }
+  });
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -1682,6 +1781,7 @@
   });
   stageRows().forEach(function (r) { SEARCH_INDEX.push({ title: r.stage + ' — stage by stage', text: 'stages of change strategies ' + stripTags(r.motivation + ' ' + r.focus + ' ' + r.strategies), href: '#/stages', kind: 'Stages' }); });
   DRILLS.forEach(function (d) { SEARCH_INDEX.push({ title: d.title + ' — skill drill', text: 'skill drills practice ' + d.blurb + ' ' + d.src + ' ' + (d.choices || []).join(' '), href: '#/drills/' + d.id, kind: 'Drill' }); });
+  WRITES.forEach(function (w) { SEARCH_INDEX.push({ title: w.title + ' — write a response', text: 'write your own response practice typing ' + w.blurb + ' ' + w.src, href: '#/write/' + w.id, kind: 'Practice' }); });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 
@@ -1707,6 +1807,7 @@
     opts = opts || {};
     closeSuggest(); closeDrawer();
     if (!PR_ROUTE.test(location.hash)) PR = null;   // practice answers are dropped when you leave the page
+    if (location.hash.indexOf('#/write/') !== 0) wr = null;   // typed responses are never stored and are dropped when you leave
     var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
     if (!opts.keepScroll) {
       scrollMemo[scrollKey] = window.scrollY;                 // the page we are leaving

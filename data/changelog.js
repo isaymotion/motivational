@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.11.0',
+    date: '2026-11-13',
+    title: 'Write a response',
+    summary: 'Practice producing MI responses, not only recognizing them: type your own, then compare with the example in TIP 35.',
+    items: [
+      { type: 'feature', text: 'Write a response: 23 prompts in three sets (write a reflection, respond to sustain talk, turn a closed question into an open one). Type what you would say, compare it with the TIP 35 example and rate yourself. What you type is not saved; only your self-ratings are kept on this device.', href: '#/write' },
+      { type: 'update', text: 'The menu is grouped into Study, Practice and Reference so the practice tools are easier to find.' }
+    ]
+  },
+  {
     version: '1.10.0',
     date: '2026-11-13',
     title: 'Skill drills',

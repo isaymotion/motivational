@@ -511,3 +511,22 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .choices--two{grid-template-columns:1fr 1fr}
 .drill__acts{display:flex;flex-wrap:wrap;gap:8px;margin:0}
 #drill{max-width:760px}
+
+/* ---------- Write a response (v1.11.0) ---------- */
+#write{max-width:760px}
+.write__hint{margin:12px 0 0;font:400 .92rem/1.5 var(--sans);color:var(--ink-2)}
+.write__hint summary{cursor:pointer;font-weight:600;padding:8px 0}
+.write__hint p{margin:4px 0 0}
+.write__label{display:block;font:700 .86rem/1.3 var(--sans);color:var(--ink-2);margin:16px 0 6px}
+.write__ta{display:block;width:100%;min-height:120px;padding:12px 14px;border:1px solid var(--rule);border-radius:var(--r-md);background:var(--paper);color:var(--ink);font:400 1.02rem/1.5 var(--serif);resize:vertical}
+.write__ta:focus-visible{outline:3px solid color-mix(in srgb,var(--m-quiz) 55%,transparent);outline-offset:1px}
+.write__cmp{display:grid;gap:12px;margin:16px 0 0}
+@media (min-width:700px){.write__cmp{grid-template-columns:1fr 1fr}}
+.write__mine,.write__model{border:1px solid var(--rule);border-radius:var(--r-md);padding:12px 14px;background:var(--paper)}
+.write__model{border-left:4px solid var(--good)}
+.write__mine p:last-child,.write__model p:last-child{margin:0;font:400 1.02rem/1.5 var(--serif);white-space:pre-wrap;overflow-wrap:anywhere}
+.write__notes{margin:14px 0 0;font:400 .92rem/1.5 var(--sans)}
+.write__notes dt{font-weight:700;color:var(--ink-2);margin-top:8px} .write__notes dd{margin:0;color:var(--ink-2)}
+.write__ask{font:700 .92rem/1.3 var(--sans);margin:18px 0 8px}
+.write__rate{display:flex;flex-wrap:wrap;gap:8px}
+.write__rate .btn{flex:1 1 150px;min-height:44px}
