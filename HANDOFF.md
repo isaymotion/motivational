@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-09 (baseline re-verified in a fresh chat: all five checks clean on main c757251), after v1.9.3 (v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-12, after v1.9.4 (v1.9.4 Stage by stage page + nav subroute highlight; v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -26,6 +26,7 @@ data/app-meta.js   APP_META.version (semver)        data/changelog.js  APP_CHANG
 data/chapters.js   MI_TOC (all 8 chapters) + MI_CHAPTERS = []
 data/ch01.js … ch08.js  each does window.MI_CHAPTERS.push({...})
 data/tools.js      window.MI_TOOLS (14 Appendix B instruments) + window.MI_RESOURCES (Appendix C)   [v1.8.0]
+(v1.9.4) #/stages has no data file: stageRows() in js/app.js reads the Exhibit 4.1/5.1/6.1/7.1 tables from MI_CHAPTERS at runtime (finds the h3 starting 'Exhibit N.1 ' and the next table).
 data/practice.js   window.MI_PRACTICE {feedback:{audit,drinc,socrates,urica,db,bscq,aases}, miktTerms:{n:html}, miktNotScored:{18:…}}   [v1.9.0]
 ```
 **Practice scoring (v1.9.0)** lives in `js/app.js` under "PRACTICE SCORING", just after `toolView`. Routes `#/tools/<id>/practice` (the 9 ids in `SCORERS`: audit, drinc, socrates8a/8d, urica, alcdb/drugdb, bscq, aases) and `#/tools/mikt/test`. Scorers parse the scoring tables in `data/tools.js` (no retyped keys); SOCRATES deciles come from the Profile Sheet table. `window.MI_SCORE(id, answers, {sex})` and `window.MI_MIKT(answers)` exist for QA. Answers live only in the in-memory `PR` and are dropped in `route()` whenever the hash leaves a practice page. Setting `mt:v1:practiceSave` (off by default; toggle on each practice page and in About > Settings); saved attempts `mt:v1:practice.<id>` = [{date, answers, scores, summary}] newest first, max 50, covered by backup. MIKT items may carry `pre: [lines]` (Q22's situation). AASES = overall mean of 20 items only (no subscales). MIKT Q18 not scored (score out of 21). MIKT choices are never shuffled ("both a and b").
@@ -106,6 +107,7 @@ Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives on
 | App. B | Tools — 14 instruments | 172–207 | ✅ v1.8.0 — 10 public domain with all items (220 items), 4 reference cards (DAST-10, RCQ-TV, ADCQ, What I Want From Treatment) |
 | App. C | Resources | 208–209 | ✅ v1.8.0 — 5 groups, 16 entries, external links with an "online only" note |
 | Practice | Practice scoring + MIKT self-test | — | ✅ v1.9.0 — 9 scorers, MIKT self-test (21 scored), opt-in save setting |
+| Stages | Stage by stage summary (Ex. 4.1/5.1/6.1/7.1) | — | ✅ v1.9.4 — 6 stages, read from chapter data |
 | App. A | Bibliography | — | Left out (by plan) |
 
 Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
@@ -113,17 +115,22 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 ## 7. Status after v1.9.0 and next steps
 **v1.9.0 done (2026-11-09)**, per her answers: practice scoring with the optional, off-by-default "Save my own practice attempts on this device" setting; MI Knowledge Test self-test with Exhibit 3.1 term notes (items 1, 3, 4, 6, 7, 11, 15, 16, 21). Each practice result ends with a "Giving this feedback" note (Ch 2 for AUDIT; Ch 4 for DrInC, SOCRATES, URICA; Ch 5 for DB; Ch 7 for BSCQ/AASES). Also fixed: MIKT Q22's situation (T: confidence 0–10 / C: "About a 4") had been missing.
 
-**Baseline 2026-11-09 (fresh chat, main c757251 = v1.9.3):** check_chapters OK (8 ch, 179 terms); qa.py FAILS: 0 (92 PASS); tools_qa.py TOOLS FAILS: 0 (103 PASS); check_sw PASS; check_design --browser PASS. §7 decisions and ideas listed to her; waiting for her choice.
+**v1.9.4 done (2026-11-12, main 7bb39cd)**, per her choice:
+- **Stage by stage** page `#/stages` (NAV Study group, icon `cycle`, home tile, search entries kind "Stages"): redrawn SOC cycle, jump chips, an "At a glance" Stage | Counselor focus table, then one section per stage (Precontemplation, Contemplation, Preparation, Action, Maintenance, Relapse and recycle) with Client motivation, Counselor focus and Counseling strategies split into bullet lists, and a "Chapter N study guide →" button. Text comes from the chapter data (no copy), so edits to those exhibit tables flow through. Section ids `st-<stage-slug>`.
+- **Nav fix:** `navMatches()` makes a nav item active on its own route and any subroute (`href + '/'`), plus optional `match` prefixes (Chapters has `match: ['#/c/']`). The tab bar's Chapters tab is also active inside a chapter.
+- **She decided:** AUDIT toggle stays on Women (no change).
+- Checks at v1.9.4: check_chapters OK; qa.py FAILS: 0 (92 PASS); tools_qa.py TOOLS FAILS: 0; check_sw PASS; check_design --browser PASS. Screens checked: phone light, desktop dark, jump chips, highlights on 11 routes.
 
 **Defaults taken without her decision — tell her, change if she wants:**
 - **AASES:** only the plain average of the 20 ratings, plus the lowest-rated situations (rated 1–2, or her lowest rating). No subscales, with a caution callout. If she supplies the official 20-item key, add subscale scoring.
 - **MIKT Q18:** shown with choices disabled and "Not scored — printing error"; score is out of 21.
-- AUDIT zone cut-off toggle defaults to Women.
+- AUDIT zone cut-off toggle defaults to Women — **she confirmed this on 2026-11-12; keep it.**
 
 **Ideas / possible next releases:**
-- A "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1.
+- ~~SOC stage → strategies summary page~~ — done in v1.9.4.
 - A Tagalog layer (usap-tayo-integration skill).
-- Sidebar does not highlight Tools on `#/tools/<id>` subroutes (exact-match nav; pre-existing, minor).
+- ~~Sidebar Tools highlight on subroutes~~ — fixed in v1.9.4.
+- Still open: AASES subscales (need the official key from her); MIKT Q18 handling; Ch 7 Susan sentence (she did not choose to change it on 2026-11-12); the 4 links to check in a browser (below).
 
 **v1.9.1 links (2026-11-09):** she reported a dead WIWFT link. Every tool/resource URL was checked; moved ones now point to the current official copy (CASAA `/assets/inst/` and `/assets/docs/` paths, `casaa.unm.edu/tools/met.pdf`, MISC → `assets/docs/misc4.pdf` = MISC 2.1, TIPs 63/60/42 on library.samhsa.gov, TIPs 57/52 on samhsa.gov/resource). The closed SAMHSA-HRSA CIHS site (integration.samhsa.gov) now links to current SAMHSA pages on screening, the MI Advisory based on TIP 35, and the tobacco cessation Advisory. Tool `source` lines stay verbatim; the page adds a note when the printed address has moved. **Not verifiable from the sandbox (check in a browser):** DrInC `pubs.niaaa.nih.gov/.../match04.pdf`, RCQ `ndarc...TR.019.pdf`, TIP 59 and TIP 39 store.samhsa.gov links (store.samhsa.gov now tends to redirect to library.samhsa.gov). WebFetch is the only way to test links here (the shell can't reach outside sites).
 
@@ -133,7 +140,7 @@ Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glo
 - "Latest version" month: still November 2026; update it in index.html, app-meta.js and README when the month changes.
 - She was told about two content choices and may want changes: Ch 7 Exhibit 7.5 (Susan) states childhood sexual abuse by her father in one plain sentence (could become "childhood trauma"); the Ch 6 IOP glossary entry deliberately avoids outside facts.
 - AASES key mismatch and MIKT Q18 key error: handled with the defaults in §7 (v1.9.0); she may want them handled differently.
-- Later ideas: a "SOC stage → strategies" summary page from Exhibits 4.1/5.1/6.1/7.1; a Tagalog layer (usap-tayo-integration skill).
+- Later ideas: a Tagalog layer (usap-tayo-integration skill). (The stage summary page shipped in v1.9.4.)
 
 Glossary: 179 terms across 8 chapters. If tools pages add terms, run check_chapters.js — it flags any term repeating an earlier one. Never use a common English word as an alt (the linker is case-insensitive whole-word; e.g. never alt 'SO').
 
