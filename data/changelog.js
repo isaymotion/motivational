@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.15.0',
+    date: '2026-11-13',
+    title: 'Role-play cards for pairs',
+    summary: 'Scenario cards for practicing with one or two co-residents, with a tally sheet for the observer.',
+    items: [
+      { type: 'feature', text: 'Role-play: 19 scenarios from TIP 35 (the 5 Rs of Precontemplation, sustain talk, reflective listening and coping plans), each with a Client card, a Counselor card and an Observer sheet that tallies open and closed questions, reflections, affirmations, summaries, roadblocks, change talk and sustain talk. Includes a 3, 5 or 10 minute timer. Nothing is saved.', href: '#/roleplay' }
+    ]
+  },
+  {
     version: '1.14.0',
     date: '2026-11-13',
     title: 'Pocket cards',

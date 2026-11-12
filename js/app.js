@@ -90,6 +90,7 @@
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+    people: '<circle cx="8" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.5"/><path d="M2.5 19a5.5 5.5 0 0 1 11 0M14 19a4 4 0 0 1 7.5-2"/>',
     pocket: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h6M7 14h10"/>',
     chart: '<path d="M4 4v16h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
     today: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/>',
@@ -125,6 +126,7 @@
     { label: 'Progress', href: '#/progress', icon: 'chart', group: 'Study' },
     { label: 'Skill drills', href: '#/drills', icon: 'target', group: 'Practice' },
     { label: 'Write a response', href: '#/write', icon: 'pencil', group: 'Practice' },
+    { label: 'Role-play', href: '#/roleplay', icon: 'people', group: 'Practice' },
     { label: 'Pocket cards', href: '#/pocket', icon: 'pocket', group: 'Reference' },
     { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Reference' },
     { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Reference' },
@@ -2023,6 +2025,126 @@
     var again = main.querySelector('[data-pin]'); if (again) again.focus({ preventScroll: true });
   });
 
+  /* --- ROLE-PLAY (v1.15.0): scenario cards for two or three residents (client, counselor, observer) and an observer tally sheet.
+     Scenarios are read at runtime from Exhibit 4.2 (5 Rs), the sustain talk table, Exhibit 3.6 and Exhibit 7.4; the counselor
+     cards reuse the pocket-card extractor. Tallies and the timer live only in `rp` and are dropped in route(). Nothing is stored. --- */
+  function buildRoleplay() {
+    var out = [], five = tableAfter(4, 'Exhibit 4.2'), sus = tableIn(3, 'sustain-talk', 'Strategy'), ex36 = tableAfter(3, 'Exhibit 3.6'), ex74 = tableAfter(7, 'Exhibit 7.4');
+    var say = 'Say this line, then answer naturally to whatever the counselor does.';
+    if (five) five.rows.forEach(function (r, i) {
+      out.push({ id: 'pre-' + (i + 1), set: 'Precontemplation: the 5 Rs', title: stripTags(r[0]), src: 'Chapter 4 · Exhibit 4.2', href: '#/c/4/guide',
+        client: [{ t: 'p', x: 'You are a client who is not yet thinking about change (Precontemplation). Your style is <strong>' + esc(stripTags(r[0])) + '</strong>:' }, { t: 'p', x: r[1] }, { t: 'p', x: 'Speak from this position and answer naturally to whatever the counselor does.' }],
+        counselor: [{ t: 'p', x: 'Your client is in Precontemplation. Find out which of the 5 Rs you are hearing, then tailor your approach. For <strong>' + esc(stripTags(r[0])) + '</strong>, TIP 35 suggests:' }, { t: 'p', x: r[2] }] });
+    });
+    if (sus) sus.rows.forEach(function (r, i) {
+      var q = quotes(r[2]); if (q.length !== 2) return;
+      out.push({ id: 'sus-' + (i + 1), set: 'Sustain talk', title: stripTags(q[0]).replace(/[“”]/g, ''), src: 'Chapter 3 · Responding to change talk and sustain talk', href: '#/c/3/guide',
+        client: [{ t: 'p', x: 'Open with this line:' }, { t: 'p', x: '<strong>' + q[0] + '</strong>' }, { t: 'p', x: say }],
+        counselor: [{ t: 'p', x: 'Your client will open with sustain talk. Do not argue or persuade. Try <strong>' + esc(r[0]) + '</strong>:' }, { t: 'p', x: r[1] }].concat(pocketPart({ ch: 3, sec: 'sustain-talk', types: ['table'], n: 1, cols: [0, 1] })) });
+    });
+    if (ex36) { var seen = {}; ex36.rows.forEach(function (r) {
+      if (seen[r[1]] || r[1].indexOf('…') >= 0) return;   // skip repeats and the abridged statement
+      seen[r[1]] = true; var n = Object.keys(seen).length;
+      out.push({ id: 'ref-' + n, set: 'Reflective listening', title: stripTags(r[1]).replace(/[“”]/g, ''), src: 'Chapter 3 · Exhibit 3.6', href: '#/c/3/guide',
+        client: [{ t: 'p', x: 'Open with this line:' }, { t: 'p', x: '<strong>' + r[1] + '</strong>' }, { t: 'p', x: say }],
+        counselor: [{ t: 'p', x: 'Listen, then answer with reflections rather than questions. Try a simple reflection first, then a complex one.' }].concat(pocketPart({ ch: 3, sec: 'reflective', h3: 'Forming a complex reflection', types: ['h3', 'ol', 'note'], n: 3 })) });
+    }); }
+    if (ex74) ex74.rows.forEach(function (r, i) {
+      out.push({ id: 'cope-' + (i + 1), set: 'Coping plan (Maintenance)', title: 'Client ' + stripTags(r[0]) + ': ' + lcFirst(r[1]), src: 'Chapter 7 · Exhibits 7.3 and 7.4', href: '#/c/7/guide',
+        client: [{ t: 'p', x: 'You have stopped using and want to stay stopped (Maintenance). Your high-risk situation:' }, { t: 'p', x: '<strong>' + r[1] + '</strong>' }, { t: 'p', x: 'Add your own details when the counselor asks about the situation and your triggers.' }],
+        counselor: [{ t: 'p', x: 'Help your client identify the high-risk situation and triggers, then build coping strategies.' }].concat(pocketPart({ ch: 7, sec: 'triggers', types: ['ul'], n: 1 }), pocketPart({ ch: 7, sec: 'triggers', h3: 'Exhibit 7.3', types: ['note'], n: 1 }), [{ t: 'p', x: '<strong>Options TIP 35 lists for this client:</strong> ' + r[2] }]) });
+    });
+    return out;
+  }
+  var ROLEPLAY = buildRoleplay(), RP_BY_ID = {}, rp = null, rpTick = null;   // rp = { id, tab, n: {counter: count}, left: seconds, mins, running }
+  ROLEPLAY.forEach(function (s) { RP_BY_ID[s.id] = s; });
+  window.MI_ROLEPLAY = ROLEPLAY;   // for QA
+  var RP_COUNTERS = [
+    ['Counselor', [['oq', 'Open questions', 'oars'], ['cq', 'Closed questions', 'oars'], ['sr', 'Simple reflections', 'reflections'], ['cr', 'Complex reflections', 'reflections'], ['af', 'Affirmations', 'oars'], ['su', 'Summaries', 'summaries'], ['rb', 'Roadblocks (advice, arguing, warning…)', 'roadblocks']]],
+    ['Client', [['ct', 'Change talk', 'darncat'], ['st', 'Sustain talk', 'darncat']]]
+  ];
+  var RP_TABS = [['client', 'Client'], ['counselor', 'Counselor'], ['observer', 'Observer']], RP_MINS = [3, 5, 10];
+  function rpStop() { if (rpTick) { clearInterval(rpTick); rpTick = null; } rp = null; }
+  function rpClock(s) { return Math.floor(s / 60) + ':' + pad2(s % 60); }
+  function rpSummary() {
+    var n = rp.n, refl = (n.sr || 0) + (n.cr || 0), ques = (n.oq || 0) + (n.cq || 0), ct = n.ct || 0, st = n.st || 0;
+    return '<ul class="rp__sum"><li><strong>' + refl + '</strong> ' + (refl === 1 ? 'reflection' : 'reflections') + ' for <strong>' + ques + '</strong> ' + (ques === 1 ? 'question' : 'questions') + (ques ? ' (' + (n.oq || 0) + ' open)' : '') + '</li>' +
+      '<li><strong>' + ct + '</strong> change talk and <strong>' + st + '</strong> sustain talk</li><li><strong>' + (n.rb || 0) + '</strong> ' + ((n.rb || 0) === 1 ? 'roadblock' : 'roadblocks') + '</li></ul>';
+  }
+  function rpObserver() {
+    return '<p>Tap + each time you hear one. Tallies stay on this screen only and are cleared when you leave.</p>' +
+      '<div class="rp__timer"><span class="rp__clock" id="rp-clock" role="timer" aria-live="off">' + rpClock(rp.left) + '</span>' +
+        '<button type="button" class="btn btn--solid" data-rp="toggle">' + (rp.running ? 'Pause' : rp.left === 0 ? 'Time is up' : rp.left < rp.mins * 60 ? 'Resume' : 'Start') + '</button><button type="button" class="btn" data-rp="reset">Reset</button>' +
+        '<span class="seg rp__mins" role="group" aria-label="Minutes">' + RP_MINS.map(function (m) { return '<label><input type="radio" name="rpMins" value="' + m + '"' + (rp.mins === m ? ' checked' : '') + '><span>' + m + ' min</span></label>'; }).join('') + '</span></div>' +
+      RP_COUNTERS.map(function (g) {
+        return '<h3>' + g[0] + '</h3><ul class="rp__tally">' + g[1].map(function (c) {
+          return '<li><span class="rp__name">' + esc(c[1]) + ' <a class="rp__what" href="#/pocket/' + c[2] + '">what counts?</a></span><span class="rp__ctl"><button type="button" class="btn rp__btn" data-rp-dec="' + c[0] + '" aria-label="One fewer: ' + esc(c[1]) + '">−</button><output class="rp__n" id="rp-n-' + c[0] + '">' + (rp.n[c[0]] || 0) + '</output><button type="button" class="btn btn--solid rp__btn" data-rp-inc="' + c[0] + '" aria-label="Add one: ' + esc(c[1]) + '">+</button></span></li>';
+        }).join('') + '</ul>';
+      }).join('') +
+      '<h3>After the role-play</h3><div id="rp-sum">' + rpSummary() + '</div>' +
+      renderBlocks(pocketPart({ ch: 3, sec: 'reflective', h3: 'Forming a complex reflection', types: ['note'], n: 1 }).concat(pocketPart({ ch: 3, sec: 'ambivalence', types: ['note'], n: 1 }))) +
+      '<p>Share the tallies as feedback that is respectful and nonjudgmental and that supports the counselor’s self-efficacy (Chapter 8). Then swap roles.</p>' +
+      '<p><button type="button" class="link-btn" data-rp="clear">Clear the tallies</button></p>';
+  }
+  function rpPanel() {
+    var s = RP_BY_ID[rp.id];
+    return '<div class="rp__panel card" role="tabpanel" aria-label="' + esc(rp.tab) + ' card">' + (rp.tab === 'observer' ? rpObserver() : '<div class="prose">' + renderBlocks(s[rp.tab]) + '</div>') + '</div>';
+  }
+  function rpPaint() { var el = document.getElementById('rp'); if (el) el.innerHTML = rpPanel(); }
+  TITLES.roleplay = 'Role-play';
+  VIEWS.roleplay = function (id) {
+    if (!id) {
+      var sets = [], seen = {};
+      ROLEPLAY.forEach(function (s) { if (!seen[s.set]) { seen[s.set] = true; sets.push(s.set); } });
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Role-play' }]) +
+        '<header class="page__head"><p class="eyebrow">Practice with a partner</p><h1>Role-play</h1><p>TIP 35 notes that foundational skills such as reflective listening are best learned face to face and interactively (Chapter 8). These cards set up a short role-play for two or three residents, using situations from the book.</p></header>' +
+        '<ol class="prose rp__how"><li>Pick a scenario and choose roles: client, counselor and, with three people, observer.</li><li>Each person opens their own card. The client reads only the Client card.</li><li>Role-play for a few minutes. The observer tallies what they hear, or the client does it from memory afterwards.</li><li>Share the tallies, then swap roles.</li></ol>' +
+        '<div class="callout callout--caution"><p class="callout__title">Practice among colleagues only</p><p>Use the scenarios in the book or made-up details. Do not use real patient details. Nothing on these pages is saved.</p></div>' +
+        sets.map(function (g) { return '<h2>' + esc(g) + '</h2><ul class="pcards">' + ROLEPLAY.filter(function (s) { return s.set === g; }).map(function (s) { return '<li><a class="card pcard" href="#/roleplay/' + s.id + '"><span class="pcard__t">' + esc(s.title) + '</span><span class="pcard__s">' + esc(s.src) + '</span></a></li>'; }).join('') + '</ul>'; }).join('') + '</div>';
+    }
+    var s = RP_BY_ID[id];
+    if (!s) return missingView();
+    if (!rp || rp.id !== s.id) { rpStop(); rp = { id: s.id, tab: 'client', n: {}, mins: 5, left: 300, running: false }; }
+    var k = ROLEPLAY.indexOf(s), next = ROLEPLAY[(k + 1) % ROLEPLAY.length];
+    return '<div class="wrap page roleplay">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Role-play', href: '#/roleplay' }, { label: s.title }]) +
+      '<header class="page__head"><p class="eyebrow">' + esc(s.set) + ' · ' + esc(s.src) + '</p><h1>' + esc(s.title) + '</h1></header>' +
+      '<div class="seg rp__tabs" role="group" aria-label="Whose card">' + RP_TABS.map(function (t) { return '<label><input type="radio" name="rpTab" value="' + t[0] + '"' + (rp.tab === t[0] ? ' checked' : '') + '><span>' + t[1] + '</span></label>'; }).join('') + '</div>' +
+      '<div id="rp">' + rpPanel() + '</div>' +
+      '<p class="drill__acts"><a class="btn" href="#/roleplay">All scenarios</a> <a class="btn" href="#/roleplay/' + next.id + '">Next scenario →</a> <a class="btn" href="' + esc(s.href) + '">' + esc(s.src.split(' · ')[0]) + ' study guide →</a></p></div>';
+  };
+  main.addEventListener('change', function (e) {
+    if (!rp || !e.target) return;
+    if (e.target.name === 'rpTab') { rp.tab = e.target.value; rpPaint(); }
+    else if (e.target.name === 'rpMins') { rp.mins = +e.target.value; rp.left = rp.mins * 60; rp.running = false; if (rpTick) { clearInterval(rpTick); rpTick = null; } rpPaint(); }
+  });
+  main.addEventListener('click', function (e) {
+    if (!rp || !e.target.closest || !e.target.closest('#rp')) return;
+    var inc = e.target.closest('[data-rp-inc]'), dec = e.target.closest('[data-rp-dec]'), act = e.target.closest('[data-rp]');
+    if (inc || dec) {
+      var k = (inc || dec).getAttribute(inc ? 'data-rp-inc' : 'data-rp-dec');
+      rp.n[k] = Math.max(0, (rp.n[k] || 0) + (inc ? 1 : -1));
+      var o = document.getElementById('rp-n-' + k), sum = document.getElementById('rp-sum');
+      if (o) o.textContent = rp.n[k]; if (sum) sum.innerHTML = rpSummary();
+      return;
+    }
+    if (!act) return;
+    var a = act.getAttribute('data-rp');
+    if (a === 'clear') { rp.n = {}; rpPaint(); }
+    else if (a === 'reset') { rp.left = rp.mins * 60; rp.running = false; if (rpTick) { clearInterval(rpTick); rpTick = null; } rpPaint(); }
+    else if (a === 'toggle' && rp.left > 0) {
+      rp.running = !rp.running;
+      if (rpTick) { clearInterval(rpTick); rpTick = null; }
+      if (rp.running) rpTick = setInterval(function () {
+        if (!rp) { clearInterval(rpTick); rpTick = null; return; }
+        rp.left = Math.max(0, rp.left - 1);
+        var c = document.getElementById('rp-clock'); if (c) c.textContent = rpClock(rp.left);
+        if (rp.left === 0) { rp.running = false; clearInterval(rpTick); rpTick = null; if (rp.tab === 'observer') rpPaint(); }
+      }, 1000);
+      rpPaint();
+      var b = main.querySelector('[data-rp="toggle"]'); if (b) b.focus({ preventScroll: true });
+    }
+  });
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -2057,6 +2179,8 @@
   SEARCH_INDEX.push({ title: 'Today’s session', text: 'daily session streak days in a row flashcards quiz questions skill drill 10 minutes', href: '#/today', kind: 'Practice' });
   SEARCH_INDEX.push({ title: 'Progress', text: 'progress weak spots weakest areas accuracy by topic shaky cards study these next', href: '#/progress', kind: 'Practice' });
   POCKET.forEach(function (c) { SEARCH_INDEX.push({ title: c.title + ' — pocket card', text: 'pocket card quick reference summary ' + c.group + ' ' + c.src, href: '#/pocket/' + c.id, kind: 'Pocket card' }); });
+  SEARCH_INDEX.push({ title: 'Role-play', text: 'role-play roleplay practice with a partner pairs triads client counselor observer tally sheet timer', href: '#/roleplay', kind: 'Practice' });
+  ROLEPLAY.forEach(function (s) { SEARCH_INDEX.push({ title: s.title + ' — role-play', text: 'role-play scenario ' + s.set + ' ' + s.src, href: '#/roleplay/' + s.id, kind: 'Practice' }); });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 
@@ -2083,6 +2207,7 @@
     closeSuggest(); closeDrawer();
     if (!PR_ROUTE.test(location.hash)) PR = null;   // practice answers are dropped when you leave the page
     if (location.hash.indexOf('#/write/') !== 0) wr = null;   // typed responses are never stored and are dropped when you leave
+    if (location.hash.indexOf('#/roleplay/') !== 0 && location.hash.indexOf('#/pocket/') !== 0) rpStop();   // role-play tallies and the timer are never stored; they survive a look at a pocket card ("what counts?")
     ensurePlan();
     var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
     if (!opts.keepScroll) {
