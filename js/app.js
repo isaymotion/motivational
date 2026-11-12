@@ -88,6 +88,7 @@
   /* ===== Icons (inline SVG, 24x24, stroke = currentColor). NAV items refer to these by key. ===== */
   var ICONS = {
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+    cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
     news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
     star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
@@ -111,11 +112,12 @@
      tkey:'nav.x' (label comes from data/strings.js). The "Other apps" group is added after these from window.APP_LINKS. ===== */
   var NAV = [
     { label: 'Home', tkey: 'nav.home', href: '#/', icon: 'home', group: 'Start', tile: false },
-    { label: 'Chapters', href: '#/chapters', icon: 'book', group: 'Study' },
+    { label: 'Chapters', href: '#/chapters', icon: 'book', group: 'Study', match: ['#/c/'] },
     { label: 'Review', href: '#/review', icon: 'cards', group: 'Study', badge: 'due' },
     { label: 'Exam', href: '#/exam', icon: 'check', group: 'Study' },
     { label: 'Mistakes', href: '#/mistakes', icon: 'flag', group: 'Study', badge: 'mistakes' },
     { label: 'Glossary', href: '#/glossary', icon: 'list', group: 'Study' },
+    { label: 'Stages', href: '#/stages', icon: 'cycle', group: 'Study' },
     { label: 'Tools', href: '#/tools', icon: 'clipboard', group: 'Appendices' },
     { label: 'Resources', href: '#/resources', icon: 'link', group: 'Appendices' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
@@ -323,6 +325,15 @@
     });
   }
   function currentKey() { var p = parts(); return p.length ? p[0] : 'home'; }
+  /* A nav item is active on its own route and on any subroute under it (e.g. Tools on #/tools/audit/practice);
+     n.match adds extra route prefixes (Chapters is also active inside a chapter, #/c/...). */
+  function navMatches(n, cur) {
+    if (n.href === cur) return true;
+    if (n.href === '#/') return false;
+    var pre = [n.href + '/'].concat(n.match || []);
+    for (var i = 0; i < pre.length; i++) if (cur.indexOf(pre[i]) === 0) return true;
+    return false;
+  }
   function buildNav() {
     var cur = location.hash || '#/';
     if (cur === '#') cur = '#/';
@@ -334,7 +345,7 @@
     });
     var html = groups.map(function (g) {
       return '<div class="nav-group"><div class="nav-label">' + esc(NAV_GROUPS[g.label] ? t(NAV_GROUPS[g.label]) : g.label) + '</div><ul>' + g.items.map(function (n) {
-        var active = n.href === cur;
+        var active = navMatches(n, cur);
         return '<li><a class="nav-item' + (active ? ' is-active' : '') + '" href="' + esc(n.href) + '"' + (active ? ' aria-current="page"' : '') + '>' + icon(n.icon) + '<span>' + esc(navLabel(n)) + '</span>' +
           (n.badge ? '<span class="badge" data-badge="' + esc(n.badge) + '" hidden></span>' : '') + '</a></li>';
       }).join('') + '</ul></div>';
@@ -349,7 +360,7 @@
     var tabs = document.querySelectorAll('.tabbar [data-tab]');
     var key = currentKey();
     for (var i = 0; i < tabs.length; i++) {
-      var on = tabs[i].getAttribute('data-tab') === key;
+      var tk = tabs[i].getAttribute('data-tab'), on = tk === key || (tk === 'chapters' && key === 'c');
       if (tabs[i].tagName === 'A') { tabs[i].classList.toggle('is-active', on); if (on) tabs[i].setAttribute('aria-current', 'page'); else tabs[i].removeAttribute('aria-current'); }
     }
   }
@@ -1424,6 +1435,49 @@
     if (PR.id === 'mikt') { miktProgress(); prHistoryPaint(); } else prPaint();
   };
   TITLES.resources = 'Resources';
+  /* --- Stage by stage: SOC stage -> strategies, read at runtime from Exhibits 4.1, 5.1, 6.1 and 7.1 in the chapter data --- */
+  function stageRows() {
+    var out = [];
+    [[4, '4.1', 'Precontemplation'], [5, '5.1', 'Contemplation'], [6, '6.1', null], [7, '7.1', null]].forEach(function (spec) {
+      var c = chapter(spec[0]); if (!c) return;
+      var tbl = null;
+      c.sections.forEach(function (sec) {
+        for (var i = 0; i < sec.blocks.length && !tbl; i++) {
+          var b = sec.blocks[i];
+          if (b.t === 'h3' && b.x.indexOf('Exhibit ' + spec[1] + ' ') === 0) {
+            for (var j = i + 1; j < sec.blocks.length; j++) if (sec.blocks[j].t === 'table') { tbl = sec.blocks[j]; break; }
+          }
+        }
+      });
+      if (!tbl) return;
+      if (tbl.head.length === 2) {   // Area | Content: one stage per exhibit (4.1, 5.1)
+        var m = {}; tbl.rows.forEach(function (r) { m[r[0]] = r[1]; });
+        out.push({ stage: spec[2], ch: c, ex: spec[1], motivation: m['Client motivation'] || '', focus: m['Counselor focus'] || '', strategies: m['Counseling strategies'] || '' });
+      } else {                       // Stage | Client motivation | Counselor focus | Counseling strategies (6.1, 7.1)
+        tbl.rows.forEach(function (r) { out.push({ stage: r[0], ch: c, ex: spec[1], motivation: r[1], focus: r[2], strategies: r[3] }); });
+      }
+    });
+    return out;
+  }
+  function sentences(x) { return String(x).split(/\.\s+(?=[A-Z])/).map(function (t) { return t.replace(/\.\s*$/, ''); }).filter(Boolean); }
+  function stageId(name) { return 'st-' + String(name).toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''); }
+  TITLES.stages = 'Stage by stage';
+  VIEWS.stages = function () {
+    var rows = stageRows();
+    return '<div class="wrap page stages-page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Stage by stage' }]) +
+      '<header class="page__head"><p class="eyebrow">Exhibits 4.1 · 5.1 · 6.1 · 7.1</p><h1>Stage by stage</h1><p>What the client is like, what to focus on and which strategies to use at each stage of change, side by side from the four strategy exhibits in Chapters 4 to 7. Match your approach to the client’s stage; if a client is further along, move to later-stage strategies.</p></header>' +
+      stagesSVG() +
+      '<nav class="toc" aria-label="Stages"><span class="toc__label">Jump to a stage</span>' + rows.map(function (r) { return '<a class="filter" href="#/stages" data-jump="' + stageId(r.stage) + '">' + esc(r.stage) + '</a>'; }).join('') + '</nav>' +
+      '<section class="guide__sec"><h2>At a glance</h2>' + renderBlocks([{ t: 'table', head: ['Stage', 'Counselor focus'], rows: rows.map(function (r) { return [r.stage, r.focus]; }) }]) + '</section>' +
+      rows.map(function (r, i) {
+        return '<section class="guide__sec stage" id="' + stageId(r.stage) + '"><p class="eyebrow">Stage ' + (i + 1) + ' of ' + rows.length + ' · Exhibit ' + esc(r.ex) + '</p><h2>' + esc(r.stage) + '</h2>' +
+          '<h3>Client motivation</h3><p>' + linkTerms(r.motivation) + '</p>' +
+          '<h3>Counselor focus</h3><ul>' + sentences(r.focus).map(function (x) { return '<li>' + linkTerms(x) + '</li>'; }).join('') + '</ul>' +
+          '<h3>Counseling strategies</h3><ul class="stage__list">' + sentences(r.strategies).map(function (x) { return '<li>' + linkTerms(x) + '</li>'; }).join('') + '</ul>' +
+          '<p class="stage__more"><a class="btn" href="#/c/' + r.ch.id + '/guide">Chapter ' + r.ch.id + ' study guide →</a></p></section>';
+      }).join('') + '</div>';
+  };
+
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
       '<header class="page__head"><p class="eyebrow">Appendix C</p><h1>Resources</h1><p>Websites, manuals and related TIPs that TIP 35 lists for learning, practicing and supervising MI.</p></header>' +
@@ -1452,6 +1506,7 @@
     if (SCORERS[x.id]) SEARCH_INDEX.push({ title: x.short + ' — practice scoring', text: 'practice scoring score total interpretation feedback ' + x.name, href: '#/tools/' + x.id + '/practice', kind: 'Tool' });
     if (x.id === 'mikt') SEARCH_INDEX.push({ title: 'MI Knowledge Test — self-test', text: 'self-test quiz MI knowledge test answer key score', href: '#/tools/mikt/test', kind: 'Tool' });
   });
+  stageRows().forEach(function (r) { SEARCH_INDEX.push({ title: r.stage + ' — stage by stage', text: 'stages of change strategies ' + stripTags(r.motivation + ' ' + r.focus + ' ' + r.strategies), href: '#/stages', kind: 'Stages' }); });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 

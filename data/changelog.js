@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.4',
+    date: '2026-11-12',
+    title: 'Stage by stage summary',
+    summary: 'A new page puts the counseling strategies for every stage of change side by side, and the menu now highlights the right section on every page.',
+    items: [
+      { type: 'feature', text: 'Stage by stage: client motivation, counselor focus and counseling strategies for Precontemplation, Contemplation, Preparation, Action, Maintenance and Relapse and recycle, from Exhibits 4.1, 5.1, 6.1 and 7.1, with links back to each chapter.', href: '#/stages' },
+      { type: 'correction', text: 'The menu now highlights Tools on every tool, practice and self-test page, and Chapters inside a chapter (it was highlighted only on the list pages).' }
+    ]
+  },
+  {
     version: '1.9.3',
     date: '2026-11-09',
     title: 'ADCQ: link to a free copy',

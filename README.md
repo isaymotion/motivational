@@ -34,6 +34,7 @@ To add a chapter: create `data/chNN.js` with the same shape as `data/ch01.js` (s
 - Light, dark or match-device theme, a text-size control (Aa), and an English / Tagalog language setting. All are remembered on the device and can be changed in **About > Settings**.
 - An "Other apps" group at the end of the menu linking to the other isaymotion apps (opens in a new tab).
 - What's new page with a "new" badge for entries you have not seen.
+- Stage by stage (`#/stages`): the counseling strategies for each stage of change side by side, from Exhibits 4.1, 5.1, 6.1 and 7.1 (read from the chapter data, so it stays in step with the chapters).
 - Tools: practice scoring on the public-domain instruments (AUDIT, DrInC, SOCRATES 8A/8D, URICA, the decisional balance scales, BSCQ, AASES) and an MI Knowledge Test self-test. Practice/teaching only: nothing is stored unless **Save my own practice attempts on this device** is turned on (off by default; also in About > Settings). Saved attempts stay in the browser under `mt:v1:practice.<toolId>` and are included in Backup.
 - Backup: export everything the app saves on this device to a file, import it elsewhere, and undo the last import.
 - Accessible by default: skip link, visible focus, reduced-motion support, safe-area padding for notched phones.
