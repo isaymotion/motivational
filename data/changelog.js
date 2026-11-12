@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.12.0',
+    date: '2026-11-13',
+    title: 'Today’s session and streak',
+    summary: 'One button gives you about 10 minutes of study a day, and the app counts the days you finish in a row.',
+    items: [
+      { type: 'feature', text: 'Today: up to 10 flashcards (due cards first), 5 quiz questions (your past mistakes first) and one skill drill round. Finish all three and the day counts toward your streak. The last 7 days are shown as a strip.', href: '#/today' },
+      { type: 'update', text: 'Home opens with Today’s session, and the results of flashcards, quizzes and drills link back to it.' },
+      { type: 'correction', text: 'Saved dates (best quiz score, exams, drills) now use your local date. Before, a score saved before 8 a.m. Philippine time was stamped with the previous day.' }
+    ]
+  },
+  {
     version: '1.11.0',
     date: '2026-11-13',
     title: 'Write a response',

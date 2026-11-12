@@ -90,6 +90,7 @@
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+    today: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/>',
     cycle: '<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 2.5v4.3h-4.3M6 21.5v-4.3h4.3"/>',
     news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
@@ -114,6 +115,7 @@
      tkey:'nav.x' (label comes from data/strings.js). The "Other apps" group is added after these from window.APP_LINKS. ===== */
   var NAV = [
     { label: 'Home', tkey: 'nav.home', href: '#/', icon: 'home', group: 'Start', tile: false },
+    { label: 'Today', href: '#/today', icon: 'today', group: 'Study' },
     { label: 'Chapters', href: '#/chapters', icon: 'book', group: 'Study', match: ['#/c/'] },
     { label: 'Review', href: '#/review', icon: 'cards', group: 'Study', badge: 'due' },
     { label: 'Exam', href: '#/exam', icon: 'check', group: 'Study' },
@@ -490,7 +492,7 @@
     return '<section class="hero"><div class="wrap hero__inner">' +
         '<h1>' + esc(APP_NAME) + '</h1>' +
         '<p class="hero__lead">Learn Motivational Interviewing chapter by chapter — the spirit, OARS, the four processes and the stages of change — with flashcards, quizzes, a glossary and the Appendix B screening tools, all built from SAMHSA TIP 35.</p>' +
-        (first ? '<p><a class="btn btn--solid" href="' + esc(first.href) + '">' + esc(navLabel(first)) + '</a></p>' : '') +
+        '<p><a class="btn btn--solid" href="#/today">' + (todayState().done ? 'Today’s session: done' : 'Start today’s session') + '</a></p>' +
       '</div></section>' +
       '<div class="wrap home">' + homeToday() +
         (tiles.length
@@ -505,7 +507,7 @@
 
   function homeToday() {   // study status strip: cards due, chapters loaded, mistakes
     var d = dueCount(), m = mistakeCount(), all = allCards(), fresh = all.filter(function (x) { return !SRS[x.key]; }).length;
-    return '<div class="stats home__stats"><a class="card stat" href="#/review"><strong>' + d + '</strong><span>cards due today</span></a>' +
+    return todayStrip() + '<div class="stats home__stats"><a class="card stat" href="#/review"><strong>' + d + '</strong><span>cards due today</span></a>' +
       '<a class="card stat" href="#/review"><strong>' + fresh + '</strong><span>new cards</span></a>' +
       '<a class="card stat" href="#/chapters"><strong>' + CHAPTERS.length + ' / ' + TOC.length + '</strong><span>chapters ready</span></a>' +
       '<a class="card stat" href="#/mistakes"><strong>' + m + '</strong><span>mistakes to retry</span></a></div>';
@@ -679,6 +681,7 @@
     var wasNew = !SRS[key];
     SRS[key] = srsNext(SRS[key], g);
     saveSRS();
+    logAct('c');
     if (wasNew) bumpNewSeen();
     updateNavBadges();
   }
@@ -844,7 +847,7 @@
   function playerHTML() {
     var p = player;
     if (!p.deck.length) return '<div class="empty"><h2>Nothing here right now</h2><p>No cards match this filter. Try “All cards”, or come back when cards are due.</p></div>';
-    if (p.i >= p.deck.length) return '<div class="result-card"><p class="eyebrow">Session complete</p><h2>' + plural(p.deck.length, 'card', 'cards') + ' reviewed</h2><p>' + p.known + ' rated Good or Easy · ' + p.learn + ' rated Again or Hard. Ratings set when each card comes back.</p><p><button type="button" class="btn btn--solid" data-act="restart">Go again</button> <a class="btn" href="#/chapters">Chapters</a></p></div>';
+    if (p.i >= p.deck.length) return '<div class="result-card"><p class="eyebrow">Session complete</p><h2>' + plural(p.deck.length, 'card', 'cards') + ' reviewed</h2><p>' + p.known + ' rated Good or Easy · ' + p.learn + ' rated Again or Hard. Ratings set when each card comes back.</p><p><button type="button" class="btn btn--solid" data-act="restart">Go again</button> ' + (p.key === 'today' ? '<a class="btn" href="#/today">Today’s session</a>' : '<a class="btn" href="#/chapters">Chapters</a>') + '</p></div>';
     var x = p.deck[p.i], k = x.card, st = cardStatus(x.key), s = SRS[x.key];
     var face = function (front) {
       return '<div class="face face--' + (front ? 'front' : 'back') + '"' + (front ? '' : ' aria-hidden="true"') + '><div class="face__top"><span class="face__tag">' + esc(k.tag || ('Chapter ' + x.ch.id)) + '</span><span class="face__status face__status--' + st.toLowerCase() + '">' + st + (s && !front ? ' · ' + ivLabel(s.i) : '') + '</span></div>' +
@@ -866,7 +869,7 @@
     if (act === 'flip') { p.flipped = !p.flipped; paintPlayer(); return; }
     if (act === 'next') { if (p.i < p.deck.length) { p.i++; p.flipped = false; paintPlayer(); } return; }
     if (act === 'prev') { if (p.i > 0) { p.i--; p.flipped = false; paintPlayer(); } return; }
-    if (act === 'restart') { p.i = 0; p.flipped = false; p.known = 0; p.learn = 0; if (p.key === 'review') p.deck = buildDeck(null, 'review'); paintPlayer(); return; }
+    if (act === 'restart') { p.i = 0; p.flipped = false; p.known = 0; p.learn = 0; if (p.key === 'review') p.deck = buildDeck(null, 'review'); if (p.key === 'today') p.deck = todayDeck(); paintPlayer(); return; }
   }
   function playerRate(g) {
     var p = player; if (!p || !p.flipped || p.i >= p.deck.length) return;
@@ -929,7 +932,7 @@
       var pct = Math.round(100 * z.right / z.qs.length);
       return '<div class="result-card"><p class="eyebrow">Result</p><h2>' + z.right + ' of ' + z.qs.length + ' correct (' + pct + '%)</h2>' +
         '<ul class="review-list">' + z.answers.map(function (a, i) { return '<li class="' + (a.ok ? 'is-right' : 'is-wrong') + '"><span>' + (i + 1) + '.</span><span>' + esc(z.qs[i].q.q) + (a.ok ? '' : '<br><small>Correct: ' + esc(z.qs[i].q.choices[z.qs[i].q.answer]) + '</small>') + '</span></li>'; }).join('') + '</ul>' +
-        '<p><button type="button" class="btn btn--solid" data-qact="restart">Try again</button> ' + (mistakeCount() ? '<a class="btn" href="#/mistakes">Review mistakes (' + mistakeCount() + ')</a>' : '') + '</p></div>';
+        '<p><button type="button" class="btn btn--solid" data-qact="restart">Try again</button> ' + (z.key === 'today' ? '<a class="btn" href="#/today">Today’s session</a> ' : '') + (mistakeCount() ? '<a class="btn" href="#/mistakes">Review mistakes (' + mistakeCount() + ')</a>' : '') + '</p></div>';
     }
     var x = z.qs[z.i], q = x.q, picked = z.picked;
     return '<div class="q-card"><div class="q-card__top"><span class="eyebrow">Question ' + (z.i + 1) + ' of ' + z.qs.length + '</span><span class="muted">Ch ' + x.ch.id + '</span></div><p class="q-card__q">' + esc(q.q) + '</p>' +
@@ -944,7 +947,8 @@
     var z = quiz; if (!z || z.picked !== null || z.i >= z.qs.length) return;
     var x = z.qs[z.i], ok = i === x.q.answer;
     z.picked = i; z.answers.push({ ok: ok, picked: i });
-    if (ok) { z.right++; if (z.key === 'mistakes') clearMistake(x.key); } else addMistake(x.key);
+    if (ok) { z.right++; if (z.key === 'mistakes' || z.key === 'today') clearMistake(x.key); } else addMistake(x.key);
+    logQuiz(x.key, ok);
     paintQuiz();
   }
   function quizNext() {
@@ -955,7 +959,7 @@
   }
   function finishQuiz() {
     var z = quiz, m = /^c(\d+)$/.exec(z.key);
-    var rec = { score: z.right, total: z.qs.length, date: new Date().toISOString().slice(0, 10) };
+    var rec = { score: z.right, total: z.qs.length, date: isoToday() };
     if (m) { var best = store.get('quizBest.' + m[1], null); if (!best || rec.score / rec.total >= best.score / best.total) store.set('quizBest.' + m[1], rec); }
     if (z.key === 'exam') { var h = store.get('examHistory', []) || []; h.unshift(rec); store.set('examHistory', h.slice(0, 20)); }
   }
@@ -1601,7 +1605,7 @@
         }).join('') + '</ul>' +
         '<p class="drill__acts"><button type="button" class="btn btn--solid" data-dact="again">New round</button> ' +
         (missed.length ? '<button type="button" class="btn" data-dact="missed">Retry missed (' + missed.length + ')</button> ' : '') +
-        '<a class="btn" href="#/drills">All drills</a> <a class="btn" href="' + esc(d.href) + '">' + esc(d.hrefLabel || 'Chapter 3 study guide') + ' →</a></p></div>';
+        '<a class="btn" href="#/drills">All drills</a> <a class="btn" href="#/today">Today’s session</a> <a class="btn" href="' + esc(d.href) + '">' + esc(d.hrefLabel || 'Chapter 3 study guide') + ' →</a></p></div>';
     }
     var it = z.items[z.i], ch = it.choices || d.choices, picked = z.picked;
     return '<div class="q-card"><div class="q-card__top"><span class="eyebrow">' + (z.i + 1) + ' of ' + n + '</span><span class="muted">' + z.right + ' correct</span></div>' +
@@ -1629,9 +1633,10 @@
     var z = drill; if (!z || z.picked === null) return;
     z.i++; z.picked = null;
     if (z.i >= z.items.length) {   // keep best, last and the number of rounds; covered by backup
-      var s = drillStats(), r = s[z.id] || { n: 0 }, rec = { score: z.right, total: z.items.length, date: new Date().toISOString().slice(0, 10) };
+      var s = drillStats(), r = s[z.id] || { n: 0 }, rec = { score: z.right, total: z.items.length, date: isoToday() };
       r.n++; r.last = rec; if (!r.best || rec.score / rec.total >= r.best.score / r.best.total) r.best = rec;
       s[z.id] = r; store.set('drills', s);
+      logAct('d');
     }
     paintDrill(); window.scrollTo(0, 0);
   }
@@ -1735,7 +1740,8 @@
   function writeRate(r) {
     var z = wr; if (!z || !z.shown || z.i >= z.items.length) return;
     var s = writeStats(), key = z.id + '/' + z.items[z.i].k, old = s[key] || { n: 0 };
-    s[key] = { n: old.n + 1, r: r, d: new Date().toISOString().slice(0, 10) }; store.set('write', s);
+    s[key] = { n: old.n + 1, r: r, d: isoToday() }; store.set('write', s);
+    logAct('w');
     z.rates.push(r); z.i++; z.text = ''; z.shown = false;
     paintWrite('ta'); window.scrollTo(0, 0);
   }
@@ -1750,6 +1756,117 @@
     else if (act === 'again') { startWrite(w); paintWrite('ta'); }
     else if (act === 'redo') { var z = wr; startWrite(w, shuffle(z.items.filter(function (_, i) { return z.rates[i] < 3; }))); paintWrite('ta'); }
   });
+
+  /* --- TODAY (v1.12.0): one short daily session (cards, quiz questions, one drill round) and a streak.
+     mt:v1:days  = { dayNumber: { c: cards rated, q: quiz questions answered, qr: answered right, d: drill rounds, w: written responses, done: 1 } }
+     mt:v1:plan  = { day, cards, quiz, drill } — today's targets, fixed the first time the app is opened that day
+     mt:v1:qstat = { 'ch/qid': [right, wrong] } — every quiz answer, for the Progress page. All covered by backup. --- */
+  var DAYS = store.get('days', {}) || {}, QSTAT = store.get('qstat', {}) || {}, PLAN = store.get('plan', null);
+  var TODAY_CARDS = 10, TODAY_QUIZ = 5, DAYS_KEPT = 400;
+  function dayAct(d) { var a = DAYS[d] || {}; return { c: a.c || 0, q: a.q || 0, qr: a.qr || 0, d: a.d || 0, w: a.w || 0, done: !!a.done }; }
+  function quizPool() { var pool = []; CHAPTERS.forEach(function (c) { c.quiz.forEach(function (q) { pool.push({ ch: c, q: q, key: quizKey(c, q) }); }); }); return pool; }
+  function nextDrillId() {   // the drill practiced least so far
+    var s = drillStats(), best = null;
+    DRILLS.forEach(function (d) { var n = s[d.id] ? s[d.id].n : 0; if (!best || n < best.n) best = { id: d.id, n: n }; });
+    return best ? best.id : null;
+  }
+  function ensurePlan() {
+    var d = today();
+    if (PLAN && PLAN.day === d) return PLAN;
+    var all = allCards(), due = all.filter(function (x) { return isDue(x.key); }).length, fresh = all.filter(function (x) { return !SRS[x.key]; }).length;
+    PLAN = { day: d, cards: Math.min(TODAY_CARDS, due + Math.min(fresh, Math.max(0, NEW_PER_DAY - newSeenToday()))), quiz: Math.min(TODAY_QUIZ, quizPool().length), drill: nextDrillId() };
+    store.set('plan', PLAN);
+    return PLAN;
+  }
+  function todayState() {
+    var p = ensurePlan(), a = dayAct(p.day);
+    var steps = [
+      { id: 'cards', title: 'Flashcards', have: a.c, need: p.cards, href: '#/today/cards', what: p.cards ? 'Cards that are due, then new ones.' : 'No cards are due and none are new today.' },
+      { id: 'quiz', title: 'Quiz questions', have: a.q, need: p.quiz, href: '#/today/quiz', what: 'Your past mistakes first, then questions from any chapter.' },
+      { id: 'drill', title: 'One skill drill round', have: a.d, need: p.drill ? 1 : 0, href: '#/drills/' + (p.drill || ''), what: p.drill && DRILL_BY_ID[p.drill] ? DRILL_BY_ID[p.drill].title : '' }
+    ];
+    steps.forEach(function (s) { s.done = s.have >= s.need; });
+    return { steps: steps, done: steps.every(function (s) { return s.done; }), left: steps.filter(function (s) { return !s.done; }).length, act: a };
+  }
+  function saveDays() {
+    var keys = Object.keys(DAYS).map(Number).sort(function (a, b) { return a - b; });
+    while (keys.length > DAYS_KEPT) delete DAYS[keys.shift()];
+    store.set('days', DAYS);
+  }
+  function logAct(kind) {
+    var p = ensurePlan(), a = DAYS[p.day] || (DAYS[p.day] = {});
+    a[kind] = (a[kind] || 0) + 1;
+    if (!a.done && todayState().done) a.done = 1;
+    saveDays();
+  }
+  function logQuiz(key, ok) {
+    var r = QSTAT[key] || (QSTAT[key] = [0, 0]); r[ok ? 0 : 1]++; store.set('qstat', QSTAT);
+    logAct('q'); if (ok) logAct('qr');
+  }
+  function streak() {   // days in a row with a finished session, counting today only once it is finished
+    var d = today(), n = 0;
+    if (!(DAYS[d] && DAYS[d].done)) d--;
+    while (DAYS[d] && DAYS[d].done) { n++; d--; }
+    return n;
+  }
+  function bestStreak() {
+    var keys = Object.keys(DAYS).map(Number).filter(function (k) { return DAYS[k].done; }).sort(function (a, b) { return a - b; }), best = 0, run = 0, prev = null;
+    keys.forEach(function (k) { run = prev !== null && k === prev + 1 ? run + 1 : 1; if (run > best) best = run; prev = k; });
+    return best;
+  }
+  function dayDate(d) { return new Date(d * 86400000).toISOString().slice(0, 10); }
+  function isoToday() { return dayDate(today()); }   // the LOCAL calendar date (toISOString alone gives the UTC date, a day behind before 8 a.m. in Manila)
+  function todayDeck() {
+    var p = ensurePlan(), left = p.cards - dayAct(p.day).c, n = left > 0 ? left : TODAY_CARDS, all = allCards();
+    var due = shuffle(all.filter(function (x) { return isDue(x.key); })), fresh = all.filter(function (x) { return !SRS[x.key]; });
+    return due.concat(fresh).slice(0, n);
+  }
+  function todayQuiz() {
+    var p = ensurePlan(), left = p.quiz - dayAct(p.day).q, n = left > 0 ? left : TODAY_QUIZ;
+    var missed = shuffle(Object.keys(MISTAKES).map(findQuestion).filter(Boolean)), rest = shuffle(quizPool().filter(function (x) { return !MISTAKES[x.key]; }));
+    return missed.concat(rest).slice(0, n);
+  }
+  function weekStrip() {
+    var d = today(), out = '';
+    for (var i = 6; i >= 0; i--) {
+      var k = d - i, a = dayAct(k), any = a.c + a.q + a.d + a.w > 0, wd = new Date(k * 86400000).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
+      out += '<li class="week__d' + (a.done ? ' is-done' : any ? ' is-some' : '') + (i === 0 ? ' is-today' : '') + '"><span class="week__dot" aria-hidden="true">' + (a.done ? '✓' : '') + '</span><span>' + esc(wd) + '</span><span class="sr-only">: ' + (a.done ? 'session finished' : any ? 'some study' : 'no study') + '</span></li>';
+    }
+    return '<ul class="week" aria-label="The last 7 days">' + out + '</ul>';
+  }
+  function todayStrip() {   // on Home
+    var st = todayState(), n = streak();
+    return '<a class="card today-strip' + (st.done ? ' is-done' : '') + '" href="#/today">' + icon('today', 'today-strip__ico') + '<span><strong>' + (st.done ? 'Today’s session is done' : 'Today’s session: ' + plural(st.left, 'step', 'steps') + ' left') + '</strong>' +
+      '<span class="muted">' + (n ? plural(n, 'day', 'days') + ' in a row' : 'About 10 minutes: cards, quiz questions and one drill') + '</span></span></a>';
+  }
+  TITLES.today = 'Today';
+  VIEWS.today = function (arg) {
+    var back = '<p class="today__back"><a class="btn" href="#/today">← Today’s session</a></p>';
+    if (arg === 'cards') {
+      if (!player || player.key !== 'today' || player.i >= player.deck.length) player = { key: 'today', deck: todayDeck(), i: 0, flipped: false, known: 0, learn: 0 };
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Today', href: '#/today' }, { label: 'Flashcards' }]) + '<header class="page__head"><h1>Today’s flashcards</h1><p class="muted">Rate each card; it comes back when you are about to forget it.</p></header><div id="player">' + playerHTML() + '</div>' + back + '</div>';
+    }
+    if (arg === 'quiz') {
+      if (!quiz || quiz.key !== 'today' || quiz.i >= quiz.qs.length) startQuiz('today', todayQuiz());
+      return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Today', href: '#/today' }, { label: 'Quiz questions' }]) + '<header class="page__head"><h1>Today’s quiz questions</h1><p class="muted">A past mistake answered correctly drops off your Mistakes list.</p></header><div id="quiz">' + quizHTML() + '</div>' + back + '</div>';
+    }
+    if (arg) return missingView();
+    var st = todayState(), n = streak(), best = bestStreak(), next = null;
+    st.steps.forEach(function (s) { if (!next && !s.done) next = s; });
+    return '<div class="wrap page today">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Today' }]) +
+      '<header class="page__head"><p class="eyebrow">' + esc(fmtDate(isoToday())) + '</p><h1>Today’s session</h1><p>About 10 minutes a day: a few flashcards, a few quiz questions and one skill drill round. Finish all three steps and the day counts toward your streak.</p></header>' +
+      '<div class="stats"><div class="card stat"><strong>' + n + '</strong><span>' + (n === 1 ? 'day' : 'days') + ' in a row</span></div><div class="card stat"><strong>' + best + '</strong><span>best streak</span></div><div class="card stat"><strong>' + (st.steps.length - st.left) + ' / ' + st.steps.length + '</strong><span>steps done today</span></div></div>' +
+      weekStrip() +
+      (st.done ? '<div class="callout callout--good"><p class="callout__title">Session complete</p><p>All three steps are done for today. Come back tomorrow to keep the streak going, or keep practicing below.</p></div>' : '') +
+      '<ol class="today__steps">' + st.steps.map(function (s, i) {
+        var skip = !s.need;
+        return '<li class="card today__step' + (s.done ? ' is-done' : '') + '"><span class="today__n" aria-hidden="true">' + (s.done ? '✓' : i + 1) + '</span><div class="today__body"><h2>' + esc(s.title) + '</h2><p>' + esc(s.what) + '</p>' +
+          '<p class="today__prog">' + (skip ? 'Nothing to do' : Math.min(s.have, s.need) + ' of ' + s.need + (s.done ? ' · done' : '')) + '</p></div>' +
+          (skip ? '' : '<a class="btn' + (next === s ? ' btn--solid' : '') + '" href="' + esc(s.href) + '">' + (s.done ? 'Do more' : s.have ? 'Continue' : 'Start') + '</a>') + '</li>';
+      }).join('') + '</ol>' +
+      '<h2>Extra, if you have time</h2><p class="drill__acts"><a class="btn" href="#/write">Write a response' + (st.act.w ? ' (' + st.act.w + ' today)' : '') + '</a> <a class="btn" href="#/review">More flashcards</a> <a class="btn" href="#/exam">Exam</a></p></div>';
+  };
+  AFTER.today = function (arg) { if (arg === 'cards') wirePlayer(); else if (arg === 'quiz') wireQuiz(); };
 
   VIEWS.resources = function () {
     return '<div class="wrap page">' + crumb([{ label: 'Home', href: '#/' }, { label: 'Resources' }]) +
@@ -1782,6 +1899,7 @@
   stageRows().forEach(function (r) { SEARCH_INDEX.push({ title: r.stage + ' — stage by stage', text: 'stages of change strategies ' + stripTags(r.motivation + ' ' + r.focus + ' ' + r.strategies), href: '#/stages', kind: 'Stages' }); });
   DRILLS.forEach(function (d) { SEARCH_INDEX.push({ title: d.title + ' — skill drill', text: 'skill drills practice ' + d.blurb + ' ' + d.src + ' ' + (d.choices || []).join(' '), href: '#/drills/' + d.id, kind: 'Drill' }); });
   WRITES.forEach(function (w) { SEARCH_INDEX.push({ title: w.title + ' — write a response', text: 'write your own response practice typing ' + w.blurb + ' ' + w.src, href: '#/write/' + w.id, kind: 'Practice' }); });
+  SEARCH_INDEX.push({ title: 'Today’s session', text: 'daily session streak days in a row flashcards quiz questions skill drill 10 minutes', href: '#/today', kind: 'Practice' });
   RESOURCES.forEach(function (g) { g.items.forEach(function (r) { SEARCH_INDEX.push({ title: r.name, text: r.desc, href: '#/resources', kind: 'Resource' }); }); });
   GLOSS.forEach(function (g) { SEARCH_INDEX.push({ title: g.term, text: g.def + (g.alt.length ? ' (' + g.alt.join(', ') + ')' : ''), href: '#/glossary/' + encodeURIComponent(g.term), kind: 'Glossary' }); });
 
@@ -1808,6 +1926,7 @@
     closeSuggest(); closeDrawer();
     if (!PR_ROUTE.test(location.hash)) PR = null;   // practice answers are dropped when you leave the page
     if (location.hash.indexOf('#/write/') !== 0) wr = null;   // typed responses are never stored and are dropped when you leave
+    ensurePlan();
     var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
     if (!opts.keepScroll) {
       scrollMemo[scrollKey] = window.scrollY;                 // the page we are leaving
