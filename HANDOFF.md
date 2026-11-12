@@ -82,7 +82,7 @@ git clone --depth 1 -b dev-tools https://github.com/isaymotion/motivational /hom
 pip install --break-system-packages pypdf playwright && playwright install chromium   # if missing
 cd /home/claude/motivational
 node /home/claude/mi-devtools/tools/check_chapters.js .                 # → OK — N chapters …
-python3 /home/claude/mi-devtools/tools/qa.py .                          # → last line FAILS: 0 (56 checks at v1.1.0)
+python3 /home/claude/mi-devtools/tools/qa.py .                          # → last line FAILS: 0 (92 PASS at v1.9.4)
 D=<isaymotion-app-design skill dir>                                     # shown when the skill loads
 python3 $D/scripts/check_sw.py .                                        # → PASS
 python3 $D/scripts/check_design.py . --browser                          # → PASS — design contract met
@@ -90,7 +90,7 @@ rm -rf _qa
 pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view an exhibit page
 ```
 `python3 -I /home/claude/mi-devtools/tools/tools_qa.py .` → last line `TOOLS FAILS: 0` (every tool page at 390 and 1280, item counts, restricted = no items, overflow, JS errors, chapter/glossary/sheet links, search; since v1.9.0 also known-answer scoring tests for every scorer and the MIKT, every practice page at both widths, and the privacy flow: off → nothing stored, on → stored + in export + deletable, answers cleared on leaving).
-Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives one phone screenshot plus scrollWidth and JS errors; `gloss_width.py <repo>` finds glossary rows that overflow.
+Helpers (in tools/): `nav_check.py <repo>` prints the highlighted sidebar item per route (one each; Tools on all #/tools/... routes, Chapters on #/c/...), tab-bar highlight, the #/stages jump and JS errors; `shot.py <repo> '<route>' '<scroll text>' out.png` gives one phone screenshot plus scrollWidth and JS errors; `gloss_width.py <repo>` finds glossary rows that overflow.
 `qa.py` starts its own server on port 8765. It covers home, chapters list, guide, tap-to-define, flashcards and SM-2, quiz, mistakes, exam, glossary, search, overflow at 390px, no JS errors, and SW cache isolation. Its per-chapter loop picks up new chapters automatically.
 
 ## 6. Status
@@ -112,7 +112,9 @@ Helpers (in tools/): `shot.py <repo> '<route>' '<scroll text>' out.png` gives on
 
 Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
 
-## 7. Status after v1.9.0 and next steps
+## 7. Status after v1.9.4 and next steps
+**Next step: none chosen yet.** Ask her which of the still-open items below to do (offer them as choices). Next version: v1.9.5 for small fixes, v1.10.0 for a new feature (e.g. Tagalog layer). Latest version month: if it is December 2026 or later, update the month in index.html, data/app-meta.js and README.
+
 **v1.9.0 done (2026-11-09)**, per her answers: practice scoring with the optional, off-by-default "Save my own practice attempts on this device" setting; MI Knowledge Test self-test with Exhibit 3.1 term notes (items 1, 3, 4, 6, 7, 11, 15, 16, 21). Each practice result ends with a "Giving this feedback" note (Ch 2 for AUDIT; Ch 4 for DrInC, SOCRATES, URICA; Ch 5 for DB; Ch 7 for BSCQ/AASES). Also fixed: MIKT Q22's situation (T: confidence 0–10 / C: "About a 4") had been missing.
 
 **v1.9.4 done (2026-11-12, main 7bb39cd)**, per her choice:
@@ -157,6 +159,9 @@ Glossary: 179 terms across 8 chapters. If tools pages add terms, run check_chapt
 - Two-column exhibits come out of `extract.py` with the columns interleaved (e.g. Exhibit 3.1, 3.2, 3.6). Reconstruct them carefully, or render the page with `pdftoppm` if the order is unclear.
 - Quiz answers are now spread evenly (Ch 3–8: 5/5/5/5); keep doing that.
 - Glossary alt names are matched case-insensitively as whole words; never use an alt that is a common English word.
+- Python `str.replace` edits on js/app.js: build `old` from the file exactly (check quotes around `'Chapter '` etc.) and `assert s.count(old)==1` — mismatches fail loudly, which is what you want.
+- Long chapter titles inside `.btn` wrap badly on phones; use short labels ("Chapter N study guide →").
+- In-page jumps: use `data-jump="<element id>"` on a link whose href is the current route (the delegated handler on `main` scrolls); never use `#id` hashes, the router owns the hash.
 - v1.3.0 fixed a 390px overflow on #/glossary: long term + alt rows could not wrap. `.gloss__item summary` now has `flex-wrap:wrap`.
 
 ## 9. Files to re-attach
