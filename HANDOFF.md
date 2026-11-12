@@ -1,6 +1,6 @@
 # MI Trainer — handoff
 
-_Last updated 2026-11-12, after v1.9.4 (v1.9.4 Stage by stage page + nav subroute highlight; v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
+_Last updated 2026-11-13, after v1.17.0 (v1.10.0–v1.17.0 added eight learning features in one session: Skill drills, Write a response, Today + streak, Progress, Pocket cards, Role-play, Before/after MIKT, Sa Tagalog links; see §3b and §7. Earlier: v1.9.4 Stage by stage page + nav subroute highlight; v1.9.0 practice scoring + MI Knowledge Test self-test; v1.9.1 fixed moved outside links; v1.9.2 full references; v1.9.3 ADCQ free-copy link). All planned content is done; see §7 for open questions and ideas._
 
 ## 1. Project and audience
 - **MI Trainer**: a Motivational Interviewing study app for psychiatry residents (Dr. Ma. Isabella P. Navarro, Mariveles Mental Wellness and General Hospital). Built chapter by chapter.
@@ -61,6 +61,29 @@ Chapter object:
 ```
 `nolink: true` keeps everyday words (e.g. Action, Substance) from being underlined.
 
+## 3b. Learning features (v1.10.0–v1.17.0)
+All live in `js/app.js` between the SKILL DRILLS block and `VIEWS.resources`, each under its own banner comment. **None copies book text**: every item is read at runtime from the chapter data with `tableAfter(ch, 'h3 starts with')`, `tableIn(ch, secId, firstHead)`, `quotes()`, `stageRows()` and `pocketPart({ch, sec, h3, types, n, cols, items})`. If a chapter table or heading is renamed, the item silently disappears, so run `drills_qa.py` and `features_qa.py` after any edit to Ch 2–7 tables.
+
+| Feature | Route | Version | Source in the data | Stored (all under `mt:v1:`, all in Backup) |
+|---|---|---|---|---|
+| Skill drills (6) | `#/drills`, `#/drills/<open\|talk\|darncat\|evoke\|respond\|stage>` | 1.10.0 | Ch 3 open/closed table, DARN-CAT, Ex 3.3, 3.6, 3.8, sustain talk table; Ex 4.1–7.1 | `drills` = {id: {n, last, best}} |
+| Write a response (23 prompts) | `#/write`, `#/write/<reflect\|sustain\|open>` | 1.11.0 | Ex 3.6, sustain talk table, open/closed table | `write` = {'set/rowIndex': {n, r: 1–3, d}}. Typed text is never stored (`wr`, dropped in `route()`) |
+| Today + streak | `#/today`, `#/today/cards`, `#/today/quiz` | 1.12.0 | existing cards, quiz, drills | `days` = {dayNumber: {c, q, qr, d, w, done}} (max 400), `plan` = {day, cards, quiz, drill}, `qstat` = {'ch/qid': [right, wrong]} |
+| Progress | `#/progress`; flashcard filter `#/c/<id>/cards/shaky` | 1.13.0 | reads srs, qstat, drills, write | nothing new |
+| Pocket cards (20) | `#/pocket`, `#/pocket/<id>` | 1.14.0 | `POCKET_SPEC` (ids stable) | `pocket` = [pinned ids] |
+| Role-play (19 scenarios) | `#/roleplay`, `#/roleplay/<pre-N\|sus-N\|ref-N\|cope-N>` | 1.15.0 | Ex 4.2, sustain talk table, Ex 3.6, Ex 7.3/7.4 | nothing (tallies and timer in `rp`; kept while on `#/roleplay/…` or `#/pocket/…`) |
+| Before and after | card on `#/tools/mikt/test` and on Progress | 1.16.0 | MIKT self-test | `miktPrePost` = {before, after} = {date, correct, of}; saved only on button press; a new Before deletes After |
+| Sa Tagalog cards | in guides (Ch 2, 3, 4, 6, 7), 7 pocket cards, AUDIT page, Write and Role-play lists | 1.17.0 | `data/tagalog.js` (`window.MI_TAGALOG`) | nothing |
+
+Details worth knowing:
+- **Menu groups** are now Start / Study (Today, Chapters, Review, Exam, Mistakes, Progress) / Practice (Skill drills, Write a response, Role-play) / Reference (Pocket cards, Stages, Glossary) / Appendices / App. The Home hero button is "Start today’s session".
+- **Today**: `ensurePlan()` runs in `route()` so the day's targets are fixed before any activity (10 cards = due then new; 5 quiz questions = past mistakes first; the drill practiced least). `logAct(kind)` is called from `rateCard`, `quizPick` (via `logQuiz`), the end of a drill round and `writeRate`. A day is `done` when all three steps reach their target; `streak()` counts today only once done.
+- **Dates**: use `isoToday()` (local date) for anything stored; `new Date().toISOString().slice(0,10)` is the UTC date and is a day behind before 8 a.m. in Manila (fixed in v1.12.0).
+- **Shaky card** = rated Again or Hard at some time (`l > 0` or `e < 2.5`) and interval under 21 days.
+- **Progress** ranks a topic only with enough evidence (`PG_MIN`: 3 quiz answers, 3 cards seen, 2 written prompts) and lists those under 80%.
+- **Sa Tagalog** follows the usap-tayo-integration skill: links only, no Tagalog text in this app. Usap Tayo pages used: `#/psych/s/mi`, `#/psych/sud`, `#/psych/s/sud-screens` (all checked to open, Usap Tayo v3.1.1). Usap Tayo's six-step MI flow is a tab inside `#/psych/sud` with no deep link of its own.
+- `window.MI_DRILLS`, `MI_WRITES`, `MI_PROGRESS()`, `MI_POCKET`, `MI_ROLEPLAY`, `MI_TAGALOG` exist for QA.
+
 ## 4. Per-chapter recipe
 1. `python3 -I tools/extract.py <pdf> N /home/claude/mi-src/chN.txt`. Read it all. Render graphic exhibits with `pdftoppm`.
 2. Write `data/chNN.js` yourself (clinical content). Mirror the book's headings in about 8–12 sections. Include every exhibit as a table or list, key messages, the opening quote, counselor notes and expert comments. Make cards and quiz items vignette-based where possible.
@@ -90,6 +113,9 @@ rm -rf _qa
 pdftoppm -f 47 -l 47 -r 110 -png <pdf> /tmp/p47                         # view an exhibit page
 ```
 `python3 -I /home/claude/mi-devtools/tools/tools_qa.py .` → last line `TOOLS FAILS: 0` (every tool page at 390 and 1280, item counts, restricted = no items, overflow, JS errors, chapter/glossary/sheet links, search; since v1.9.0 also known-answer scoring tests for every scorer and the MIKT, every practice page at both widths, and the privacy flow: off → nothing stored, on → stored + in export + deletable, answers cleared on leaving).
+**One command for everything (use this):** `tools/all_checks.sh <repo> <design-skill-dir>` runs the syntax check, check_chapters, qa.py, tools_qa.py, drills_qa.py, features_qa.py, nav_check, check_sw and check_design and prints one line each. Clean at v1.17.0: `OK — 8 chapters, 179 glossary terms`, `FAILS: 0`, `TOOLS FAILS: 0`, `DRILLS FAILS: 0`, `FEATURES FAILS: 0`, `errors []`, `PASS`, `PASS — design contract met`.
+Release helpers: `python3 -I tools/bump.py <repo> <x.y.z> entry.js` sets the version in app-meta.js and sw.js and adds the What's new entry (entry.js = one JS object literal); `tools/ship.sh <repo> "<message>" <session-url>` commits as isaymotion and pushes main. Update README by hand.
+`features_qa.py <repo> [--shots DIR] [--only write,today,progress,pocket,roleplay,prepost,tagalog]` covers v1.11.0+; `drills_qa.py <repo>` covers the drills. In Playwright, click the MIKT radios and `#mk-check` with `element.click()` in `evaluate` (a forced `check()` fails under the sticky header).
 Helpers (in tools/): `nav_check.py <repo>` prints the highlighted sidebar item per route (one each; Tools on all #/tools/... routes, Chapters on #/c/...), tab-bar highlight, the #/stages jump and JS errors; `shot.py <repo> '<route>' '<scroll text>' out.png` gives one phone screenshot plus scrollWidth and JS errors; `gloss_width.py <repo>` finds glossary rows that overflow.
 `qa.py` starts its own server on port 8765. It covers home, chapters list, guide, tap-to-define, flashcards and SM-2, quiz, mistakes, exam, glossary, search, overflow at 390px, no JS errors, and SW cache isolation. Its per-chapter loop picks up new chapters automatically.
 
@@ -108,12 +134,39 @@ Helpers (in tools/): `nav_check.py <repo>` prints the highlighted sidebar item p
 | App. C | Resources | 208–209 | ✅ v1.8.0 — 5 groups, 16 entries, external links with an "online only" note |
 | Practice | Practice scoring + MIKT self-test | — | ✅ v1.9.0 — 9 scorers, MIKT self-test (21 scored), opt-in save setting |
 | Stages | Stage by stage summary (Ex. 4.1/5.1/6.1/7.1) | — | ✅ v1.9.4 — 6 stages, read from chapter data |
+| Drills | Skill drills | — | ✅ v1.10.0 — 6 drills, 124 items |
+| Write | Write a response | — | ✅ v1.11.0 — 3 sets, 23 prompts |
+| Today | Daily session + streak | — | ✅ v1.12.0 |
+| Progress | Weak spots first + Shaky filter | — | ✅ v1.13.0 |
+| Pocket | Pocket cards | — | ✅ v1.14.0 — 20 cards |
+| Role-play | Scenario cards + observer sheet + timer | — | ✅ v1.15.0 — 19 scenarios |
+| Pre/post | Before and after (MIKT) | — | ✅ v1.16.0 |
+| Tagalog | Sa Tagalog links to Usap Tayo | — | ✅ v1.17.0 — links only |
 | App. A | Bibliography | — | Left out (by plan) |
 
 Chapter totals (v1.7.0): 89 sections, 159 HY, 403 cards, 160 quiz items, 179 glossary terms.
 
-## 7. Status after v1.9.4 and next steps
-**Next step: none chosen yet.** Ask her which of the still-open items below to do (offer them as choices). Next version: v1.9.5 for small fixes, v1.10.0 for a new feature (e.g. Tagalog layer). Latest version month: if it is December 2026 or later, update the month in index.html, data/app-meta.js and README.
+## 7. Status after v1.17.0 and next steps
+**Next step: none chosen yet.** Ask her which of the open items below to do (offer them as choices). Next version: v1.17.1 for small fixes, v1.18.0 for a new feature. Latest version month: if it is December 2026 or later, update the month in index.html, data/app-meta.js and README.
+
+**v1.10.0–v1.17.0 done (2026-11-13, main 3490224).** She asked "how can we improve the app for learning", approved all eight suggestions in the suggested order and left the number of QA passes to Claude. Each feature shipped as its own release with tests (table in §3b). She has **not yet seen** any of them; ask for her reactions first.
+
+**Decisions taken without her — tell her, change if she wants:**
+- **Tagalog layer = links, not phrases.** The suggestion said "example phrases in Tagalog"; her usap-tayo-integration skill says to link into Usap Tayo rather than copy, and Usap Tayo already has an MI section, so v1.17.0 only links. No Tagalog drafts were written, so nothing needs her review. If she wants phrases inside MI Trainer (offline), they go in one marked data block and are drafts for her review.
+- **Menu regrouped** into Study / Practice / Reference; Home's main button is now Today's session.
+- **Streak rule:** a day counts only when all three steps are finished. Targets: 10 cards, 5 questions, 1 drill round.
+- **Write a response** has only the 23 prompts TIP 35 gives examples for; typed text is never saved; self-rating has three levels.
+- **Role-play** leaves out Exhibit 7.5 (Susan) and Exhibit 4.3 (Paul); the observer sheet has no pass marks because TIP 35 gives no numeric thresholds beyond "one open question, then two or three reflections".
+- **Before/after** keeps the score and date only, and saving a new Before clears After.
+- **Progress** counts quiz answers only from v1.12.0 on (earlier answers were not logged).
+
+**Ideas / possible next releases:**
+- In Usap Tayo: a deep link straight to the six-step MI flow (e.g. `#/psych/sud/mi`), and "back to MI Trainer" links; then point `data/tagalog.js` at it.
+- Role-play: more scenarios if she supplies them (must be marked as hers, not TIP 35), a way to save a tally.
+- Today: let her choose the targets (5/10/20 cards); a reminder is not possible without notifications.
+- Write a response: more prompts would need text from outside TIP 35 (her own), marked as such.
+- Tab bar still shows Home, Chapters, Review, Exam, Menu; Today could replace Exam.
+- Still open from before: AASES subscales (need the official key from her); MIKT Q18 handling; Ch 7 Susan sentence; the 4 links to check in a browser (below).
 
 **v1.9.0 done (2026-11-09)**, per her answers: practice scoring with the optional, off-by-default "Save my own practice attempts on this device" setting; MI Knowledge Test self-test with Exhibit 3.1 term notes (items 1, 3, 4, 6, 7, 11, 15, 16, 21). Each practice result ends with a "Giving this feedback" note (Ch 2 for AUDIT; Ch 4 for DrInC, SOCRATES, URICA; Ch 5 for DB; Ch 7 for BSCQ/AASES). Also fixed: MIKT Q22's situation (T: confidence 0–10 / C: "About a 4") had been missing.
 
@@ -163,6 +216,10 @@ Glossary: 179 terms across 8 chapters. If tools pages add terms, run check_chapt
 - Long chapter titles inside `.btn` wrap badly on phones; use short labels ("Chapter N study guide →").
 - In-page jumps: use `data-jump="<element id>"` on a link whose href is the current route (the delegated handler on `main` scrolls); never use `#id` hashes, the router owns the hash.
 - v1.3.0 fixed a 390px overflow on #/glossary: long term + alt rows could not wrap. `.gloss__item summary` now has `flex-wrap:wrap`.
+
+- Full-page Playwright screenshots show the fixed tab bar in the middle of the page; that is the screenshot, not a layout bug.
+- A workspace can hold uncommitted work from an earlier turn (v1.10.0 drills were found this way). Run `git status` in both clones before the baseline; check a clean copy with `git worktree add /tmp/base HEAD`.
+- The sandbox clock is UTC+8 here; do not assume UTC when testing dates.
 
 ## 9. Files to re-attach
 - **TIP 35 PDF** (`Motivational_Interviewing.pdf`, 212 pages) — only needed for new content or to re-check a key (Appendix B, PDF 172–207). It is not committed to the repo.
